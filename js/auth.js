@@ -3,8 +3,8 @@
    ======================================== */
 
 var AUTH_CREDENTIALS = {
-  username: '1234578',
-  password: '1234578'
+  username: 'streetworkout',
+  password: 'Calisthenics2026!'
 };
 
 /* Check if user is logged in */
