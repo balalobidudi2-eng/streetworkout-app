@@ -1,6 +1,8 @@
 /* ========================================
-   ENTRAINEMENT.JS — Weekly Training System
+   ENTRAINEMENT.JS — Weekly Training (Supabase)
    ======================================== */
+
+var _entUserId = null;
 
 var PROGRAMME = {
   lundi:    { nom: 'PUSH', muscles: 'Pecs, Épaules, Triceps', couleur: '#FF6B6B' },
@@ -45,40 +47,31 @@ var EXERCICES = {
 
 var JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 
-function getToday() {
-  return JOURS[new Date().getDay()];
-}
+function getToday() { return JOURS[new Date().getDay()]; }
+function getTodayProgramme() { return PROGRAMME[getToday()]; }
 
-function getTodayProgramme() {
-  return PROGRAMME[getToday()];
-}
+/* ==================== INIT (async) ==================== */
+async function initEntrainement() {
+  var user = await requireAuth();
+  if (!user) return;
+  _entUserId = user.id;
 
-/* ========================================
-   Initialize Training Page
-   ======================================== */
-function initEntrainement() {
-  requireAuth();
   renderPlanning();
   renderTodaySession();
-  renderHistory();
+  await renderHistory();
   initTimerUI();
 
   var saveBtn = document.getElementById('save-session');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', saveSession);
-  }
+  if (saveBtn) saveBtn.addEventListener('click', saveSession);
 }
 
-/* ========================================
-   Render Weekly Planning Grid
-   ======================================== */
+/* Render Weekly Planning Grid */
 function renderPlanning() {
   var grid = document.getElementById('planning-grid');
   if (!grid) return;
 
   var today = getToday();
   var html = '';
-
   var joursOrdre = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
   joursOrdre.forEach(function(jour) {
@@ -95,9 +88,7 @@ function renderPlanning() {
   grid.innerHTML = html;
 }
 
-/* ========================================
-   Render Today's Session
-   ======================================== */
+/* Render Today's Session */
 function renderTodaySession() {
   var container = document.getElementById('session-content');
   var title = document.getElementById('session-title');
@@ -134,18 +125,13 @@ function renderTodaySession() {
   html += '</tbody></table>';
   container.innerHTML = html;
 
-  /* Serie dots click handler */
   container.querySelectorAll('.serie-dot').forEach(function(dot) {
-    dot.addEventListener('click', function() {
-      dot.classList.toggle('done');
-    });
+    dot.addEventListener('click', function() { dot.classList.toggle('done'); });
   });
 }
 
-/* ========================================
-   Save Session
-   ======================================== */
-function saveSession() {
+/* Save Session to Supabase */
+async function saveSession() {
   var checks = document.querySelectorAll('.exo-check');
   var total = checks.length;
   var done = 0;
@@ -157,46 +143,38 @@ function saveSession() {
   dots.forEach(function(d) { if (d.classList.contains('done')) doneSeries++; });
 
   var session = {
-    date: new Date().toISOString(),
+    user_id: _entUserId,
     jour: getToday(),
     type: getTodayProgramme().nom,
-    exercicesFaits: done + '/' + total,
-    seriesFaites: doneSeries + '/' + totalSeries,
+    exercices_faits: done + '/' + total,
+    series_faites: doneSeries + '/' + totalSeries,
     completion: total > 0 ? Math.round((done / total) * 100) : 0
   };
 
-  SW.append('sessions', session);
-
-  /* Limit to last 30 sessions */
-  var sessions = SW.load('sessions') || [];
-  if (sessions.length > 30) {
-    sessions = sessions.slice(sessions.length - 30);
-    SW.save('sessions', sessions);
-  }
+  var res = await SB.from('sessions').insert(session);
+  if (res.error) { showToast('Erreur sauvegarde session.', 'error'); return; }
 
   showToast('Session sauvegardée ! 💪');
   if (session.completion >= 80) launchConfetti();
-  renderHistory();
+  await renderHistory();
 }
 
-/* ========================================
-   Render Session History (last 10)
-   ======================================== */
-function renderHistory() {
+/* Render Session History (last 10) from Supabase */
+async function renderHistory() {
   var container = document.getElementById('history-list');
   if (!container) return;
 
-  var sessions = SW.load('sessions') || [];
-  var last10 = sessions.slice(-10).reverse();
+  var res = await SB.from('sessions').select('*').eq('user_id', _entUserId).order('created_at', { ascending: false }).limit(10);
+  var sessions = res.data || [];
 
-  if (last10.length === 0) {
+  if (sessions.length === 0) {
     container.innerHTML = '<p class="text-muted">Aucune session enregistrée.</p>';
     return;
   }
 
   var html = '';
-  last10.forEach(function(s) {
-    var d = new Date(s.date);
+  sessions.forEach(function(s) {
+    var d = new Date(s.created_at);
     var dateStr = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
     var pct = s.completion || 0;
     var color = pct >= 80 ? 'var(--primary)' : pct >= 50 ? '#FFD93D' : '#FF6B6B';
@@ -205,8 +183,8 @@ function renderHistory() {
     html += '<div class="history-date">' + dateStr + '</div>';
     html += '<div class="history-type">' + (s.type || '—') + '</div>';
     html += '<div class="history-stats">';
-    html += '<span>Exos: ' + (s.exercicesFaits || '—') + '</span>';
-    html += '<span>Séries: ' + (s.seriesFaites || '—') + '</span>';
+    html += '<span>Exos: ' + (s.exercices_faits || '—') + '</span>';
+    html += '<span>Séries: ' + (s.series_faites || '—') + '</span>';
     html += '</div>';
     html += '<div class="history-bar"><div class="history-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
     html += '<div class="history-pct" style="color:' + color + '">' + pct + '%</div>';
@@ -216,7 +194,4 @@ function renderHistory() {
   container.innerHTML = html;
 }
 
-/* ========================================
-   Auto-init on DOMContentLoaded
-   ======================================== */
 document.addEventListener('DOMContentLoaded', initEntrainement);

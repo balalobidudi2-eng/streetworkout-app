@@ -105,6 +105,79 @@ function initScrollReveal() {
   });
 }
 
+/* Migrate localStorage data to Supabase (one-time) */
+async function migrateLocalStorageToSupabase(userId) {
+  if (!window.SB || localStorage.getItem('sw_migrated_' + userId)) return;
+
+  /* Migrate profile data */
+  var profile = SW.load('profile');
+  if (profile) {
+    var updates = {};
+    if (profile.weight) updates.poids = parseFloat(profile.weight);
+    if (profile.height) updates.taille = parseFloat(profile.height);
+    if (profile.pullups) updates.pullups = parseInt(profile.pullups);
+    if (profile.dips) updates.dips = parseInt(profile.dips);
+    if (profile.pushups) updates.pushups = parseInt(profile.pushups);
+    if (profile.squats) updates.squats = parseInt(profile.squats);
+    if (profile.muscleup) updates.muscleup = profile.muscleup;
+    if (profile.frontlever) updates.frontlever = parseInt(profile.frontlever);
+    if (profile.handstand) updates.handstand = parseInt(profile.handstand);
+    if (profile.name) updates.full_name = profile.name;
+    if (Object.keys(updates).length > 0) {
+      await SB.from('profiles').update(updates).eq('id', userId);
+    }
+  }
+
+  /* Migrate progression */
+  var progression = SW.load('progression');
+  if (progression) {
+    var rows = [];
+    Object.keys(progression).forEach(function(skillId) {
+      rows.push({ user_id: userId, skill_id: skillId, status: progression[skillId] });
+    });
+    if (rows.length > 0) {
+      await SB.from('progression_skills').upsert(rows, { onConflict: 'user_id,skill_id' });
+    }
+  }
+
+  /* Migrate performances */
+  var performances = SW.load('performances');
+  if (Array.isArray(performances) && performances.length > 0) {
+    var perfRows = performances.map(function(p) {
+      return {
+        user_id: userId,
+        exercise_id: p.exercise || p.exercise_id || 'pullups',
+        date_perf: p.date || p.date_perf || new Date().toISOString().slice(0, 10),
+        charge: parseFloat(p.charge) || 0,
+        reps: parseInt(p.reps) || 0,
+        equip: p.equip || '',
+        equip_name: p.equip_name || p.equipName || '',
+        volume: parseFloat(p.volume) || 0
+      };
+    });
+    await SB.from('performances').insert(perfRows);
+  }
+
+  /* Migrate sessions */
+  var sessions = SW.load('sessions');
+  if (Array.isArray(sessions) && sessions.length > 0) {
+    var sessRows = sessions.map(function(s) {
+      return {
+        user_id: userId,
+        jour: s.jour || '',
+        type: s.type || '',
+        exercices_faits: parseInt(s.exercicesFaits || s.exercices_faits) || 0,
+        series_faites: parseInt(s.seriesFaites || s.series_faites) || 0,
+        completion: parseInt(s.completion) || 0
+      };
+    });
+    await SB.from('sessions').insert(sessRows);
+  }
+
+  localStorage.setItem('sw_migrated_' + userId, 'true');
+  console.log('Migration localStorage → Supabase terminée');
+}
+
 /* Animated counter */
 function animateCounter(el, target, duration) {
   duration = duration || 1200;

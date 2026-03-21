@@ -19,7 +19,9 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="progression.html">Progression</a>
       <a href="entrainement.html" class="active">Entraînement</a>
+      <a href="analytics.html">Analytics</a>
       <a href="streetlifting.html">Streetlifting</a>
+      <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
     </div>
     <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -37,7 +39,9 @@
       <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
       <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
       <a href="entrainement.html" class="active"><span class="nav-icon">💪</span> Entraînement</a>
+      <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
       <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
+      <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
       <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
     </div>
   </div>
@@ -48,21 +52,13 @@
     <!-- Sidebar (desktop) -->
     <aside class="sidebar">
       <div class="sidebar-links">
-        <a href="dashboard.html">
-          <span class="nav-icon">📊</span> Dashboard
-        </a>
-        <a href="progression.html">
-          <span class="nav-icon">📈</span> Progression
-        </a>
-        <a href="entrainement.html" class="active">
-          <span class="nav-icon">💪</span> Entraînement
-        </a>
-        <a href="streetlifting.html">
-          <span class="nav-icon">🏋️</span> Streetlifting
-        </a>
-        <a href="#" data-action="logout">
-          <span class="nav-icon">🚪</span> Déconnexion
-        </a>
+        <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
+        <a href="entrainement.html" class="active"><span class="nav-icon">💪</span> Entraînement</a>
+        <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
+        <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
+        <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
+        <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
       </div>
     </aside>
 
@@ -129,28 +125,15 @@
 
   <!-- Bottom Navigation (mobile) -->
   <nav class="bottom-nav">
-    <a href="dashboard.html">
-      <span class="nav-icon">📊</span>
-      Dashboard
-    </a>
-    <a href="progression.html">
-      <span class="nav-icon">📈</span>
-      Progression
-    </a>
-    <a href="entrainement.html" class="active">
-      <span class="nav-icon">💪</span>
-      Entraînement
-    </a>
-    <a href="streetlifting.html">
-      <span class="nav-icon">🏋️</span>
-      Streetlifting
-    </a>
-    <a href="#" data-action="logout">
-      <span class="nav-icon">🚪</span>
-      Quitter
-    </a>
+    <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
+    <a href="entrainement.html" class="active"><span class="nav-icon">💪</span> Entraînement</a>
+    <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
+    <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
   </nav>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/nav.js"></script>

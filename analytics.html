@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Streetlifting — Street Workout</title>
+  <title>Analytics — Street Workout</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/animations.css">
-  <link rel="stylesheet" href="css/pages/streetlifting.css">
+  <link rel="stylesheet" href="css/pages/dashboard.css">
 </head>
 <body>
 
@@ -19,8 +19,8 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="progression.html">Progression</a>
       <a href="entrainement.html">Entraînement</a>
-      <a href="analytics.html">Analytics</a>
-      <a href="streetlifting.html" class="active">Streetlifting</a>
+      <a href="analytics.html" class="active">Analytics</a>
+      <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
     </div>
@@ -39,8 +39,8 @@
       <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
       <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
       <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-      <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-      <a href="streetlifting.html" class="active"><span class="nav-icon">🏋️</span> Streetlifting</a>
+      <a href="analytics.html" class="active"><span class="nav-icon">📉</span> Analytics</a>
+      <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
       <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
       <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
     </div>
@@ -49,62 +49,60 @@
 
   <!-- App Layout -->
   <div class="app-layout">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-links">
         <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
         <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
         <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-        <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-        <a href="streetlifting.html" class="active"><span class="nav-icon">🏋️</span> Streetlifting</a>
+        <a href="analytics.html" class="active"><span class="nav-icon">📉</span> Analytics</a>
+        <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
         <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
         <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-      <h2 style="margin-bottom: 8px;">🏋️ Streetlifting</h2>
-      <p style="color: var(--text-secondary); margin-bottom: 24px;">Tracking des charges et records personnels pour les exercices lestés.</p>
+      <h2 style="margin-bottom: 8px;">📉 Analytics</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 24px;">Vue détaillée de ta progression et de tes performances.</p>
 
-      <!-- Equipment Section -->
-      <div class="card equipment-section">
-        <h3>🛡️ Mes équipements</h3>
-        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Sélectionne le matériel que tu possèdes.</p>
-        <div class="equipment-list" id="equipment-list"></div>
-      </div>
-
-      <!-- Calculator -->
-      <div class="card calculator-card">
-        <h3>🧮 Calculateur de charge totale</h3>
-        <div class="calc-grid">
-          <div class="form-field">
-            <label>Poids de corps (kg)</label>
-            <input type="number" id="calc-bodyweight" min="30" max="200" step="0.1" placeholder="Ex: 75" class="form-input">
-          </div>
-          <div class="form-field">
-            <label>Charge ajoutée (kg)</label>
-            <input type="number" id="calc-added" min="0" max="200" step="0.5" placeholder="Ex: 20" class="form-input">
-          </div>
-          <div class="form-field" style="display:flex;align-items:flex-end;">
-            <button class="btn btn-primary btn-sm" id="calc-btn" style="animation:none;width:100%;">
-              <span class="btn-text">Calculer</span>
-            </button>
-          </div>
+      <!-- Score Overview -->
+      <div class="stats-cards" id="analytics-overview">
+        <div class="stat-card">
+          <div class="stat-card-header"><span class="stat-card-title">Score global</span><span>🏆</span></div>
+          <div class="stat-card-value" id="an-score">—</div>
         </div>
-        <div class="calc-result">
-          <span class="calc-result-label">Charge totale :</span>
-          <span class="calc-result-value" id="calc-result">0 kg</span>
+        <div class="stat-card">
+          <div class="stat-card-header"><span class="stat-card-title">Sessions</span><span>💪</span></div>
+          <div class="stat-card-value" id="an-sessions">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><span class="stat-card-title">Records</span><span>🏋️</span></div>
+          <div class="stat-card-value" id="an-records">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><span class="stat-card-title">Skills maîtrisés</span><span>✅</span></div>
+          <div class="stat-card-value" id="an-skills">0</div>
         </div>
       </div>
 
-      <!-- Record Forms & Tables -->
-      <div id="record-forms"></div>
+      <!-- Charts -->
+      <div class="chart-section">
+        <h3>📈 Évolution des performances</h3>
+        <div id="an-chart-container" style="min-height:280px;"></div>
+      </div>
 
-      <!-- Progress Chart -->
-      <div class="sl-chart-section">
-        <h3>📈 Évolution du volume (charge × reps)</h3>
-        <div id="sl-chart-container"></div>
+      <!-- Radar Chart -->
+      <div class="chart-section" style="margin-top:1.5rem;">
+        <h3>🕸️ Profil athlétique (radar)</h3>
+        <div style="max-width:400px;margin:0 auto;">
+          <canvas id="an-radar-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Measures History -->
+      <div class="card" style="margin-top:1.5rem;">
+        <h3>📏 Historique des mesures</h3>
+        <div class="table-container" id="an-measures-table"></div>
       </div>
     </main>
   </div>
@@ -114,8 +112,8 @@
     <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
     <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
     <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-    <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-    <a href="streetlifting.html" class="active"><span class="nav-icon">🏋️</span> Streetlifting</a>
+    <a href="analytics.html" class="active"><span class="nav-icon">📉</span> Analytics</a>
+    <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -123,6 +121,7 @@
   <script src="js/storage.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/nav.js"></script>
-  <script src="js/streetlifting.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/analytics.js"></script>
 </body>
 </html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plans — Street Workout</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 24px; }
+    .pricing-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 32px 24px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+    .pricing-card.popular { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary); }
+    .pricing-badge { display: inline-block; background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; }
+    .pricing-name { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .pricing-price { font-size: 2.5rem; font-weight: 800; color: var(--primary); margin: 16px 0 4px; }
+    .pricing-price span { font-size: 1rem; font-weight: 400; color: var(--text-muted); }
+    .pricing-period { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+    .pricing-features { list-style: none; padding: 0; margin: 0 0 24px; text-align: left; }
+    .pricing-features li { padding: 8px 0; font-size: 0.9rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features .check { color: var(--primary); font-weight: 700; }
+    .pricing-features .cross { color: var(--text-muted); }
+    .pricing-btn { width: 100%; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a href="index.html" class="nav-logo">SW</a>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="progression.html">Progression</a>
+      <a href="entrainement.html">Entraînement</a>
+      <a href="analytics.html">Analytics</a>
+      <a href="streetlifting.html">Streetlifting</a>
+      <a href="abonnement.html" class="active">Plans</a>
+      <a href="#" data-action="logout">Déconnexion</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-header">
+      <span class="nav-logo">SW</span>
+      <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
+    </div>
+    <div class="mobile-menu-links">
+      <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
+      <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
+      <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
+      <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
+      <a href="abonnement.html" class="active"><span class="nav-icon">💎</span> Plans</a>
+      <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
+    </div>
+  </div>
+  <div class="menu-backdrop" id="menu-backdrop"></div>
+
+  <!-- App Layout -->
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-links">
+        <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
+        <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
+        <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
+        <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
+        <a href="abonnement.html" class="active"><span class="nav-icon">💎</span> Plans</a>
+        <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <h2 style="margin-bottom: 8px;">💎 Plans & Abonnements</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 24px;">Choisis le plan qui correspond à tes objectifs.</p>
+
+      <div class="pricing-grid">
+        <!-- Gratuit -->
+        <div class="pricing-card" id="plan-gratuit">
+          <div class="pricing-name">Gratuit</div>
+          <div class="pricing-price">0€ <span>/mois</span></div>
+          <div class="pricing-period">Pour toujours</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Dashboard & profil</li>
+            <li><span class="check">✓</span> Suivi de progression</li>
+            <li><span class="check">✓</span> Entraînement hebdomadaire</li>
+            <li><span class="check">✓</span> Streetlifting (records)</li>
+            <li><span class="cross">✗</span> Analytics avancées</li>
+            <li><span class="cross">✗</span> Export PDF personnalisé</li>
+            <li><span class="cross">✗</span> Support prioritaire</li>
+          </ul>
+          <button class="btn btn-secondary pricing-btn" onclick="choosePlan('gratuit')">Plan actuel</button>
+        </div>
+
+        <!-- Standard -->
+        <div class="pricing-card popular" id="plan-standard">
+          <span class="pricing-badge">Populaire</span>
+          <div class="pricing-name">Standard</div>
+          <div class="pricing-price">0€ <span>/mois</span></div>
+          <div class="pricing-period">Beta gratuite</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Tout du plan Gratuit</li>
+            <li><span class="check">✓</span> Analytics avancées</li>
+            <li><span class="check">✓</span> Graphiques radar & comparaison</li>
+            <li><span class="check">✓</span> Export PDF personnalisé</li>
+            <li><span class="check">✓</span> Historique illimité</li>
+            <li><span class="cross">✗</span> Coach IA personnalisé</li>
+            <li><span class="cross">✗</span> Programme sur mesure</li>
+          </ul>
+          <button class="btn btn-primary pricing-btn" onclick="choosePlan('standard')">Choisir</button>
+        </div>
+
+        <!-- Premium -->
+        <div class="pricing-card" id="plan-premium">
+          <div class="pricing-name">Premium</div>
+          <div class="pricing-price">0€ <span>/mois</span></div>
+          <div class="pricing-period">Beta gratuite</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Tout du plan Standard</li>
+            <li><span class="check">✓</span> Coach IA personnalisé</li>
+            <li><span class="check">✓</span> Programme sur mesure</li>
+            <li><span class="check">✓</span> Analyse vidéo technique</li>
+            <li><span class="check">✓</span> Support prioritaire 24/7</li>
+            <li><span class="check">✓</span> Badge Premium sur le profil</li>
+            <li><span class="check">✓</span> Accès anticipé nouvelles fonctionnalités</li>
+          </ul>
+          <button class="btn btn-primary pricing-btn" onclick="choosePlan('premium')">Choisir</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
+    <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
+    <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
+    <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    function choosePlan(plan) {
+      showToast('Bientôt disponible ! 🚀');
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      var user = await requireAuth();
+      if (!user) return;
+    });
+  </script>
+</body>
+</html>

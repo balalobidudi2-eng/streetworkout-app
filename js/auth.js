@@ -1,101 +1,192 @@
 /* ========================================
-   AUTH.JS — Authentication Logic
+   AUTH.JS — Supabase Authentication
    ======================================== */
 
-var AUTH_CREDENTIALS = {
-  username: 'streetworkout',
-  password: 'Calisthenics2026!'
-};
+/* ── Current user cache ── */
+var _currentUser = null;
 
-/* Check if user is logged in */
-function isLoggedIn() {
-  return sessionStorage.getItem('sw_logged') === 'true';
-}
-
-/* Protect pages — redirect to login if not authenticated */
-function requireAuth() {
-  if (!isLoggedIn()) {
+/* ── Protection de page (async) ── */
+async function requireAuth() {
+  if (!SB) { window.location.href = 'login.html'; return null; }
+  var result = await SB.auth.getSession();
+  if (!result.data.session) {
     window.location.href = 'login.html';
-    return false;
+    return null;
   }
-  return true;
+  _currentUser = result.data.session.user;
+  return _currentUser;
 }
 
-/* Logout */
-function logout() {
-  sessionStorage.removeItem('sw_logged');
+/* ── Check if logged in (non-blocking) ── */
+async function isLoggedIn() {
+  if (!SB) return false;
+  var result = await SB.auth.getSession();
+  return !!result.data.session;
+}
+
+/* ── Login email/password ── */
+async function loginWithEmail(email, password) {
+  var result = await SB.auth.signInWithPassword({ email: email, password: password });
+  if (result.error) throw result.error;
+  return result.data;
+}
+
+/* ── Inscription email/password ── */
+async function signupWithEmail(email, password, prenom) {
+  var result = await SB.auth.signUp({
+    email: email,
+    password: password,
+    options: { data: { full_name: prenom } }
+  });
+  if (result.error) throw result.error;
+  return result.data;
+}
+
+/* ── Login Google OAuth ── */
+async function loginWithGoogle() {
+  var result = await SB.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/auth-callback.html' }
+  });
+  if (result.error) throw result.error;
+}
+
+/* ── Déconnexion ── */
+async function logout() {
+  if (SB) await SB.auth.signOut();
+  _currentUser = null;
   window.location.href = 'index.html';
 }
 
-/* Initialize login form */
-function initLoginForm() {
-  var form = document.getElementById('login-form');
-  if (!form) return;
-
-  /* If already logged in, redirect to dashboard */
-  if (isLoggedIn()) {
-    window.location.href = 'dashboard.html';
-    return;
-  }
-
-  var usernameInput = document.getElementById('login-username');
-  var passwordInput = document.getElementById('login-password');
-  var errorEl = document.getElementById('login-error');
-  var submitBtn = document.getElementById('login-submit');
-  var togglePwd = document.getElementById('toggle-password');
-
-  /* Toggle password visibility */
-  if (togglePwd) {
-    togglePwd.addEventListener('click', function() {
-      var type = passwordInput.type === 'password' ? 'text' : 'password';
-      passwordInput.type = type;
-      togglePwd.innerHTML = type === 'password'
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
-        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
-    });
-  }
-
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    var username = usernameInput.value.trim();
-    var password = passwordInput.value.trim();
-
-    /* Hide previous error */
-    if (errorEl) {
-      errorEl.style.display = 'none';
-      errorEl.classList.remove('shake');
+/* ── Écouter les changements de session ── */
+if (typeof SB !== 'undefined' && SB) {
+  SB.auth.onAuthStateChange(function(event, session) {
+    if (event === 'SIGNED_OUT') {
+      _currentUser = null;
     }
-
-    /* Validate */
-    if (!username || !password) {
-      showLoginError('Veuillez remplir tous les champs.');
-      return;
-    }
-
-    /* Show loading state */
-    submitBtn.classList.add('btn-loading');
-
-    /* Simulate loading delay */
-    setTimeout(function() {
-      if (username === AUTH_CREDENTIALS.username && password === AUTH_CREDENTIALS.password) {
-        sessionStorage.setItem('sw_logged', 'true');
-        window.location.href = 'dashboard.html';
-      } else {
-        submitBtn.classList.remove('btn-loading');
-        showLoginError('Identifiants incorrects. Réessayez.');
-      }
-    }, 800);
   });
 }
 
-function showLoginError(msg) {
-  var errorEl = document.getElementById('login-error');
+/* ── Initialize login / signup form ── */
+function initLoginForm() {
+  var loginForm = document.getElementById('login-form');
+  var signupForm = document.getElementById('signup-form');
+  var googleBtn = document.getElementById('google-login-btn');
+  var tabs = document.querySelectorAll('.auth-tab');
+
+  /* If already logged in, redirect */
+  (async function() {
+    if (await isLoggedIn()) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+  })();
+
+  /* Tab switching */
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var target = tab.getAttribute('data-tab');
+      document.querySelectorAll('.auth-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      var panel = document.getElementById('panel-' + target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  /* Login form submit */
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var email = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value.trim();
+      var errorEl = document.getElementById('login-error');
+      var submitBtn = loginForm.querySelector('button[type="submit"]');
+
+      if (errorEl) { errorEl.style.display = 'none'; }
+      if (!email || !password) { showLoginError('login-error', 'Remplis tous les champs.'); return; }
+
+      submitBtn.classList.add('btn-loading');
+      try {
+        await loginWithEmail(email, password);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        submitBtn.classList.remove('btn-loading');
+        var msg = 'Erreur de connexion.';
+        if (err.message) {
+          if (err.message.includes('Invalid login')) msg = 'Email ou mot de passe incorrect.';
+          else if (err.message.includes('Email not confirmed')) msg = 'Confirme ton email avant de te connecter.';
+          else msg = err.message;
+        }
+        showLoginError('login-error', msg);
+      }
+    });
+  }
+
+  /* Signup form submit */
+  if (signupForm) {
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var prenom = document.getElementById('signup-prenom').value.trim();
+      var email = document.getElementById('signup-email').value.trim();
+      var password = document.getElementById('signup-password').value.trim();
+      var confirm = document.getElementById('signup-confirm').value.trim();
+      var errorEl = document.getElementById('signup-error');
+      var successEl = document.getElementById('signup-success');
+      var submitBtn = signupForm.querySelector('button[type="submit"]');
+
+      if (errorEl) errorEl.style.display = 'none';
+      if (successEl) successEl.style.display = 'none';
+
+      if (!prenom || !email || !password || !confirm) {
+        showLoginError('signup-error', 'Remplis tous les champs.'); return;
+      }
+      if (password.length < 6) {
+        showLoginError('signup-error', 'Le mot de passe doit contenir au moins 6 caractères.'); return;
+      }
+      if (password !== confirm) {
+        showLoginError('signup-error', 'Les mots de passe ne correspondent pas.'); return;
+      }
+
+      submitBtn.classList.add('btn-loading');
+      try {
+        await signupWithEmail(email, password, prenom);
+        submitBtn.classList.remove('btn-loading');
+        if (successEl) {
+          successEl.textContent = '✅ Compte créé ! Vérifie tes emails pour confirmer ton inscription.';
+          successEl.style.display = 'block';
+        }
+        signupForm.reset();
+      } catch (err) {
+        submitBtn.classList.remove('btn-loading');
+        var msg = 'Erreur lors de l\'inscription.';
+        if (err.message) {
+          if (err.message.includes('already registered')) msg = 'Cet email est déjà utilisé.';
+          else msg = err.message;
+        }
+        showLoginError('signup-error', msg);
+      }
+    });
+  }
+
+  /* Google OAuth */
+  if (googleBtn) {
+    googleBtn.addEventListener('click', async function() {
+      try { await loginWithGoogle(); }
+      catch (err) { showLoginError('login-error', 'Erreur Google : ' + (err.message || 'inconnue')); }
+    });
+  }
+}
+
+function showLoginError(elId, msg) {
+  var errorEl = document.getElementById(elId);
   if (errorEl) {
     errorEl.textContent = msg;
     errorEl.style.display = 'block';
     errorEl.classList.remove('shake');
-    void errorEl.offsetWidth; /* Force reflow for animation */
+    void errorEl.offsetWidth;
     errorEl.classList.add('shake');
   }
 }

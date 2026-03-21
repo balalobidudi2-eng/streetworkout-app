@@ -1,8 +1,9 @@
 /* ========================================
-   STREETLIFTING.JS — Weight Tracking Logic
+   STREETLIFTING.JS — Weight Tracking (Supabase)
    ======================================== */
 
-/* Equipment options */
+var _slUserId = null;
+
 var EQUIPMENT = [
   { id: 'vest', name: 'Gilet lesté', icon: '🦺', maxKg: 40 },
   { id: 'belt', name: 'Ceinture lestée', icon: '🔗', maxKg: 150 },
@@ -15,16 +16,16 @@ var SL_EXERCISES = [
   { id: 'weighted-dips', name: 'Dips lestés', icon: '🔥' }
 ];
 
-function initStreetlifting() {
-  if (!requireAuth()) return;
+async function initStreetlifting() {
+  var user = await requireAuth();
+  if (!user) return;
+  _slUserId = user.id;
 
   renderEquipmentToggles();
   renderRecordForms();
-  renderRecordsTables();
+  await renderRecordsTables();
   renderCalculator();
-  renderProgressChart();
-
-  /* Logout handled globally by nav.js */
+  await renderProgressChart();
 }
 
 /* Render equipment toggles */
@@ -55,7 +56,6 @@ function renderEquipmentToggles() {
   container.innerHTML = html;
 }
 
-/* Save equipment selection */
 function saveEquipment() {
   var checkboxes = document.querySelectorAll('[data-equip]');
   var data = {};
@@ -65,7 +65,7 @@ function saveEquipment() {
   SW.save('equipment', data);
 }
 
-/* Render record forms for each exercise */
+/* Render record forms */
 function renderRecordForms() {
   var container = document.getElementById('record-forms');
   if (!container) return;
@@ -111,8 +111,8 @@ function renderRecordForms() {
   container.innerHTML = html;
 }
 
-/* Add a record */
-function addRecord(exerciseId) {
+/* Add a record to Supabase */
+async function addRecord(exerciseId) {
   var date = document.getElementById('date-' + exerciseId).value;
   var charge = parseFloat(document.getElementById('charge-' + exerciseId).value);
   var reps = parseInt(document.getElementById('reps-' + exerciseId).value);
@@ -133,77 +133,67 @@ function addRecord(exerciseId) {
   });
 
   var record = {
-    date: date,
+    user_id: _slUserId,
+    exercise_id: exerciseId,
+    date_perf: date,
     charge: charge,
     reps: reps,
-    equip: equip,
-    equipName: equipName || 'Non spécifié',
+    equip: equip || null,
+    equip_name: equipName || 'Non spécifié',
     volume: charge * reps
   };
 
-  SW.append('records_' + exerciseId, record);
+  var res = await SB.from('performances').insert(record);
+  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
 
-  /* Reset form partially */
   document.getElementById('charge-' + exerciseId).value = '';
   document.getElementById('reps-' + exerciseId).value = '';
 
-  renderRecordTable(exerciseId);
-  renderProgressChart();
+  await renderRecordTable(exerciseId);
+  await renderProgressChart();
   showToast('Record enregistré ! 💪');
 }
 
-/* Render records tables */
-function renderRecordsTables() {
-  SL_EXERCISES.forEach(function(ex) {
-    renderRecordTable(ex.id);
-  });
+/* Render all record tables */
+async function renderRecordsTables() {
+  for (var i = 0; i < SL_EXERCISES.length; i++) {
+    await renderRecordTable(SL_EXERCISES[i].id);
+  }
 }
 
-/* Render single record table */
-function renderRecordTable(exerciseId) {
+/* Render single record table from Supabase */
+async function renderRecordTable(exerciseId) {
   var container = document.getElementById('table-' + exerciseId);
   if (!container) return;
 
-  var records = SW.load('records_' + exerciseId) || [];
+  var res = await SB.from('performances').select('*').eq('user_id', _slUserId).eq('exercise_id', exerciseId).order('date_perf', { ascending: false }).limit(5);
+  var records = res.data || [];
+
   if (records.length === 0) {
     container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.9rem;">Aucun record enregistré.</p>';
     return;
   }
 
-  /* Get last 5 and find PR (highest volume) */
-  var displayed = records.slice(-5).reverse();
+  /* Find PR */
   var maxVolume = 0;
-  records.forEach(function(r) {
-    if (r.volume > maxVolume) maxVolume = r.volume;
-  });
+  records.forEach(function(r) { if (r.volume > maxVolume) maxVolume = r.volume; });
 
   var html = '<table>' +
     '<thead><tr>' +
     '<th>Date</th><th>Charge</th><th>Reps</th><th>Équipement</th><th>Volume</th><th></th>' +
     '</tr></thead><tbody>';
 
-  displayed.forEach(function(rec) {
-    /* Find original index in full array for deletion */
-    var originalIdx = records.length - 1 - displayed.indexOf(rec);
-    /* Recalculate actual index */
-    var actualIdx = -1;
-    for (var i = records.length - 1; i >= 0; i--) {
-      if (records[i].date === rec.date && records[i].charge === rec.charge && records[i].reps === rec.reps) {
-        actualIdx = i;
-        break;
-      }
-    }
-
+  records.forEach(function(rec) {
     var prBadge = (rec.volume === maxVolume) ? ' <span class="badge badge-pr">PR</span>' : '';
     var prClass = (rec.volume === maxVolume) ? ' style="background:rgba(0,255,135,0.03);"' : '';
 
     html += '<tr' + prClass + '>' +
-      '<td>' + rec.date + '</td>' +
+      '<td>' + rec.date_perf + '</td>' +
       '<td>' + rec.charge + ' kg</td>' +
       '<td>' + rec.reps + '</td>' +
-      '<td>' + rec.equipName + '</td>' +
+      '<td>' + (rec.equip_name || '—') + '</td>' +
       '<td>' + rec.volume.toFixed(1) + ' kg' + prBadge + '</td>' +
-      '<td><button class="btn btn-danger btn-sm" onclick="deleteRecord(\'' + exerciseId + '\', ' + actualIdx + ')" style="padding:4px 10px;font-size:0.75rem;">✕</button></td>' +
+      '<td><button class="btn btn-danger btn-sm" onclick="deleteRecord(\'' + rec.id + '\', \'' + exerciseId + '\')" style="padding:4px 10px;font-size:0.75rem;">✕</button></td>' +
       '</tr>';
   });
 
@@ -211,12 +201,12 @@ function renderRecordTable(exerciseId) {
   container.innerHTML = html;
 }
 
-/* Delete a record */
-function deleteRecord(exerciseId, index) {
+/* Delete a record by Supabase row id */
+async function deleteRecord(recordId, exerciseId) {
   if (!confirm('Supprimer ce record ?')) return;
-  SW.removeAt('records_' + exerciseId, index);
-  renderRecordTable(exerciseId);
-  renderProgressChart();
+  await SB.from('performances').delete().eq('id', recordId).eq('user_id', _slUserId);
+  await renderRecordTable(exerciseId);
+  await renderProgressChart();
   showToast('Record supprimé.');
 }
 
@@ -231,22 +221,18 @@ function renderCalculator() {
     var result = bodyWeight + addedWeight;
     document.getElementById('calc-result').textContent = result.toFixed(1) + ' kg';
   });
-
-  /* Auto-fill body weight from dashboard data */
-  var userData = SW.load('user_data');
-  if (userData && userData.weight) {
-    var bwInput = document.getElementById('calc-bodyweight');
-    if (bwInput) bwInput.value = userData.weight;
-  }
 }
 
 /* Progress chart (SVG) */
-function renderProgressChart() {
+async function renderProgressChart() {
   var container = document.getElementById('sl-chart-container');
   if (!container) return;
 
-  var pullRecords = SW.load('records_weighted-pullups') || [];
-  var dipsRecords = SW.load('records_weighted-dips') || [];
+  var resPull = await SB.from('performances').select('date_perf, volume').eq('user_id', _slUserId).eq('exercise_id', 'weighted-pullups').order('date_perf', { ascending: true });
+  var resDips = await SB.from('performances').select('date_perf, volume').eq('user_id', _slUserId).eq('exercise_id', 'weighted-dips').order('date_perf', { ascending: true });
+
+  var pullRecords = resPull.data || [];
+  var dipsRecords = resDips.data || [];
 
   if (pullRecords.length < 2 && dipsRecords.length < 2) {
     container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">' +
@@ -259,18 +245,17 @@ function renderProgressChart() {
   var padX = 50;
   var padY = 20;
 
-  /* Combine dates for x-axis */
   var allDates = [];
   var pullMap = {};
   var dipsMap = {};
 
   pullRecords.forEach(function(r) {
-    if (allDates.indexOf(r.date) === -1) allDates.push(r.date);
-    pullMap[r.date] = (pullMap[r.date] || 0) + r.volume;
+    if (allDates.indexOf(r.date_perf) === -1) allDates.push(r.date_perf);
+    pullMap[r.date_perf] = (pullMap[r.date_perf] || 0) + r.volume;
   });
   dipsRecords.forEach(function(r) {
-    if (allDates.indexOf(r.date) === -1) allDates.push(r.date);
-    dipsMap[r.date] = (dipsMap[r.date] || 0) + r.volume;
+    if (allDates.indexOf(r.date_perf) === -1) allDates.push(r.date_perf);
+    dipsMap[r.date_perf] = (dipsMap[r.date_perf] || 0) + r.volume;
   });
 
   allDates.sort();
@@ -312,7 +297,6 @@ function renderProgressChart() {
     }).join('');
   }
 
-  /* Grid */
   var grid = '';
   for (var g = 0; g <= 4; g++) {
     var gy = padY + (g / 4) * (height - padY * 2);

@@ -1,52 +1,44 @@
 /* ========================================
-   DASHBOARD.JS — Dashboard Logic (Stats, Level, Charts)
+   DASHBOARD.JS — Dashboard Logic (Supabase + Stats + Charts)
    ======================================== */
+
+/* ── Cached profile & history ── */
+var _profile = null;
+var _history = [];
 
 /* ==================== 5-LEVEL SYSTEM ==================== */
 function calculateLevel(data) {
   var score = 0;
 
-  // Tractions
-  if (data.pullups >= 20)     score += 25;
+  if (data.pullups >= 20)      score += 25;
   else if (data.pullups >= 15) score += 20;
   else if (data.pullups >= 10) score += 14;
   else if (data.pullups >= 5)  score += 8;
   else if (data.pullups >= 1)  score += 3;
 
-  // Dips
-  if (data.dips >= 25)        score += 20;
-  else if (data.dips >= 18)   score += 15;
-  else if (data.dips >= 12)   score += 10;
-  else if (data.dips >= 6)    score += 5;
-  else if (data.dips >= 1)    score += 2;
+  if (data.dips >= 25)         score += 20;
+  else if (data.dips >= 18)    score += 15;
+  else if (data.dips >= 12)    score += 10;
+  else if (data.dips >= 6)     score += 5;
+  else if (data.dips >= 1)     score += 2;
 
-  // Pompes
-  if (data.pushups >= 50)     score += 15;
+  if (data.pushups >= 50)      score += 15;
   else if (data.pushups >= 35) score += 11;
   else if (data.pushups >= 20) score += 7;
   else if (data.pushups >= 10) score += 4;
   else if (data.pushups >= 1)  score += 2;
 
-  // Squats
-  if (data.squats >= 60)      score += 10;
-  else if (data.squats >= 40) score += 7;
-  else if (data.squats >= 20) score += 4;
-  else if (data.squats >= 5)  score += 2;
+  if (data.squats >= 60)       score += 10;
+  else if (data.squats >= 40)  score += 7;
+  else if (data.squats >= 20)  score += 4;
+  else if (data.squats >= 5)   score += 2;
 
-  // Muscle-up
   if (data.muscleup === 'oui') score += 15;
-
-  // Front lever (0-4 niveaux -> 0-8 pts)
   score += (parseInt(data.frontlever) || 0) * 2;
-
-  // Handstand (0-3 -> 0-6 pts)
   score += (parseInt(data.handstand) || 0) * 2;
-
-  // HSPU (0-3 -> 0-9 pts)
   score += (parseInt(data.hspu) || 0) * 3;
 
-  // Tractions lestées bonus
-  if (data.pullups20 >= 1)     score += 5;
+  if (data.pullups20 >= 1)      score += 5;
   else if (data.pullups10 >= 1) score += 3;
   else if (data.pullups5 >= 1)  score += 1;
 
@@ -59,7 +51,6 @@ function calculateLevel(data) {
   return              { level: 'Débutant',        color: '#94A3B8', icon: '🌱', score: score };
 }
 
-/* Targets per level */
 function getTargets(levelName) {
   var map = {
     'Élite':         { pullups: 25, dips: 30, pushups: 60, squats: 80 },
@@ -70,19 +61,19 @@ function getTargets(levelName) {
   return map[levelName] || { pullups: 5, dips: 8, pushups: 10, squats: 15 };
 }
 
-/* Initialize dashboard */
-function initDashboard() {
-  if (!requireAuth()) return;
+/* ==================== INIT (async) ==================== */
+async function initDashboard() {
+  var user = await requireAuth();
+  if (!user) return;
 
-  loadProfile();
-  loadFormData();
+  await loadProfile(user.id);
+  loadFormFromProfile();
   updateStatsCards();
+  await loadHistory(user.id);
   renderCharts();
 
   var saveBtn = document.getElementById('save-data');
-  if (saveBtn) saveBtn.addEventListener('click', saveFormData);
-
-  /* Profile name editing */
+  if (saveBtn) saveBtn.addEventListener('click', function() { saveFormData(user.id); });
 
   /* Profile name editing */
   var editNameBtn = document.getElementById('edit-name-btn');
@@ -102,9 +93,10 @@ function initDashboard() {
   }
 
   if (saveNameBtn) {
-    saveNameBtn.addEventListener('click', function() {
+    saveNameBtn.addEventListener('click', async function() {
       var name = nameInput.value.trim() || 'Athlète';
-      SW.save('profile_name', name);
+      await SB.from('profiles').update({ full_name: name }).eq('id', user.id);
+      _profile.full_name = name;
       nameDisplay.textContent = name;
       nameDisplay.style.display = 'block';
       editNameBtn.style.display = 'inline-flex';
@@ -117,19 +109,16 @@ function initDashboard() {
 
   if (nameInput) {
     nameInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        saveNameBtn.click();
-      }
+      if (e.key === 'Enter') { e.preventDefault(); saveNameBtn.click(); }
     });
   }
-
-  /* Logout is handled globally by nav.js showLogoutModal */
 }
 
-/* Load profile name */
-function loadProfile() {
-  var name = SW.load('profile_name') || 'Athlète';
+/* ==================== LOAD PROFILE FROM SUPABASE ==================== */
+async function loadProfile(userId) {
+  var res = await SB.from('profiles').select('*').eq('id', userId).single();
+  _profile = res.data || {};
+  var name = _profile.full_name || 'Athlète';
   var nameDisplay = document.getElementById('profile-name-display');
   if (nameDisplay) nameDisplay.textContent = name;
   updateAvatar(name);
@@ -144,16 +133,35 @@ function updateAvatar(name) {
   avatar.textContent = initials || 'A';
 }
 
-/* Load saved form data into inputs */
+/* ==================== LOAD FORM FROM PROFILE ==================== */
 var FORM_FIELDS = ['weight','height','age','pullups','pullups5','pullups10','pullups20','dips','dips5','dips10','dips20','pushups','pushups-explo','squats','squats-weighted'];
 
-function loadFormData() {
-  var data = SW.load('user_data');
-  if (!data) return;
+function loadFormFromProfile() {
+  if (!_profile) return;
+  var data = _profile;
 
-  FORM_FIELDS.forEach(function(f) {
+  /* Map Supabase column names to form field ids */
+  var mapping = {
+    'weight': data.poids,
+    'height': data.taille,
+    'age': data.age,
+    'pullups': data.pullups,
+    'pullups5': data.pullups_5,
+    'pullups10': data.pullups_10,
+    'pullups20': data.pullups_20,
+    'dips': data.dips,
+    'dips5': data.dips_5,
+    'dips10': data.dips_10,
+    'dips20': data.dips_20,
+    'pushups': data.pushups,
+    'pushups-explo': data.pushups_explo,
+    'squats': data.squats,
+    'squats-weighted': data.squats_weighted
+  };
+
+  Object.keys(mapping).forEach(function(f) {
     var el = document.getElementById('input-' + f);
-    if (el && data[f] !== undefined && data[f] !== 0) el.value = data[f];
+    if (el && mapping[f] !== undefined && mapping[f] !== null && mapping[f] !== 0) el.value = mapping[f];
   });
 
   if (data.muscleup) {
@@ -161,62 +169,87 @@ function loadFormData() {
     if (radio) radio.checked = true;
   }
 
-  ['frontlever','handstand','hspu'].forEach(function(key) {
+  var selects = { frontlever: data.frontlever, handstand: data.handstand, hspu: data.hspu };
+  Object.keys(selects).forEach(function(key) {
     var el = document.getElementById('input-' + key);
-    if (el && data[key] !== undefined) el.value = data[key];
+    if (el && selects[key] !== undefined && selects[key] !== null) el.value = selects[key];
   });
 }
 
-/* Save form data */
-function saveFormData() {
-  var data = {
-    weight:         parseFloat(document.getElementById('input-weight').value)          || 0,
-    height:         parseInt(document.getElementById('input-height').value)            || 0,
-    age:            parseInt(document.getElementById('input-age').value)               || 0,
-    pullups:        parseInt(document.getElementById('input-pullups').value)           || 0,
-    pullups5:       parseInt(document.getElementById('input-pullups5').value)          || 0,
-    pullups10:      parseInt(document.getElementById('input-pullups10').value)         || 0,
-    pullups20:      parseInt(document.getElementById('input-pullups20').value)         || 0,
-    dips:           parseInt(document.getElementById('input-dips').value)              || 0,
-    dips5:          parseInt(document.getElementById('input-dips5').value)             || 0,
-    dips10:         parseInt(document.getElementById('input-dips10').value)            || 0,
-    dips20:         parseInt(document.getElementById('input-dips20').value)            || 0,
-    pushups:        parseInt(document.getElementById('input-pushups').value)           || 0,
-    pushupsExplo:   parseInt(document.getElementById('input-pushups-explo').value)     || 0,
-    squats:         parseInt(document.getElementById('input-squats').value)            || 0,
-    squatsWeighted: parseInt(document.getElementById('input-squats-weighted').value)   || 0,
-    muscleup:       (document.querySelector('input[name="muscleup"]:checked') || {}).value || 'non',
-    frontlever:     parseInt(document.getElementById('input-frontlever').value)        || 0,
-    handstand:      parseInt(document.getElementById('input-handstand').value)         || 0,
-    hspu:           parseInt(document.getElementById('input-hspu').value)              || 0,
-    date:           new Date().toISOString()
+/* ==================== SAVE FORM DATA TO SUPABASE ==================== */
+async function saveFormData(userId) {
+  var poids = parseFloat(document.getElementById('input-weight').value) || 0;
+  var taille = parseInt(document.getElementById('input-height').value) || 0;
+  var imc = (poids > 0 && taille > 0) ? parseFloat((poids / Math.pow(taille / 100, 2)).toFixed(1)) : null;
+
+  var updates = {
+    poids:           poids,
+    taille:          taille,
+    age:             parseInt(document.getElementById('input-age').value) || 0,
+    imc:             imc,
+    pullups:         parseInt(document.getElementById('input-pullups').value) || 0,
+    pullups_5:       parseInt(document.getElementById('input-pullups5').value) || 0,
+    pullups_10:      parseInt(document.getElementById('input-pullups10').value) || 0,
+    pullups_20:      parseInt(document.getElementById('input-pullups20').value) || 0,
+    dips:            parseInt(document.getElementById('input-dips').value) || 0,
+    dips_5:          parseInt(document.getElementById('input-dips5').value) || 0,
+    dips_10:         parseInt(document.getElementById('input-dips10').value) || 0,
+    dips_20:         parseInt(document.getElementById('input-dips20').value) || 0,
+    pushups:         parseInt(document.getElementById('input-pushups').value) || 0,
+    pushups_explo:   parseInt(document.getElementById('input-pushups-explo').value) || 0,
+    squats:          parseInt(document.getElementById('input-squats').value) || 0,
+    squats_weighted: parseInt(document.getElementById('input-squats-weighted').value) || 0,
+    muscleup:        (document.querySelector('input[name="muscleup"]:checked') || {}).value || 'non',
+    frontlever:      parseInt(document.getElementById('input-frontlever').value) || 0,
+    handstand:       parseInt(document.getElementById('input-handstand').value) || 0,
+    hspu:            parseInt(document.getElementById('input-hspu').value) || 0,
+    updated_at:      new Date().toISOString()
   };
 
-  SW.save('user_data', data);
+  var res = await SB.from('profiles').update(updates).eq('id', userId);
+  if (res.error) { showToast('Erreur sauvegarde : ' + res.error.message, 'error'); return; }
 
-  var history = SW.load('user_history') || [];
-  history.push({ pullups: data.pullups, dips: data.dips, pushups: data.pushups, squats: data.squats, weight: data.weight, date: data.date });
-  if (history.length > 30) history = history.slice(-30);
-  SW.save('user_history', history);
+  /* Merge into local cache */
+  Object.keys(updates).forEach(function(k) { _profile[k] = updates[k]; });
+
+  /* Save a measure snapshot */
+  await SB.from('mesures').insert({
+    user_id: userId,
+    poids: updates.poids,
+    taille: updates.taille,
+    imc: updates.imc,
+    pullups: updates.pullups,
+    dips: updates.dips,
+    pushups: updates.pushups,
+    squats: updates.squats
+  });
+
+  /* Reload history for charts */
+  await loadHistory(userId);
 
   updateStatsCards();
   renderCharts();
   showToast('Données sauvegardées ! 💾');
 }
 
-/* Update stats cards and level */
+/* ==================== LOAD HISTORY (mesures) ==================== */
+async function loadHistory(userId) {
+  var res = await SB.from('mesures').select('*').eq('user_id', userId).order('created_at', { ascending: true }).limit(30);
+  _history = res.data || [];
+}
+
+/* ==================== UPDATE STATS CARDS ==================== */
 function updateStatsCards() {
-  var data = SW.load('user_data');
-  if (!data) {
-    document.getElementById('level-badge').textContent = '🌱 Débutant';
-    document.getElementById('level-badge').style.color = '#FF6B35';
+  var data = _profile || {};
+  if (!data.pullups && !data.dips && !data.pushups && !data.squats) {
+    var badge = document.getElementById('level-badge');
+    if (badge) { badge.textContent = '🌱 Débutant'; badge.style.color = '#FF6B35'; }
     return;
   }
 
   var result = calculateLevel(data);
   var targets = getTargets(result.level);
 
-  /* Update level badge */
   var badge = document.getElementById('level-badge');
   if (badge) {
     badge.textContent = result.icon + ' ' + result.level;
@@ -227,16 +260,14 @@ function updateStatsCards() {
     setTimeout(function() { badge.classList.remove('badge-bounce'); }, 600);
   }
 
-  /* Update score */
   var scoreEl = document.getElementById('score-value');
   if (scoreEl) scoreEl.textContent = result.score + '/100';
 
-  /* Update each stat card */
   var exercises = [
-    { key: 'pullups', label: 'Tractions', target: targets.pullups },
-    { key: 'dips', label: 'Dips', target: targets.dips },
-    { key: 'pushups', label: 'Pompes', target: targets.pushups },
-    { key: 'squats', label: 'Squats', target: targets.squats }
+    { key: 'pullups', target: targets.pullups },
+    { key: 'dips', target: targets.dips },
+    { key: 'pushups', target: targets.pushups },
+    { key: 'squats', target: targets.squats }
   ];
 
   exercises.forEach(function(ex) {
@@ -253,11 +284,11 @@ function updateStatsCards() {
   });
 }
 
-/* Render charts using Chart.js */
+/* ==================== CHARTS ==================== */
 var _charts = {};
 
 function renderCharts() {
-  var history = SW.load('user_history') || [];
+  var history = _history;
   var container = document.getElementById('chart-container');
   if (!container) return;
 
@@ -272,7 +303,7 @@ function renderCharts() {
   if (typeof Chart === 'undefined') return;
 
   var labels = history.map(function(h) {
-    var d = new Date(h.date);
+    var d = new Date(h.created_at);
     return (d.getDate()) + '/' + (d.getMonth() + 1);
   });
 
@@ -288,7 +319,7 @@ function renderCharts() {
     { id: 'chart-pullups', key: 'pullups', color: '#16A34A', bg: 'rgba(22,163,74,0.1)' },
     { id: 'chart-dips',    key: 'dips',    color: '#0284C7', bg: 'rgba(2,132,199,0.1)'  },
     { id: 'chart-pushups', key: 'pushups', color: '#EA580C', bg: 'rgba(234,88,12,0.1)'  },
-    { id: 'chart-weight',  key: 'weight',  color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' }
+    { id: 'chart-weight',  key: 'poids',   color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' }
   ];
 
   defs.forEach(function(def) {

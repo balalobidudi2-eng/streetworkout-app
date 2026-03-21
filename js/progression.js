@@ -1,14 +1,16 @@
 /* ========================================
-   PROGRESSION.JS — Exercise Progression System
+   PROGRESSION.JS — Exercise Progression (Supabase)
    ======================================== */
 
-/* Exercise data */
+/* ── Cached user ID and progression data ── */
+var _progUserId = null;
+var _progData = {};
+
+/* Exercise data — 14 exercises organized by category */
 var EXERCISES = [
+  /* ── PULL ── */
   {
-    id: 'pullups',
-    name: 'Tractions',
-    icon: '💪',
-    color: '#00FF87',
+    id: 'pullups', name: 'Tractions', icon: '💪', color: '#00FF87', category: 'pull',
     steps: [
       { id: 'pullups-1', name: 'Suspension active', desc: 'Maintien bras tendus à la barre, 20s+' },
       { id: 'pullups-2', name: 'Rangée australienne', desc: 'Inverted row sous une barre basse' },
@@ -19,51 +21,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'dips',
-    name: 'Dips',
-    icon: '🔥',
-    color: '#00B4FF',
-    steps: [
-      { id: 'dips-1', name: 'Dips sur chaise', desc: 'Position assise, mains sur le rebord, descente contrôlée' },
-      { id: 'dips-2', name: 'Dips barres parallèles', desc: 'Poids de corps uniquement, amplitude complète' },
-      { id: 'dips-3', name: 'Dips lestés gilet', desc: 'Ajout progressif de charge avec un gilet' },
-      { id: 'dips-4', name: 'Dips ceinture + disques', desc: 'Charges lourdes suspendues à la ceinture' },
-      { id: 'dips-5', name: 'Dips explosifs', desc: 'Poussée dynamique avec temps de vol' }
-    ]
-  },
-  {
-    id: 'pushups',
-    name: 'Pompes',
-    icon: '⚡',
-    color: '#FF6B35',
-    steps: [
-      { id: 'pushups-1', name: 'Pompes sur genoux', desc: 'Version allégée pour construire la base' },
-      { id: 'pushups-2', name: 'Pompes normales', desc: 'Position planche, amplitude complète' },
-      { id: 'pushups-3', name: 'Pompes diamant', desc: 'Mains rapprochées pour cibler les triceps' },
-      { id: 'pushups-4', name: 'Pompes déclinées', desc: 'Pieds surélevés pour augmenter la difficulté' },
-      { id: 'pushups-5', name: 'Pompes claquées', desc: 'Poussée explosive avec claquement des mains' },
-      { id: 'pushups-6', name: 'Pompes en appui renversé', desc: 'Objectif — handstand push-up contre le mur' }
-    ]
-  },
-  {
-    id: 'squats',
-    name: 'Squats',
-    icon: '🦵',
-    color: '#00FF87',
-    steps: [
-      { id: 'squats-1', name: 'Squat assisté', desc: 'Avec TRX ou appui sur une chaise pour l\'équilibre' },
-      { id: 'squats-2', name: 'Goblet squat', desc: 'Sans charge, focus sur la mobilité articulaire' },
-      { id: 'squats-3', name: 'Squat air', desc: 'Parfaite exécution pieds parallèles, profondeur maximale' },
-      { id: 'squats-4', name: 'Squat lesté', desc: 'Gilet ou sac lesté pour ajouter de la résistance' },
-      { id: 'squats-5', name: 'Pistol squat progressions', desc: 'Travail unilatéral progressif avec support' },
-      { id: 'squats-6', name: 'Pistol squat complet', desc: 'Objectif — squat une jambe complet et contrôlé' }
-    ]
-  },
-  {
-    id: 'muscleup',
-    name: 'Muscle-up',
-    icon: '🚀',
-    color: '#FF3D5A',
+    id: 'muscleup', name: 'Muscle-up', icon: '🚀', color: '#FF3D5A', category: 'pull',
     steps: [
       { id: 'muscleup-1', name: 'Tractions explosives', desc: 'Tête au-dessus de la barre à chaque rep' },
       { id: 'muscleup-2', name: 'Sortie de buste', desc: 'Partial muscle-up — monter le torse au-dessus' },
@@ -73,23 +31,49 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'frontlever',
-    name: 'Front Lever',
-    icon: '🏋️',
-    color: '#00B4FF',
+    id: 'frontlever', name: 'Front Lever', icon: '🏋️', color: '#00B4FF', category: 'pull',
     steps: [
       { id: 'frontlever-1', name: 'Compression abdominale', desc: 'Hollow body hold — dos plaqué au sol' },
       { id: 'frontlever-2', name: 'Front lever groupé', desc: 'Genoux ramenés vers la poitrine suspendu' },
-      { id: 'frontlever-3', name: 'Front lever une jambe', desc: 'Une jambe tendue, une repliée pour l\'équilibre' },
+      { id: 'frontlever-3', name: 'Front lever une jambe', desc: 'Une jambe tendue, une repliée' },
       { id: 'frontlever-4', name: 'Front lever straddle', desc: 'Deux jambes tendues écartées horizontalement' },
-      { id: 'frontlever-5', name: 'Front lever planche complète', desc: 'Objectif — position horizontale parfaite' }
+      { id: 'frontlever-5', name: 'Front lever planche complète', desc: 'Position horizontale parfaite' }
     ]
   },
   {
-    id: 'handstand',
-    name: 'Handstand / HSPU',
-    icon: '🤸',
-    color: '#7C3AED',
+    id: 'backlever', name: 'Back Lever', icon: '🏊', color: '#EA580C', category: 'pull',
+    steps: [
+      { id: 'backlever-1', name: 'German hang passif', desc: 'Suspension épaules en arrière, corps tombant' },
+      { id: 'backlever-2', name: 'Back lever groupé', desc: 'Genoux ramenés, dos horizontal' },
+      { id: 'backlever-3', name: 'Back lever une jambe', desc: 'Une jambe tendue, une repliée' },
+      { id: 'backlever-4', name: 'Back lever straddle', desc: 'Deux jambes tendues écartées horizontalement' },
+      { id: 'backlever-5', name: 'Back lever planche', desc: 'Position horizontale dos au sol' }
+    ]
+  },
+  /* ── PUSH ── */
+  {
+    id: 'dips', name: 'Dips', icon: '🔥', color: '#00B4FF', category: 'push',
+    steps: [
+      { id: 'dips-1', name: 'Dips sur chaise', desc: 'Position assise, mains sur le rebord, descente contrôlée' },
+      { id: 'dips-2', name: 'Dips barres parallèles', desc: 'Poids de corps uniquement, amplitude complète' },
+      { id: 'dips-3', name: 'Dips lestés gilet', desc: 'Ajout progressif de charge avec un gilet' },
+      { id: 'dips-4', name: 'Dips ceinture + disques', desc: 'Charges lourdes suspendues à la ceinture' },
+      { id: 'dips-5', name: 'Dips explosifs', desc: 'Poussée dynamique avec temps de vol' }
+    ]
+  },
+  {
+    id: 'pushups', name: 'Pompes', icon: '⚡', color: '#FF6B35', category: 'push',
+    steps: [
+      { id: 'pushups-1', name: 'Pompes sur genoux', desc: 'Version allégée pour construire la base' },
+      { id: 'pushups-2', name: 'Pompes normales', desc: 'Position planche, amplitude complète' },
+      { id: 'pushups-3', name: 'Pompes diamant', desc: 'Mains rapprochées pour cibler les triceps' },
+      { id: 'pushups-4', name: 'Pompes déclinées', desc: 'Pieds surélevés pour augmenter la difficulté' },
+      { id: 'pushups-5', name: 'Pompes claquées', desc: 'Poussée explosive avec claquement des mains' },
+      { id: 'pushups-6', name: 'Pompes en appui renversé', desc: 'Handstand push-up contre le mur' }
+    ]
+  },
+  {
+    id: 'handstand', name: 'Handstand / HSPU', icon: '🤸', color: '#7C3AED', category: 'push',
     steps: [
       { id: 'handstand-1', name: 'Planche inclinée sur mur', desc: 'Pieds sur le mur, corps incliné à 45°' },
       { id: 'handstand-2', name: 'Kick-up contre le mur', desc: 'Monter en équilibre contre le mur 20-30s' },
@@ -97,33 +81,80 @@ var EXERCISES = [
       { id: 'handstand-4', name: 'HSPU partiel contre mur', desc: 'Descente partielle du crâne vers le sol' },
       { id: 'handstand-5', name: 'HSPU complet contre mur', desc: 'Amplitude totale crâne-sol-bras tendus' },
       { id: 'handstand-6', name: 'Handstand libre 5s+', desc: 'Équilibre libre sans support' },
-      { id: 'handstand-7', name: 'Handstand libre 30s+', desc: 'Objectif — équilibre libre maîtrisé' }
+      { id: 'handstand-7', name: 'Handstand libre 30s+', desc: 'Équilibre libre maîtrisé' }
     ]
   },
   {
-    id: 'backlever',
-    name: 'Back Lever',
-    icon: '🏊',
-    color: '#EA580C',
+    id: 'planche', name: 'Planche', icon: '🤾', color: '#16A34A', category: 'push',
     steps: [
-      { id: 'backlever-1', name: 'German hang passif', desc: 'Suspension épaules en arrière, corps tombant' },
-      { id: 'backlever-2', name: 'Back lever groupé', desc: 'Genoux ramenés, dos horizontal' },
-      { id: 'backlever-3', name: 'Back lever une jambe', desc: 'Une jambe tendue, une repliée' },
-      { id: 'backlever-4', name: 'Back lever straddle', desc: 'Deux jambes tendues écartées horizontalement' },
-      { id: 'backlever-5', name: 'Back lever planche', desc: 'Objectif — position horizontale dos au sol' }
+      { id: 'planche-1', name: 'Planche lean', desc: 'Penché en avant sur les paumes, pieds au sol' },
+      { id: 'planche-2', name: 'Tuck planche', desc: 'Genoux contre la poitrine, pieds décollés' },
+      { id: 'planche-3', name: 'Advanced tuck planche', desc: 'Genoux éloignés du corps, dos horizontal' },
+      { id: 'planche-4', name: 'Straddle planche', desc: 'Jambes écartées et tendues' },
+      { id: 'planche-5', name: 'Full planche', desc: 'Corps horizontal parfait, jambes jointes' }
     ]
   },
+  /* ── SKILLS ── */
   {
-    id: 'humanflag',
-    name: 'Human Flag',
-    icon: '🚩',
-    color: '#0284C7',
+    id: 'humanflag', name: 'Human Flag', icon: '🚩', color: '#0284C7', category: 'skills',
     steps: [
       { id: 'humanflag-1', name: 'Side plank vertical', desc: 'Gainage latéral sur poteau / mur' },
       { id: 'humanflag-2', name: 'Flag groupé', desc: 'Corps en boule, position latérale sur poteau' },
-      { id: 'humanflag-3', name: 'Flag avec assistance', desc: 'Un élastique ou un appui pour maintenir l\'horizontale' },
+      { id: 'humanflag-3', name: 'Flag avec assistance', desc: 'Un élastique ou un appui pour l\'horizontale' },
       { id: 'humanflag-4', name: 'Flag straddle', desc: 'Jambes écartées pour réduire le bras de levier' },
-      { id: 'humanflag-5', name: 'Human flag complet', desc: 'Objectif — corps horizontal parfait 3s+' }
+      { id: 'humanflag-5', name: 'Human flag complet', desc: 'Corps horizontal parfait 3s+' }
+    ]
+  },
+  {
+    id: 'lsit', name: 'L-sit', icon: '🪑', color: '#FFD93D', category: 'skills',
+    steps: [
+      { id: 'lsit-1', name: 'Tuck L-sit au sol', desc: 'Genoux rentrés, fesses décollées du sol' },
+      { id: 'lsit-2', name: 'L-sit une jambe', desc: 'Une jambe tendue, une repliée' },
+      { id: 'lsit-3', name: 'L-sit complet au sol', desc: 'Deux jambes tendues parallèles au sol' },
+      { id: 'lsit-4', name: 'L-sit aux barres parallèles', desc: 'Maintien L-sit 15s+ aux barres' },
+      { id: 'lsit-5', name: 'V-sit', desc: 'Jambes au-dessus de l\'horizontale' }
+    ]
+  },
+  {
+    id: 'maltese', name: 'Maltese / Iron Cross', icon: '✝️', color: '#DC2626', category: 'skills',
+    steps: [
+      { id: 'maltese-1', name: 'Support aux anneaux', desc: 'Maintien stable bras tendus 30s+' },
+      { id: 'maltese-2', name: 'Croix de fer assistée', desc: 'Élastique ou assistance partielle' },
+      { id: 'maltese-3', name: 'Croix de fer 3s', desc: 'Maintien statique sans aide' },
+      { id: 'maltese-4', name: 'Maltese assistée', desc: 'Position horizontale à plat aux anneaux' },
+      { id: 'maltese-5', name: 'Maltese complète', desc: 'Maintien maltese 3s+' }
+    ]
+  },
+  /* ── LEGS ── */
+  {
+    id: 'squats', name: 'Squats', icon: '🦵', color: '#00FF87', category: 'legs',
+    steps: [
+      { id: 'squats-1', name: 'Squat assisté', desc: 'Avec TRX ou appui sur une chaise' },
+      { id: 'squats-2', name: 'Goblet squat', desc: 'Sans charge, focus sur la mobilité' },
+      { id: 'squats-3', name: 'Squat air', desc: 'Parfaite exécution pieds parallèles' },
+      { id: 'squats-4', name: 'Squat lesté', desc: 'Gilet ou sac lesté pour résistance' },
+      { id: 'squats-5', name: 'Pistol squat progressions', desc: 'Travail unilatéral progressif' },
+      { id: 'squats-6', name: 'Pistol squat complet', desc: 'Squat une jambe complet et contrôlé' }
+    ]
+  },
+  {
+    id: 'nordic', name: 'Nordic Curl', icon: '🔻', color: '#F97316', category: 'legs',
+    steps: [
+      { id: 'nordic-1', name: 'Négatif assisté', desc: 'Descente lente avec appui sur les mains' },
+      { id: 'nordic-2', name: 'Négatif complet', desc: 'Descente contrôlée sans aide' },
+      { id: 'nordic-3', name: 'Nordic partiel', desc: 'Descente et remontée sur 50% de l\'amplitude' },
+      { id: 'nordic-4', name: 'Nordic complet', desc: 'Amplitude totale avec remontée' },
+      { id: 'nordic-5', name: 'Nordic lesté', desc: 'Ajout de charge sur le torse' }
+    ]
+  },
+  {
+    id: 'calfpress', name: 'Mollets', icon: '🦶', color: '#06B6D4', category: 'legs',
+    steps: [
+      { id: 'calfpress-1', name: 'Élévation bilatérale', desc: 'Montée sur pointes, deux pieds au sol' },
+      { id: 'calfpress-2', name: 'Élévation sur marche', desc: 'Talon plus bas que les orteils pour amplitude' },
+      { id: 'calfpress-3', name: 'Élévation unilatérale', desc: 'Un pied à la fois, poids de corps' },
+      { id: 'calfpress-4', name: 'Élévation lestée', desc: 'Haltère ou gilet pour résistance' },
+      { id: 'calfpress-5', name: 'Drop set explosif', desc: 'Séries dégressives rapides et dynamiques' }
     ]
   }
 ];
@@ -135,14 +166,21 @@ var STATUS_OPTIONS = [
   { value: 'mastered', label: '✅ Maîtrisé' }
 ];
 
-function initProgression() {
-  if (!requireAuth()) return;
+async function initProgression() {
+  var user = await requireAuth();
+  if (!user) return;
+  _progUserId = user.id;
+
+  /* Load progression data from Supabase */
+  var res = await SB.from('progression_skills').select('skill_id, status').eq('user_id', user.id);
+  _progData = {};
+  if (res.data) {
+    res.data.forEach(function(row) { _progData[row.skill_id] = row.status; });
+  }
 
   renderOverview();
   renderAccordions();
   updateGlobalScore();
-
-  /* Logout handled globally by nav.js */
 }
 
 /* Render overview circles at top */
@@ -177,13 +215,12 @@ function renderOverview() {
 
 /* Get stats for an exercise */
 function getExerciseStats(exercise) {
-  var data = SW.load('progression') || {};
   var mastered = 0;
   var inProgress = 0;
   var total = exercise.steps.length;
 
   exercise.steps.forEach(function(step) {
-    var status = data[step.id] || 'not-acquired';
+    var status = _progData[step.id] || 'not-acquired';
     if (status === 'mastered') mastered++;
     if (status === 'in-progress') inProgress++;
   });
@@ -196,7 +233,6 @@ function renderAccordions() {
   var container = document.getElementById('progression-list');
   if (!container) return;
 
-  var data = SW.load('progression') || {};
   var html = '';
 
   EXERCISES.forEach(function(ex, idx) {
@@ -225,7 +261,7 @@ function renderAccordions() {
       '<div class="steps-list">';
 
     ex.steps.forEach(function(step, stepIdx) {
-      var currentStatus = data[step.id] || 'not-acquired';
+      var currentStatus = _progData[step.id] || 'not-acquired';
 
       html += '<div class="step-row" id="step-row-' + step.id + '">' +
         '<div class="step-info">' +
@@ -258,17 +294,20 @@ function renderAccordions() {
 /* Toggle accordion */
 function toggleAccordion(exerciseId) {
   var el = document.getElementById('accordion-' + exerciseId);
-  if (el) {
-    el.classList.toggle('open');
-  }
+  if (el) el.classList.toggle('open');
 }
 
-/* Update step status */
-function updateStepStatus(stepId, newValue, inputEl) {
-  var data = SW.load('progression') || {};
-  var oldValue = data[stepId] || 'not-acquired';
-  data[stepId] = newValue;
-  SW.save('progression', data);
+/* Update step status — save to Supabase */
+async function updateStepStatus(stepId, newValue, inputEl) {
+  var oldValue = _progData[stepId] || 'not-acquired';
+  _progData[stepId] = newValue;
+
+  /* Upsert to Supabase */
+  await SB.from('progression_skills').upsert({
+    user_id: _progUserId,
+    skill_id: stepId,
+    status: newValue
+  }, { onConflict: 'user_id,skill_id' });
 
   /* Confetti if mastered */
   if (newValue === 'mastered' && oldValue !== 'mastered') {
@@ -282,7 +321,7 @@ function updateStepStatus(stepId, newValue, inputEl) {
   updateAccordionMeta();
 }
 
-/* Update accordion meta (step counts) without full re-render */
+/* Update accordion meta without full re-render */
 function updateAccordionMeta() {
   EXERCISES.forEach(function(ex) {
     var stats = getExerciseStats(ex);
