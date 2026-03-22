@@ -1,0 +1,218 @@
+/* ========================================
+   PROGRAMME.CSS — Page Génération Programme
+   ======================================== */
+
+/* === Grille types de séance === */
+.session-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.session-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-primary);
+}
+.session-type-btn:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+.session-type-btn--active {
+  border-color: var(--primary);
+  background: rgba(0, 255, 135, 0.06);
+}
+.session-type-icon { font-size: 26px; }
+.session-type-label { font-size: 13px; font-weight: 500; text-align: center; }
+
+/* === Paramètres === */
+.params-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.param-group { display: flex; flex-direction: column; gap: 8px; }
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.days-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+.day-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.day-btn--active {
+  background: var(--primary);
+  color: var(--bg-deep);
+  border-color: var(--primary);
+}
+
+/* === En-tête programme === */
+.program-header { margin-bottom: 16px; }
+.program-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.program-meta { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+.program-duration { font-size: 13px; color: var(--text-secondary); }
+.program-date { font-size: 12px; color: var(--text-muted); }
+
+/* === Blocs échauff / exercices / cooldown === */
+.program-block { margin-bottom: 20px; }
+.program-block-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* === Warmup / Cooldown items === */
+.warmup-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.warmup-item:last-child { border-bottom: none; }
+.warmup-name { font-weight: 500; color: var(--text-primary); flex: 1; min-width: 120px; }
+.warmup-duration { font-size: 12px; color: var(--primary); white-space: nowrap; font-weight: 600; }
+.warmup-desc { font-size: 12px; color: var(--text-muted); margin: 0; width: 100%; }
+
+/* === Cartes exercice === */
+.exercise-program-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.exercise-program-card:hover { border-color: var(--border-hover); }
+
+.exercise-program-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.exercise-program-visual {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+.exercise-program-visual svg { width: 100%; height: 100%; }
+.exercise-program-info { flex: 1; min-width: 0; }
+.exercise-program-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.exercise-program-params { font-size: 12px; color: var(--primary); margin-top: 3px; font-weight: 500; }
+
+.exercise-muscles { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.muscle-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.exercise-tip {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.4;
+}
+.wger-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 180, 255, 0.1);
+  color: var(--accent-blue, #00B4FF);
+  border: 1px solid rgba(0, 180, 255, 0.2);
+  margin-top: 4px;
+}
+
+/* === Actions === */
+.program-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.program-actions .btn { flex: 1; min-width: 120px; }
+
+/* === Historique === */
+.history-program-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+.history-program-card:hover { border-color: var(--border-hover); }
+.history-program-name { font-weight: 500; color: var(--text-primary); }
+.history-program-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* === Mobile === */
+@media (max-width: 480px) {
+  .session-type-grid { grid-template-columns: repeat(3, 1fr); }
+  .program-actions { flex-direction: column; }
+  .program-actions .btn { min-width: unset; }
+  .exercise-program-visual { width: 44px; height: 44px; }
+}
