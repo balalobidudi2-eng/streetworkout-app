@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    PROGRESSION.CSS — Progression Page Styles
    ======================================== */
 
@@ -28,7 +28,7 @@
 }
 
 .prog-tab--active {
-  background: rgba(0, 255, 135, 0.12);
+  background: rgba(37, 99, 235, 0.12);
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -58,8 +58,8 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(90deg, rgba(0,255,135,0.12), transparent);
-  border-top: 1px solid rgba(0,255,135,0.25);
+  background: linear-gradient(90deg, rgba(37,99,235,0.12), transparent);
+  border-top: 1px solid rgba(37,99,235,0.25);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--primary);

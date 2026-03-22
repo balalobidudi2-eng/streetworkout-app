@@ -72,19 +72,19 @@ function calculateLevel(data) {
 
   score = Math.min(score, 100);
 
-  if (score >= 85) return { level: 'Élite',        color: '#7C3AED', icon: '👑', score: score,
+  if (score >= 85) return { level: 'Élite',        color: '#7C3AED', icon: '', score: score,
     desc: 'Niveau compétition', phase: 'Optimisation & spécialisation',
     conseil: 'Travaille le force-skill (planche, front lever) et la périodisation ondulée.' };
-  if (score >= 65) return { level: 'Avancé',        color: '#16A34A', icon: '🔥', score: score,
+  if (score >= 65) return { level: 'Avancé',        color: '#16A34A', icon: '', score: score,
     desc: 'Athlète confirmé', phase: 'Développement des skills',
     conseil: 'Entame les progressions front lever et muscle-up avec du lest.' };
-  if (score >= 45) return { level: 'Intermédiaire', color: '#0284C7', icon: '⚡', score: score,
+  if (score >= 45) return { level: 'Intermédiaire', color: '#0284C7', icon: '', score: score,
     desc: 'Base solide', phase: 'Augmentation du volume et du lest',
     conseil: 'Vise 3×10 tractions lestées et 3×15 dips lestés.' };
-  if (score >= 20) return { level: 'Novice',        color: '#EA580C', icon: '🌟', score: score,
+  if (score >= 20) return { level: 'Novice',        color: '#EA580C', icon: '', score: score,
     desc: 'En progression', phase: 'Construction de la force fondamentale',
     conseil: 'Consolide 3 séries de 10 tractions et 15 dips. Introduis le lest dès que possible.' };
-  return               { level: 'Débutant',       color: '#94A3B8', icon: '🌱', score: score,
+  return               { level: 'Débutant',       color: '#94A3B8', icon: '', score: score,
     desc: 'Début du parcours', phase: 'Acquisition des fondamentaux',
     conseil: 'Focus sur la régularité : 3 séances/sem. Tractions assistées + dips au banc.' };
 }
@@ -100,7 +100,7 @@ function updateProteinGoal(poids) {
   }
   var min = Math.round(poids * 1.6);
   var max = Math.round(poids * 2.2);
-  el.innerHTML = '🥩 Objectif protéines\u00a0: <strong>' + min + '–' + max + '\u00a0g/jour</strong>'
+  el.innerHTML = 'Objectif protéines\u00a0: <strong>' + min + '–' + max + '\u00a0g/jour</strong>'
     + ' <span class="form-hint">(1.6–2.2\u00a0g/kg · Morton et al. 2018)</span>';
 }
 
@@ -291,7 +291,7 @@ async function saveFormData(userId) {
 
   updateStatsCards();
   renderCharts();
-  showToast('Données sauvegardées ! 💾');
+  showToast('Données sauvegardées');
 }
 
 /* ==================== LOAD HISTORY (mesures) ==================== */
@@ -305,7 +305,7 @@ function updateStatsCards() {
   var data = _profile || {};
   if (!data.pullups && !data.dips && !data.pushups && !data.squats) {
     var badge = document.getElementById('level-badge');
-    if (badge) { badge.textContent = '🌱 Débutant'; badge.style.color = '#FF6B35'; }
+    if (badge) { badge.textContent = 'Débutant'; badge.style.color = '#FF6B35'; }
     return;
   }
 
@@ -363,7 +363,7 @@ function renderCharts() {
 
   if (history.length < 2) {
     container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">'
-      + '<p style="font-size:2rem;margin-bottom:8px;">📊</p>'
+      + '<p style="font-size:2rem;margin-bottom:8px;"></p>'
       + '<p>Sauvegarde tes premières données pour voir ta progression.</p>'
       + '<p style="font-size:0.8rem;margin-top:4px;">Il faut au moins 2 enregistrements.</p></div>';
     return;
@@ -378,14 +378,14 @@ function renderCharts() {
 
   container.innerHTML =
     '<div class="charts-grid">'
-    + '<div class="chart-wrap"><canvas id="chart-pullups"></canvas><div class="chart-label">💪 Tractions</div></div>'
-    + '<div class="chart-wrap"><canvas id="chart-dips"></canvas><div class="chart-label">🔥 Dips</div></div>'
-    + '<div class="chart-wrap"><canvas id="chart-pushups"></canvas><div class="chart-label">⚡ Pompes</div></div>'
-    + '<div class="chart-wrap"><canvas id="chart-weight"></canvas><div class="chart-label">⚖️ Poids (kg)</div></div>'
+    + '<div class="chart-wrap"><canvas id="chart-pullups"></canvas><div class="chart-label">Tractions</div></div>'
+    + '<div class="chart-wrap"><canvas id="chart-dips"></canvas><div class="chart-label">Dips</div></div>'
+    + '<div class="chart-wrap"><canvas id="chart-pushups"></canvas><div class="chart-label">Pompes</div></div>'
+    + '<div class="chart-wrap"><canvas id="chart-weight"></canvas><div class="chart-label">Poids (kg)</div></div>'
     + '</div>';
 
   var defs = [
-    { id: 'chart-pullups', key: 'pullups', color: '#16A34A', bg: 'rgba(22,163,74,0.1)' },
+    { id: 'chart-pullups', key: 'pullups', color: '#2563EB', bg: 'rgba(37,99,235,0.1)' },
     { id: 'chart-dips',    key: 'dips',    color: '#0284C7', bg: 'rgba(2,132,199,0.1)'  },
     { id: 'chart-pushups', key: 'pushups', color: '#EA580C', bg: 'rgba(234,88,12,0.1)'  },
     { id: 'chart-weight',  key: 'poids',   color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' }

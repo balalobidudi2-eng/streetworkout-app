@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    LANDING.CSS — Landing Page Styles
    ======================================== */
 
@@ -31,7 +31,7 @@
 .hero-shape-1 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(0, 255, 135, 0.2), transparent);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.2), transparent);
   top: -100px;
   right: -100px;
   animation: float-slow 8s ease-in-out infinite;
@@ -76,8 +76,8 @@
   gap: 8px;
   padding: 8px 20px;
   border-radius: 50px;
-  background: rgba(0, 255, 135, 0.08);
-  border: 1px solid rgba(0, 255, 135, 0.15);
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.15);
   color: var(--primary);
   font-size: 0.85rem;
   font-weight: 600;
@@ -199,11 +199,11 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: rgba(0, 255, 135, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--primary);
   font-size: 1.25rem;
   font-weight: 700;
-  border: 1px solid rgba(0, 255, 135, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 .step-content h4 {
   font-size: 1.1rem;

@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    ENTRAINEMENT.CSS — Training Page Styles
    ======================================== */
 
@@ -23,11 +23,11 @@
 
 .cal-day--today {
   border-color: var(--primary);
-  background: rgba(0, 255, 135, 0.07);
+  background: rgba(37, 99, 235, 0.07);
 }
 
 .cal-day--done {
-  background: rgba(0, 255, 135, 0.04);
+  background: rgba(37, 99, 235, 0.04);
 }
 
 .cal-day-name {
@@ -153,13 +153,13 @@
 
 .planning-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(0, 255, 135, 0.2);
+  border-color: rgba(37, 99, 235, 0.2);
 }
 
 .planning-today {
   border-color: var(--primary);
-  background: rgba(0, 255, 135, 0.05);
-  box-shadow: 0 0 20px rgba(0, 255, 135, 0.1);
+  background: rgba(37, 99, 235, 0.05);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.1);
 }
 
 .planning-jour {
@@ -228,12 +228,12 @@
 }
 
 .serie-dot:hover {
-  color: rgba(0, 255, 135, 0.5);
+  color: rgba(37, 99, 235, 0.5);
 }
 
 .serie-dot.done {
   color: var(--primary);
-  text-shadow: 0 0 6px rgba(0, 255, 135, 0.5);
+  text-shadow: 0 0 6px rgba(37, 99, 235, 0.5);
 }
 
 .exo-check {
@@ -614,7 +614,7 @@
 
 .series-phase--work  { color: var(--accent, #e63946); }
 .series-phase--rest  { color: #4caf50; }
-.series-phase--done  { color: var(--primary, #00ff87); }
+.series-phase--done  { color: var(--primary, #2563EB); }
 .series-phase--idle  { color: var(--text-muted); }
 
 .series-set-label {
@@ -685,8 +685,8 @@
 .cal-day:hover { background: rgba(255,255,255,0.06); }
 
 .cal-day--today {
-  border-color: var(--primary, #00ff87);
-  background: rgba(0,255,135,0.07);
+  border-color: var(--primary, #2563EB);
+  background: rgba(37,99,235,0.07);
 }
 
 .cal-day--has-session {
@@ -724,7 +724,7 @@
 }
 
 .cal-day:hover .cal-add-dot {
-  color: var(--primary, #00ff87);
+  color: var(--primary, #2563EB);
 }
 
 /* Modal calendrier */

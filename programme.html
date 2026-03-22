@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -38,15 +38,15 @@
       <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
     </div>
     <div class="mobile-menu-links">
-      <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
-      <a href="profil.html"><span class="nav-icon">👤</span> Profil</a>
-      <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
-      <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-      <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-      <a href="programme.html" class="active"><span class="nav-icon">📋</span> Programme</a>
-      <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
-      <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
-      <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profil.html">Profil</a>
+      <a href="progression.html">Progression</a>
+      <a href="entrainement.html">Entraînement</a>
+      <a href="analytics.html">Analytics</a>
+      <a href="programme.html" class="active">Programme</a>
+      <a href="streetlifting.html">Streetlifting</a>
+      <a href="abonnement.html">Plans</a>
+      <a href="#" data-action="logout">Déconnexion</a>
     </div>
   </div>
   <div class="menu-backdrop" id="menu-backdrop"></div>
@@ -56,15 +56,15 @@
     <!-- Sidebar (desktop) -->
     <aside class="sidebar">
       <div class="sidebar-links">
-        <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="profil.html"><span class="nav-icon">👤</span> Profil</a>
-        <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
-        <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-        <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-        <a href="programme.html" class="active"><span class="nav-icon">📋</span> Programme</a>
-        <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
-        <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
-        <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="profil.html">Profil</a>
+        <a href="progression.html">Progression</a>
+        <a href="entrainement.html">Entraînement</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="programme.html" class="active">Programme</a>
+        <a href="streetlifting.html">Streetlifting</a>
+        <a href="abonnement.html">Plans</a>
+        <a href="#" data-action="logout">Déconnexion</a>
       </div>
     </aside>
 
@@ -73,7 +73,7 @@
 
       <!-- Sélecteur de type de séance -->
       <section class="section reveal">
-        <h1 class="reveal" style="margin-bottom:4px;">📋 Générer un programme</h1>
+        <h1 class="reveal" style="margin-bottom:4px;">Générer un programme</h1>
         <p style="color:var(--text-muted);margin-bottom:20px;">Adapté à ton niveau et tes objectifs</p>
 
         <div class="session-type-grid" id="session-type-grid">
@@ -102,6 +102,15 @@
             </select>
           </div>
           <div class="param-group">
+            <label class="form-label" for="niveau-select">Niveau</label>
+            <select id="niveau-select" class="form-input">
+              <option value="debutant">Débutant</option>
+              <option value="intermediaire" selected>Intermédiaire</option>
+              <option value="avance">Avancé</option>
+              <option value="elite">Élite</option>
+            </select>
+          </div>
+          <div class="param-group">
             <label class="form-label" for="objectif-select">Objectif</label>
             <select id="objectif-select" class="form-input">
               <option value="street_workout" selected>Street Workout</option>
@@ -111,7 +120,7 @@
             </select>
           </div>
           <button class="btn btn-primary" id="btn-generate" style="width:100%;margin-top:4px;">
-            ⚡ Générer mon programme
+            Générer mon programme
           </button>
         </div>
       </section>
@@ -124,33 +133,33 @@
 
         <!-- Échauffement -->
         <div class="program-block">
-          <div class="program-block-title">🔥 Échauffement</div>
+          <div class="program-block-title">Échauffement</div>
           <div id="warmup-list"></div>
         </div>
 
         <!-- Exercices -->
         <div class="program-block">
-          <div class="program-block-title">💪 Exercices</div>
+          <div class="program-block-title">Exercices</div>
           <div id="exercises-list"></div>
         </div>
 
         <!-- Retour au calme -->
         <div class="program-block">
-          <div class="program-block-title">🧘 Retour au calme</div>
+          <div class="program-block-title">Retour au calme</div>
           <div id="cooldown-list"></div>
         </div>
 
         <!-- Actions -->
         <div class="program-actions">
-          <button class="btn btn-primary" id="btn-start-program">▶ Démarrer la séance</button>
-          <button class="btn btn-secondary" id="btn-save-program">💾 Sauvegarder</button>
-          <button class="btn btn-secondary" id="btn-regenerate">🔄 Regénérer</button>
+          <button class="btn btn-primary" id="btn-start-program">Démarrer la séance</button>
+          <button class="btn btn-secondary" id="btn-save-program">Sauvegarder</button>
+          <button class="btn btn-secondary" id="btn-regenerate">Regénérer</button>
         </div>
       </section>
 
       <!-- Historique -->
       <section class="section reveal">
-        <h2 style="margin-bottom:12px;">🗂 Programmes récents</h2>
+        <h2 style="margin-bottom:12px;">Programmes récents</h2>
         <div id="programs-history"></div>
       </section>
 
@@ -160,23 +169,18 @@
   <!-- Bottom Navigation (mobile) -->
   <nav class="bottom-nav">
     <a href="dashboard.html">
-      <span class="nav-icon">📊</span>
       Dashboard
     </a>
     <a href="progression.html">
-      <span class="nav-icon">📈</span>
       Progression
     </a>
     <a href="entrainement.html">
-      <span class="nav-icon">💪</span>
       Entraînement
     </a>
     <a href="programme.html" class="active">
-      <span class="nav-icon">📋</span>
       Programme
     </a>
     <a href="analytics.html">
-      <span class="nav-icon">📉</span>
       Analytics
     </a>
   </nav>

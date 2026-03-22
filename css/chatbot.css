@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    CHATBOT.CSS — SwBot floating widget
    ======================================== */
 
@@ -17,7 +17,7 @@
   background: var(--primary);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.45);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45);
   font-size: 22px;
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@
 }
 #swbot-toggle:hover {
   transform: scale(1.08);
-  box-shadow: 0 6px 28px rgba(22, 163, 74, 0.6);
+  box-shadow: 0 6px 28px rgba(37, 99, 235, 0.6);
 }
 
 .swbot-icon-close { display: none; color: var(--bg-deep, #0f172a); font-weight: 700; font-size: 18px; }
@@ -87,7 +87,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--primary, #16a34a);
+  background: var(--primary, #2563EB);
   color: #fff;
   display: flex;
   align-items: center;
@@ -98,7 +98,7 @@
 }
 
 .swbot-name   { font-size: 14px; font-weight: 600; color: var(--text-primary, #f1f5f9); line-height: 1.3; }
-.swbot-status { font-size: 11px; color: var(--primary, #16a34a); }
+.swbot-status { font-size: 11px; color: var(--primary, #2563EB); }
 
 .swbot-close-btn {
   background: none;
@@ -136,7 +136,7 @@
 }
 
 .swbot-msg--user {
-  background: var(--primary, #16a34a);
+  background: var(--primary, #2563EB);
   color: #fff;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
@@ -195,8 +195,8 @@
   white-space: nowrap;
 }
 .swbot-suggestions button:hover {
-  border-color: var(--primary, #16a34a);
-  color: var(--primary, #16a34a);
+  border-color: var(--primary, #2563EB);
+  color: var(--primary, #2563EB);
 }
 
 /* ── Input row ────────────────────────── */
@@ -219,13 +219,13 @@
   transition: border-color 0.15s;
 }
 .swbot-input-row input::placeholder { color: var(--text-muted, #64748b); }
-.swbot-input-row input:focus { border-color: var(--primary, #16a34a); }
+.swbot-input-row input:focus { border-color: var(--primary, #2563EB); }
 
 .swbot-input-row button {
   width: 38px;
   height: 38px;
   border-radius: 8px;
-  background: var(--primary, #16a34a);
+  background: var(--primary, #2563EB);
   border: none;
   cursor: pointer;
   color: #fff;

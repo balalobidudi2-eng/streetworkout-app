@@ -266,10 +266,10 @@ var SERIES_TIMER = (function() {
       var bar     = document.getElementById('series-phase-bar');
 
       if (display) {
-        display.textContent = _phase === 'done' ? '✅ Terminé !' : (_phase === 'idle' ? '--:--' : formatTime(_remaining));
+        display.textContent = _phase === 'done' ? 'Terminé !' : (_phase === 'idle' ? '--:--' : formatTime(_remaining));
       }
       if (phaseEl) {
-        var labels = { idle:'En attente', work:'💪 Effort', rest:'😮‍💨 Repos', done:'✅ Terminé' };
+        var labels = { idle:'En attente', work:'Effort', rest:'Repos', done:'Terminé' };
         phaseEl.textContent = labels[_phase] || '';
         phaseEl.className = 'series-phase series-phase--' + _phase;
       }
@@ -302,7 +302,7 @@ function initTimerUI(containerId) {
     '<div class="timer-tabs">',
     '  <button class="timer-tab timer-tab--active" data-tab="cd">⏱ Compte à rebours</button>',
     '  <button class="timer-tab" data-tab="sw">⏲ Chronomètre</button>',
-    '  <button class="timer-tab" data-tab="st">🔁 Séries</button>',
+    '  <button class="timer-tab" data-tab="st">Séries</button>',
     '</div>',
 
     /* ── Panel Compte à rebours ── */

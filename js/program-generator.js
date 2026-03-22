@@ -220,8 +220,10 @@ async function _buildExercisesForType(sessionType, niveau, count) {
     push:      SW_EXERCISES_DB.push,
     lower:     SW_EXERCISES_DB.legs,
     legs:      SW_EXERCISES_DB.legs,
-    upper:     SW_EXERCISES_DB.pull.concat(SW_EXERCISES_DB.push),
-    full_body: SW_EXERCISES_DB.pull.slice(0,3).concat(SW_EXERCISES_DB.push.slice(0,3), SW_EXERCISES_DB.legs.slice(0,2), SW_EXERCISES_DB.core.slice(0,2)),
+    /* Haut du corps = UNIQUEMENT pull + push + core, AUCUN exercice jambes */
+    upper:     SW_EXERCISES_DB.pull.concat(SW_EXERCISES_DB.push, SW_EXERCISES_DB.core),
+    /* Full body = distribution équilibrée tous groupes musculaires */
+    full_body: SW_EXERCISES_DB.pull.concat(SW_EXERCISES_DB.push, SW_EXERCISES_DB.legs, SW_EXERCISES_DB.core),
     skills:    SW_EXERCISES_DB.skills.concat(SW_EXERCISES_DB.pull.filter(function(e){ return e.niveau === 'avance' || e.niveau === 'elite'; })),
     core:      SW_EXERCISES_DB.core,
   };
@@ -230,34 +232,44 @@ async function _buildExercisesForType(sessionType, niveau, count) {
   return _selectByLevel(combined, niveau, count);
 }
 
-/* â”€â”€ Ã‰chauffement contextuel â”€â”€ */
+/* -- Echauffement contextuel -- */
 function _buildWarmup(sessionType, niveau) {
   var warmups = {
     pull: [
-      { nom:'Suspension passive barre', duree:'30s',    desc:'DÃ©compresser les Ã©paules' },
-      { nom:'Rotations Ã©paules',        duree:'60s',    desc:'10 rotations avant + arriÃ¨re' },
-      { nom:'RangÃ©e australienne lÃ©gÃ¨re', duree:'8 reps', desc:'Ã‰chauffement grand dorsal' },
+      { nom:'Suspension passive barre',   duree:'30s',     desc:'Decompresser les epaules' },
+      { nom:'Rotations epaules',          duree:'60s',     desc:'10 rotations avant + arriere' },
+      { nom:'Rangee australienne legere', duree:'8 reps',  desc:'Echauffement grand dorsal' },
     ],
     push: [
-      { nom:'Rotations poignets',       duree:'60s',    desc:'10 rotations dans chaque sens' },
-      { nom:'Pompes lentes',            duree:'10 reps', desc:'Amplitude complÃ¨te, tempo 3-0-3' },
-      { nom:'Pike push-up',             duree:'8 reps',  desc:'Activer les deltoÃ¯des' },
+      { nom:'Rotations poignets',         duree:'60s',     desc:'10 rotations dans chaque sens' },
+      { nom:'Pompes lentes',              duree:'10 reps', desc:'Amplitude complete, tempo 3-0-3' },
+      { nom:'Pike push-up',               duree:'8 reps',  desc:'Activer les deltoides' },
+    ],
+    upper: [
+      { nom:'Rotations epaules',          duree:'60s',     desc:'10 rotations avant + arriere' },
+      { nom:'Pompes lentes',              duree:'10 reps', desc:'Activation pectoraux et deltoides' },
+      { nom:'Suspension passive barre',   duree:'30s',     desc:'Decompresser les epaules' },
+    ],
+    full_body: [
+      { nom:'Jumping jacks',              duree:'60s',     desc:'Elever la temperature corporelle' },
+      { nom:'Rotations articulaires',     duree:'90s',     desc:'Epaules - poignets - hanches - chevilles' },
+      { nom:'Squats lents',               duree:'8 reps',  desc:'Activer tout le corps, amplitude complete' },
     ],
     lower: [
-      { nom:'Jumping jacks',            duree:'60s',    desc:'Ã‰lever la tempÃ©rature corporelle' },
-      { nom:'Leg swings',               duree:'30s',    desc:'10 balancements par jambe' },
-      { nom:'Squats lents',             duree:'10 reps', desc:'Amplitude complÃ¨te' },
+      { nom:'Jumping jacks',              duree:'60s',     desc:'Elever la temperature corporelle' },
+      { nom:'Leg swings',                 duree:'30s',     desc:'10 balancements par jambe' },
+      { nom:'Squats lents',               duree:'10 reps', desc:'Amplitude complete' },
     ],
     legs: [
-      { nom:'Jumping jacks',            duree:'60s',    desc:'Ã‰lever la tempÃ©rature corporelle' },
-      { nom:'Leg swings',               duree:'30s',    desc:'10 balancements par jambe' },
-      { nom:'Squats lents',             duree:'10 reps', desc:'Amplitude complÃ¨te' },
+      { nom:'Jumping jacks',              duree:'60s',     desc:'Elever la temperature corporelle' },
+      { nom:'Leg swings',                 duree:'30s',     desc:'10 balancements par jambe' },
+      { nom:'Squats lents',               duree:'10 reps', desc:'Amplitude complete' },
     ],
   };
   var def = [
-    { nom:'Jumping jacks',              duree: niveau === 'elite' ? '90s' : '60s', desc:'Activer le systÃ¨me cardiovasculaire' },
-    { nom:'Rotations articulaires',     duree:'2 min',  desc:'Ã‰paules â†’ poignets â†’ hanches â†’ chevilles' },
-    { nom:'Gainage planche',            duree:'30s',    desc:'Activer le core' },
+    { nom:'Jumping jacks', duree: niveau === 'elite' ? '90s' : '60s', desc:'Activer le systeme cardiovasculaire' },
+    { nom:'Rotations articulaires', duree:'2 min', desc:'Epaules - poignets - hanches - chevilles' },
+    { nom:'Gainage planche',        duree:'30s',   desc:'Activer le core' },
   ];
   return warmups[sessionType] || def;
 }
@@ -326,6 +338,10 @@ async function generateProgram(sessionTypeOrConfig, userProfile) {
     sessionType = (sessionTypeOrConfig && sessionTypeOrConfig.type)    || 'full_body';
     dureeMin    = parseInt((sessionTypeOrConfig && sessionTypeOrConfig.duree) || 45);
     objectif    = (sessionTypeOrConfig && sessionTypeOrConfig.objectif) || 'street_workout';
+    /* Support niveau inline (depuis le sélecteur de niveau sur la page programme) */
+    if (sessionTypeOrConfig && sessionTypeOrConfig.niveau) {
+      userProfile = Object.assign({}, userProfile, { niveau: sessionTypeOrConfig.niveau });
+    }
   }
 
   var niveau = _normalizeNiveau(userProfile && userProfile.niveau);
@@ -355,11 +371,20 @@ async function generateProgram(sessionTypeOrConfig, userProfile) {
     exercises = await _buildExercisesForType(sessionType, niveau, finalCount + 3);
   } catch(err) {
     console.warn('GÃ©nÃ©ration exercices failed, fallback SW_DB:', err.message);
-    var fbMap = {
-      pull:'pull', push:'push', lower:'legs', legs:'legs',
-      upper:'pull', full_body:'pull', skills:'skills', core:'core'
-    };
-    exercises = (SW_EXERCISES_DB[fbMap[sessionType] || 'pull'] || SW_EXERCISES_DB.pull).slice();
+  /* ── Fallback : pool local uniquement si Wger indisponible ── */
+  var fbMap = {
+    pull:      SW_EXERCISES_DB.pull,
+    push:      SW_EXERCISES_DB.push,
+    lower:     SW_EXERCISES_DB.legs,
+    legs:      SW_EXERCISES_DB.legs,
+    /* Haut du corps : pull + push + core — INTERDIT d’inclure des jambes */
+    upper:     SW_EXERCISES_DB.pull.concat(SW_EXERCISES_DB.push, SW_EXERCISES_DB.core),
+    /* Full body : tous les groupes musculaires */
+    full_body: SW_EXERCISES_DB.pull.concat(SW_EXERCISES_DB.push, SW_EXERCISES_DB.legs, SW_EXERCISES_DB.core),
+    skills:    SW_EXERCISES_DB.skills.concat(SW_EXERCISES_DB.pull.filter(function(e){ return e.niveau === 'avance'; })),
+    core:      SW_EXERCISES_DB.core,
+  };
+  exercises = (fbMap[sessionType] || SW_EXERCISES_DB.pull).slice();
   }
 
   /* â”€â”€ 5. Formatter exercices â”€â”€ */

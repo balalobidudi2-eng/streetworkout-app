@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    EXERCISE-VISUALS.JS — SVG Illustrations
    Silhouettes stylisées — zéro dépendance externe
    ======================================== */
@@ -7,9 +7,9 @@ var EXERCISE_VISUALS = {
 
   tractions: {
     svg: '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect x="20" y="30" width="160" height="6" rx="3" fill="#00FF87" opacity="0.9"/>' +
-      '<circle cx="65" cy="33" r="7" fill="#00FF87" opacity="0.7"/>' +
-      '<circle cx="135" cy="33" r="7" fill="#00FF87" opacity="0.7"/>' +
+      '<rect x="20" y="30" width="160" height="6" rx="3" fill="#2563EB" opacity="0.9"/>' +
+      '<circle cx="65" cy="33" r="7" fill="#2563EB" opacity="0.7"/>' +
+      '<circle cx="135" cy="33" r="7" fill="#2563EB" opacity="0.7"/>' +
       '<line x1="65" y1="40" x2="70" y2="65" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
       '<line x1="135" y1="40" x2="130" y2="65" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
       '<circle cx="100" cy="72" r="12" fill="none" stroke="#E0E0E0" stroke-width="2.5"/>' +
@@ -18,28 +18,28 @@ var EXERCISE_VISUALS = {
       '<line x1="130" y1="65" x2="112" y2="95" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="100" y1="130" x2="88" y2="170" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="100" y1="130" x2="112" y2="170" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<text x="100" y="195" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">TRACTION</text>' +
+      '<text x="100" y="195" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">TRACTION</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   dips: {
     svg: '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
       '<rect x="30" y="70" width="8" height="80" rx="4" fill="#A0A0B8" opacity="0.6"/>' +
       '<rect x="162" y="70" width="8" height="80" rx="4" fill="#A0A0B8" opacity="0.6"/>' +
-      '<rect x="25" y="65" width="50" height="8" rx="4" fill="#00FF87" opacity="0.9"/>' +
-      '<rect x="125" y="65" width="50" height="8" rx="4" fill="#00FF87" opacity="0.9"/>' +
+      '<rect x="25" y="65" width="50" height="8" rx="4" fill="#2563EB" opacity="0.9"/>' +
+      '<rect x="125" y="65" width="50" height="8" rx="4" fill="#2563EB" opacity="0.9"/>' +
       '<circle cx="100" cy="55" r="12" fill="none" stroke="#E0E0E0" stroke-width="2.5"/>' +
       '<line x1="100" y1="67" x2="100" y2="110" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
-      '<line x1="55" y1="69" x2="88" y2="90" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="145" y1="69" x2="112" y2="90" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="55" y1="69" x2="88" y2="90" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="145" y1="69" x2="112" y2="90" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="100" y1="110" x2="85" y2="145" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="85" y1="145" x2="90" y2="170" stroke="#E0E0E0" stroke-width="2" stroke-linecap="round"/>' +
       '<line x1="100" y1="110" x2="115" y2="145" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="115" y1="145" x2="110" y2="170" stroke="#E0E0E0" stroke-width="2" stroke-linecap="round"/>' +
-      '<text x="100" y="195" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">DIPS</text>' +
+      '<text x="100" y="195" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">DIPS</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   pompes: {
@@ -47,15 +47,15 @@ var EXERCISE_VISUALS = {
       '<rect x="10" y="155" width="180" height="4" rx="2" fill="#A0A0B8" opacity="0.3"/>' +
       '<circle cx="155" cy="105" r="11" fill="none" stroke="#E0E0E0" stroke-width="2.5"/>' +
       '<line x1="144" y1="110" x2="55" y2="125" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
-      '<line x1="144" y1="113" x2="138" y2="138" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="138" y1="138" x2="145" y2="153" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="95" y1="122" x2="89" y2="147" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="89" y1="147" x2="96" y2="155" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="144" y1="113" x2="138" y2="138" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="138" y1="138" x2="145" y2="153" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="95" y1="122" x2="89" y2="147" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="89" y1="147" x2="96" y2="155" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="55" y1="125" x2="45" y2="153" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="55" y1="125" x2="38" y2="150" stroke="#E0E0E0" stroke-width="2" stroke-linecap="round"/>' +
-      '<text x="100" y="195" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">POMPES</text>' +
+      '<text x="100" y="195" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">POMPES</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   squat: {
@@ -63,16 +63,16 @@ var EXERCISE_VISUALS = {
       '<rect x="10" y="175" width="180" height="4" rx="2" fill="#A0A0B8" opacity="0.3"/>' +
       '<circle cx="100" cy="50" r="12" fill="none" stroke="#E0E0E0" stroke-width="2.5"/>' +
       '<line x1="100" y1="62" x2="95" y2="110" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
-      '<line x1="98" y1="80" x2="60" y2="90" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="98" y1="80" x2="140" y2="90" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<circle cx="95" cy="112" r="5" fill="#00FF87" opacity="0.8"/>' +
+      '<line x1="98" y1="80" x2="60" y2="90" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="98" y1="80" x2="140" y2="90" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<circle cx="95" cy="112" r="5" fill="#2563EB" opacity="0.8"/>' +
       '<line x1="95" y1="115" x2="70" y2="148" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="70" y1="148" x2="65" y2="175" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="95" y1="115" x2="120" y2="148" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="120" y1="148" x2="125" y2="175" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<text x="100" y="198" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">SQUAT</text>' +
+      '<text x="100" y="198" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">SQUAT</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   muscle_up: {
@@ -109,8 +109,8 @@ var EXERCISE_VISUALS = {
   handstand: {
     svg: '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
       '<rect x="60" y="15" width="80" height="4" rx="2" fill="#A0A0B8" opacity="0.4"/>' +
-      '<circle cx="85" cy="22" r="7" fill="#00FF87" opacity="0.8"/>' +
-      '<circle cx="115" cy="22" r="7" fill="#00FF87" opacity="0.8"/>' +
+      '<circle cx="85" cy="22" r="7" fill="#2563EB" opacity="0.8"/>' +
+      '<circle cx="115" cy="22" r="7" fill="#2563EB" opacity="0.8"/>' +
       '<line x1="85" y1="29" x2="90" y2="55" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="115" y1="29" x2="110" y2="55" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="90" y1="55" x2="110" y2="55" stroke="#E0E0E0" stroke-width="3"/>' +
@@ -119,9 +119,9 @@ var EXERCISE_VISUALS = {
       '<line x1="100" y1="145" x2="95" y2="175" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="100" y1="145" x2="105" y2="175" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<circle cx="100" cy="115" r="10" fill="none" stroke="#E0E0E0" stroke-width="2"/>' +
-      '<text x="100" y="198" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">HANDSTAND</text>' +
+      '<text x="100" y="198" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">HANDSTAND</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   l_sit: {
@@ -144,18 +144,18 @@ var EXERCISE_VISUALS = {
   planche: {
     svg: '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
       '<rect x="60" y="130" width="80" height="6" rx="3" fill="#A0A0B8" opacity="0.3"/>' +
-      '<circle cx="80" cy="132" r="7" fill="#00FF87" opacity="0.8"/>' +
-      '<circle cx="120" cy="132" r="7" fill="#00FF87" opacity="0.8"/>' +
-      '<line x1="80" y1="125" x2="78" y2="95" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="120" y1="125" x2="122" y2="95" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<circle cx="80" cy="132" r="7" fill="#2563EB" opacity="0.8"/>' +
+      '<circle cx="120" cy="132" r="7" fill="#2563EB" opacity="0.8"/>' +
+      '<line x1="80" y1="125" x2="78" y2="95" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="120" y1="125" x2="122" y2="95" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="80" y1="95" x2="120" y2="95" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
       '<line x1="80" y1="95" x2="35" y2="90" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="120" y1="95" x2="165" y2="92" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<circle cx="130" cy="88" r="10" fill="none" stroke="#E0E0E0" stroke-width="2"/>' +
-      '<line x1="20" y1="92" x2="180" y2="92" stroke="#00FF87" stroke-width="1" stroke-dasharray="4,4" opacity="0.25"/>' +
-      '<text x="100" y="165" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">PLANCHE</text>' +
+      '<line x1="20" y1="92" x2="180" y2="92" stroke="#2563EB" stroke-width="1" stroke-dasharray="4,4" opacity="0.25"/>' +
+      '<text x="100" y="165" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">PLANCHE</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   human_flag: {
@@ -206,16 +206,16 @@ var EXERCISE_VISUALS = {
     svg: '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
       '<rect x="160" y="10" width="8" height="185" rx="2" fill="#A0A0B8" opacity="0.3"/>' +
       '<rect x="50" y="15" width="110" height="4" rx="2" fill="#A0A0B8" opacity="0.4"/>' +
-      '<circle cx="80" cy="22" r="7" fill="#00FF87" opacity="0.8"/>' +
-      '<circle cx="120" cy="22" r="7" fill="#00FF87" opacity="0.8"/>' +
+      '<circle cx="80" cy="22" r="7" fill="#2563EB" opacity="0.8"/>' +
+      '<circle cx="120" cy="22" r="7" fill="#2563EB" opacity="0.8"/>' +
       '<line x1="80" y1="29" x2="85" y2="55" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
       '<line x1="120" y1="29" x2="115" y2="55" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<circle cx="100" cy="62" r="11" fill="none" stroke="#00FF87" stroke-width="2"/>' +
+      '<circle cx="100" cy="62" r="11" fill="none" stroke="#2563EB" stroke-width="2"/>' +
       '<line x1="100" y1="73" x2="100" y2="130" stroke="#E0E0E0" stroke-width="3" stroke-linecap="round"/>' +
       '<line x1="100" y1="130" x2="158" y2="125" stroke="#E0E0E0" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<text x="100" y="195" text-anchor="middle" fill="#00FF87" font-size="11" font-family="Inter,sans-serif" font-weight="600">HSPU</text>' +
+      '<text x="100" y="195" text-anchor="middle" fill="#2563EB" font-size="11" font-family="Inter,sans-serif" font-weight="600">HSPU</text>' +
       '</svg>',
-    color: '#00FF87'
+    color: '#2563EB'
   },
 
   repos: {

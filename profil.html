@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -38,15 +38,15 @@
       <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
     </div>
     <div class="mobile-menu-links">
-      <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
-      <a href="profil.html" class="active"><span class="nav-icon">👤</span> Profil</a>
-      <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
-      <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-      <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-      <a href="programme.html"><span class="nav-icon">📋</span> Programme</a>
-      <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
-      <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
-      <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profil.html" class="active">Profil</a>
+      <a href="progression.html">Progression</a>
+      <a href="entrainement.html">Entraînement</a>
+      <a href="analytics.html">Analytics</a>
+      <a href="programme.html">Programme</a>
+      <a href="streetlifting.html">Streetlifting</a>
+      <a href="abonnement.html">Plans</a>
+      <a href="#" data-action="logout">Déconnexion</a>
     </div>
   </div>
   <div class="menu-backdrop" id="menu-backdrop"></div>
@@ -56,15 +56,15 @@
     <!-- Sidebar (desktop) -->
     <aside class="sidebar">
       <div class="sidebar-links">
-        <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="profil.html" class="active"><span class="nav-icon">👤</span> Profil</a>
-        <a href="progression.html"><span class="nav-icon">📈</span> Progression</a>
-        <a href="entrainement.html"><span class="nav-icon">💪</span> Entraînement</a>
-        <a href="analytics.html"><span class="nav-icon">📉</span> Analytics</a>
-        <a href="programme.html"><span class="nav-icon">📋</span> Programme</a>
-        <a href="streetlifting.html"><span class="nav-icon">🏋️</span> Streetlifting</a>
-        <a href="abonnement.html"><span class="nav-icon">💎</span> Plans</a>
-        <a href="#" data-action="logout"><span class="nav-icon">🚪</span> Déconnexion</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="profil.html" class="active">Profil</a>
+        <a href="progression.html">Progression</a>
+        <a href="entrainement.html">Entraînement</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="programme.html">Programme</a>
+        <a href="streetlifting.html">Streetlifting</a>
+        <a href="abonnement.html">Plans</a>
+        <a href="#" data-action="logout">Déconnexion</a>
       </div>
     </aside>
 
@@ -77,7 +77,7 @@
         <div class="profil-hero-info">
           <div class="profil-hero-name" id="hero-name">Athlète</div>
           <div class="profil-hero-pseudo" id="hero-pseudo"></div>
-          <div class="profil-hero-badge" id="hero-badge">🌱 Débutant</div>
+          <div class="profil-hero-badge" id="hero-badge">Débutant</div>
         </div>
         <div class="profil-hero-stats">
           <div class="profil-stat">
@@ -103,7 +103,7 @@
       <section class="section reveal">
         <div class="section-header">
           <h2 class="section-title">Identité</h2>
-          <button class="btn-edit" id="btn-edit-identity">✏️ Modifier</button>
+          <button class="btn-edit" id="btn-edit-identity">Modifier</button>
         </div>
 
         <!-- Mode lecture -->
@@ -147,19 +147,44 @@
             <span class="char-counter"><span id="bio-count">0</span>/150</span>
           </div>
           <div class="form-actions">
-            <button class="btn btn-primary" id="btn-save-identity">💾 Sauvegarder</button>
+            <button class="btn btn-primary" id="btn-save-identity">Sauvegarder</button>
             <button class="btn btn-secondary" id="btn-cancel-identity">Annuler</button>
           </div>
         </div>
       </section>
 
-      <!-- SECTION 2 — OBJECTIFS FITNESS -->
+      <!-- SECTION 2 — OBJECTIF PRINCIPAL -->
+      <section class="section reveal">
+        <h2 class="section-title">Objectif principal</h2>
+        <p class="section-subtitle">Ton objectif prioritaire guide la g&eacute;n&eacute;ration de programmes.</p>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label" for="objectif-principal-select">Cat&eacute;gorie</label>
+          <select id="objectif-principal-select" class="form-input">
+            <option value="">-- Choisir --</option>
+            <option value="force">Force maximale</option>
+            <option value="esthetique">Esth&eacute;tique / Hypertrophie</option>
+            <option value="skills">Skills &amp; figures</option>
+            <option value="endurance">Endurance</option>
+            <option value="perte_poids">Perte de poids</option>
+            <option value="flexibilite">Flexibilit&eacute; / Mobilit&eacute;</option>
+            <option value="streetlifting">Streetlifting</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label" for="objectif-principal-detail">D&eacute;tails (optionnel)</label>
+          <input type="text" id="objectif-principal-detail" class="form-input"
+            placeholder="Ex: R&eacute;ussir un muscle-up d'ici 3 mois" maxlength="100">
+        </div>
+        <button class="btn btn-primary" id="btn-save-objectif-principal">Sauvegarder</button>
+      </section>
+
+      <!-- SECTION 3 — OBJECTIFS FITNESS -->
       <section class="section reveal">
         <h2 class="section-title">Objectifs fitness</h2>
         <p class="section-subtitle">Sélectionne tes objectifs — ils influencent les recommandations du coach IA.</p>
         <div class="objectifs-grid" id="objectifs-grid"></div>
         <button class="btn btn-primary" id="btn-save-objectifs" style="margin-top: 16px">
-          💾 Sauvegarder les objectifs
+          Sauvegarder les objectifs
         </button>
       </section>
 
@@ -179,23 +204,18 @@
   <!-- Bottom Navigation (mobile) -->
   <nav class="bottom-nav">
     <a href="dashboard.html">
-      <span class="nav-icon">📊</span>
       Dashboard
     </a>
     <a href="profil.html" class="active">
-      <span class="nav-icon">👤</span>
       Profil
     </a>
     <a href="entrainement.html">
-      <span class="nav-icon">💪</span>
       Entraînement
     </a>
     <a href="programme.html">
-      <span class="nav-icon">📋</span>
       Programme
     </a>
     <a href="progression.html">
-      <span class="nav-icon">📈</span>
       Progress.
     </a>
   </nav>

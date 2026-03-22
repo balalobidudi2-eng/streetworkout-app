@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    PROGRESSION.JS — Exercise Progression (Supabase)
    ======================================== */
 
@@ -10,7 +10,7 @@ var _progData = {};
 var EXERCISES = [
   /* ── PULL ── */
   {
-    id: 'pullups', name: 'Tractions', icon: '💪', color: '#00FF87', category: 'pull',
+    id: 'pullups', name: 'Tractions', icon: '', color: '#2563EB', category: 'pull',
     steps: [
       { id: 'pullups-1', name: 'Suspension active', desc: 'Maintien bras tendus à la barre, 20s+' },
       { id: 'pullups-2', name: 'Rangée australienne', desc: 'Inverted row sous une barre basse' },
@@ -21,7 +21,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'muscleup', name: 'Muscle-up', icon: '🚀', color: '#FF3D5A', category: 'pull',
+    id: 'muscleup', name: 'Muscle-up', icon: '', color: '#FF3D5A', category: 'pull',
     steps: [
       { id: 'muscleup-1', name: 'Tractions explosives', desc: 'Tête au-dessus de la barre à chaque rep' },
       { id: 'muscleup-2', name: 'Sortie de buste', desc: 'Partial muscle-up — monter le torse au-dessus' },
@@ -31,7 +31,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'frontlever', name: 'Front Lever', icon: '🏋️', color: '#00B4FF', category: 'pull',
+    id: 'frontlever', name: 'Front Lever', icon: '', color: '#00B4FF', category: 'pull',
     steps: [
       { id: 'frontlever-1', name: 'Compression abdominale', desc: 'Hollow body hold — dos plaqué au sol' },
       { id: 'frontlever-2', name: 'Front lever groupé', desc: 'Genoux ramenés vers la poitrine suspendu' },
@@ -41,7 +41,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'backlever', name: 'Back Lever', icon: '🏊', color: '#EA580C', category: 'pull',
+    id: 'backlever', name: 'Back Lever', icon: '', color: '#EA580C', category: 'pull',
     steps: [
       { id: 'backlever-1', name: 'German hang passif', desc: 'Suspension épaules en arrière, corps tombant' },
       { id: 'backlever-2', name: 'Back lever groupé', desc: 'Genoux ramenés, dos horizontal' },
@@ -52,7 +52,7 @@ var EXERCISES = [
   },
   /* ── PUSH ── */
   {
-    id: 'dips', name: 'Dips', icon: '🔥', color: '#00B4FF', category: 'push',
+    id: 'dips', name: 'Dips', icon: '', color: '#00B4FF', category: 'push',
     steps: [
       { id: 'dips-1', name: 'Dips sur chaise', desc: 'Position assise, mains sur le rebord, descente contrôlée' },
       { id: 'dips-2', name: 'Dips barres parallèles', desc: 'Poids de corps uniquement, amplitude complète' },
@@ -62,7 +62,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'pushups', name: 'Pompes', icon: '⚡', color: '#FF6B35', category: 'push',
+    id: 'pushups', name: 'Pompes', icon: '', color: '#FF6B35', category: 'push',
     steps: [
       { id: 'pushups-1', name: 'Pompes sur genoux', desc: 'Version allégée pour construire la base' },
       { id: 'pushups-2', name: 'Pompes normales', desc: 'Position planche, amplitude complète' },
@@ -73,7 +73,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'handstand', name: 'Handstand / HSPU', icon: '🤸', color: '#7C3AED', category: 'push',
+    id: 'handstand', name: 'Handstand / HSPU', icon: '', color: '#7C3AED', category: 'push',
     steps: [
       { id: 'handstand-1', name: 'Planche inclinée sur mur', desc: 'Pieds sur le mur, corps incliné à 45°' },
       { id: 'handstand-2', name: 'Kick-up contre le mur', desc: 'Monter en équilibre contre le mur 20-30s' },
@@ -85,7 +85,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'planche', name: 'Planche', icon: '🤾', color: '#16A34A', category: 'push',
+    id: 'planche', name: 'Planche', icon: '', color: '#16A34A', category: 'push',
     steps: [
       { id: 'planche-1', name: 'Planche lean', desc: 'Penché en avant sur les paumes, pieds au sol' },
       { id: 'planche-2', name: 'Tuck planche', desc: 'Genoux contre la poitrine, pieds décollés' },
@@ -96,7 +96,7 @@ var EXERCISES = [
   },
   /* ── SKILLS ── */
   {
-    id: 'humanflag', name: 'Human Flag', icon: '🚩', color: '#0284C7', category: 'skills',
+    id: 'humanflag', name: 'Human Flag', icon: '', color: '#0284C7', category: 'skills',
     steps: [
       { id: 'humanflag-1', name: 'Side plank vertical', desc: 'Gainage latéral sur poteau / mur' },
       { id: 'humanflag-2', name: 'Flag groupé', desc: 'Corps en boule, position latérale sur poteau' },
@@ -106,7 +106,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'lsit', name: 'L-sit', icon: '🪑', color: '#FFD93D', category: 'skills',
+    id: 'lsit', name: 'L-sit', icon: '', color: '#FFD93D', category: 'skills',
     steps: [
       { id: 'lsit-1', name: 'Tuck L-sit au sol', desc: 'Genoux rentrés, fesses décollées du sol' },
       { id: 'lsit-2', name: 'L-sit une jambe', desc: 'Une jambe tendue, une repliée' },
@@ -116,7 +116,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'maltese', name: 'Maltese / Iron Cross', icon: '✝️', color: '#DC2626', category: 'skills',
+    id: 'maltese', name: 'Maltese / Iron Cross', icon: '', color: '#DC2626', category: 'skills',
     steps: [
       { id: 'maltese-1', name: 'Support aux anneaux', desc: 'Maintien stable bras tendus 30s+' },
       { id: 'maltese-2', name: 'Croix de fer assistée', desc: 'Élastique ou assistance partielle' },
@@ -127,7 +127,7 @@ var EXERCISES = [
   },
   /* ── LEGS ── */
   {
-    id: 'squats', name: 'Squats', icon: '🦵', color: '#00FF87', category: 'legs',
+    id: 'squats', name: 'Squats', icon: '', color: '#2563EB', category: 'legs',
     steps: [
       { id: 'squats-1', name: 'Squat assisté', desc: 'Avec TRX ou appui sur une chaise' },
       { id: 'squats-2', name: 'Goblet squat', desc: 'Sans charge, focus sur la mobilité' },
@@ -138,7 +138,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'nordic', name: 'Nordic Curl', icon: '🔻', color: '#F97316', category: 'legs',
+    id: 'nordic', name: 'Nordic Curl', icon: '', color: '#F97316', category: 'legs',
     steps: [
       { id: 'nordic-1', name: 'Négatif assisté', desc: 'Descente lente avec appui sur les mains' },
       { id: 'nordic-2', name: 'Négatif complet', desc: 'Descente contrôlée sans aide' },
@@ -148,7 +148,7 @@ var EXERCISES = [
     ]
   },
   {
-    id: 'calfpress', name: 'Mollets', icon: '🦶', color: '#06B6D4', category: 'legs',
+    id: 'calfpress', name: 'Mollets', icon: '', color: '#06B6D4', category: 'legs',
     steps: [
       { id: 'calfpress-1', name: 'Élévation bilatérale', desc: 'Montée sur pointes, deux pieds au sol' },
       { id: 'calfpress-2', name: 'Élévation sur marche', desc: 'Talon plus bas que les orteils pour amplitude' },
@@ -162,8 +162,8 @@ var EXERCISES = [
 /* Status options */
 var STATUS_OPTIONS = [
   { value: 'not-acquired', label: '⬜ Non acquis' },
-  { value: 'in-progress', label: '🔄 En cours' },
-  { value: 'mastered', label: '✅ Maîtrisé' }
+  { value: 'in-progress', label: 'En cours' },
+  { value: 'mastered', label: 'Maîtrisé' }
 ];
 
 async function initProgression() {
@@ -348,7 +348,7 @@ function showReadyBadge(exerciseId, exerciseName) {
 
   var badge = document.createElement('div');
   badge.className = 'ready-badge';
-  badge.innerHTML = '<span class="ready-badge-icon">🏆</span> Prêt pour le niveau suivant\u00a0!';
+  badge.innerHTML = '<span class="ready-badge-icon"></span> Prêt pour le niveau suivant\u00a0!';
   var header = accordion.querySelector('.accordion-header');
   if (header) header.insertAdjacentElement('afterend', badge);
 }
@@ -375,7 +375,7 @@ async function updateStepStatus(stepId, newValue, inputEl) {
   if (newValue === 'mastered' && oldValue !== 'mastered') {
     var rect = inputEl.parentElement.getBoundingClientRect();
     launchConfetti(rect.left + rect.width / 2, rect.top);
-    showToast('Étape maîtrisée ! 🎉');
+    showToast('Étape maîtrisée');
     checkReadyToProgress(stepId);
   }
 

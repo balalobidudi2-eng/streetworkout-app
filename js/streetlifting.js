@@ -1,19 +1,19 @@
-/* ========================================
+﻿/* ========================================
    STREETLIFTING.JS — Weight Tracking (Supabase)
    ======================================== */
 
 var _slUserId = null;
 
 var EQUIPMENT = [
-  { id: 'vest', name: 'Gilet lesté', icon: '🦺', maxKg: 40 },
-  { id: 'belt', name: 'Ceinture lestée', icon: '🔗', maxKg: 150 },
-  { id: 'plates20', name: 'Disques 20 kg', icon: '🏋️', maxKg: 40 },
-  { id: 'plates25', name: 'Disques 25 kg', icon: '🏋️', maxKg: 50 }
+  { id: 'vest', name: 'Gilet lesté', icon: '', maxKg: 40 },
+  { id: 'belt', name: 'Ceinture lestée', icon: '', maxKg: 150 },
+  { id: 'plates20', name: 'Disques 20 kg', icon: '', maxKg: 40 },
+  { id: 'plates25', name: 'Disques 25 kg', icon: '', maxKg: 50 }
 ];
 
 var SL_EXERCISES = [
-  { id: 'weighted-pullups', name: 'Tractions lestées', icon: '💪' },
-  { id: 'weighted-dips', name: 'Dips lestés', icon: '🔥' }
+  { id: 'weighted-pullups', name: 'Tractions lestées', icon: '' },
+  { id: 'weighted-dips', name: 'Dips lestés', icon: '' }
 ];
 
 async function initStreetlifting() {
@@ -150,7 +150,7 @@ async function addRecord(exerciseId) {
 
   await renderRecordTable(exerciseId);
   await renderProgressChart();
-  showToast('Record enregistré ! 💪');
+  showToast('Record enregistré');
 }
 
 /* Render all record tables */
@@ -184,7 +184,7 @@ async function renderRecordTable(exerciseId) {
 
   records.forEach(function(rec) {
     var prBadge = (rec.volume === maxVolume) ? ' <span class="badge badge-pr">PR</span>' : '';
-    var prClass = (rec.volume === maxVolume) ? ' style="background:rgba(0,255,135,0.03);"' : '';
+    var prClass = (rec.volume === maxVolume) ? ' style="background:rgba(37,99,235,0.03);"' : '';
 
     html += '<tr' + prClass + '>' +
       '<td>' + rec.date_perf + '</td>' +
@@ -222,7 +222,7 @@ async function renderProgressChart() {
 
   if (pullRecords.length < 2 && dipsRecords.length < 2) {
     container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">' +
-      '<p>📊</p><p>Enregistre au moins 2 records pour voir l\'évolution.</p></div>';
+      '<p></p><p>Enregistre au moins 2 records pour voir l\'évolution.</p></div>';
     return;
   }
 
@@ -293,11 +293,11 @@ async function renderProgressChart() {
 
   var svg = '<svg width="100%" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' +
     grid +
-    '<path d="' + buildPath(pullData) + '" fill="none" stroke="#00FF87" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="' + buildPath(pullData) + '" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="' + buildPath(dipsData) + '" fill="none" stroke="#00B4FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-    buildDots(pullData, '#00FF87') +
+    buildDots(pullData, '#2563EB') +
     buildDots(dipsData, '#00B4FF') +
-    '<circle cx="' + (width - padX - 80) + '" cy="12" r="5" fill="#00FF87"/>' +
+    '<circle cx="' + (width - padX - 80) + '" cy="12" r="5" fill="#2563EB"/>' +
     '<text x="' + (width - padX - 70) + '" y="16" fill="var(--text-secondary)" font-size="11">Tractions</text>' +
     '<circle cx="' + (width - padX - 80) + '" cy="28" r="5" fill="#00B4FF"/>' +
     '<text x="' + (width - padX - 70) + '" y="32" fill="var(--text-secondary)" font-size="11">Dips</text>' +

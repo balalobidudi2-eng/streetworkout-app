@@ -19,7 +19,7 @@ var swbot = (function() {
     _render();
     _bindEvents();
     _addMessage('bot',
-      'Salut\u00a0! Je suis SwBot, ton coach Street Workout 💪\n' +
+      'Salut\u00a0! Je suis SwBot, ton coach Street Workout\n' +
       'Pose-moi tes questions sur l\'entraînement, les progressions, ou demande-moi un programme.'
     );
   }
@@ -84,7 +84,7 @@ var swbot = (function() {
     el.id = 'swbot-container';
     el.innerHTML =
       '<button id="swbot-toggle" aria-label="Ouvrir le coach IA">' +
-        '<span class="swbot-icon-open">💬</span>' +
+        '<span class="swbot-icon-open">Chat</span>' +
         '<span class="swbot-icon-close">✕</span>' +
         '<span class="swbot-badge" id="swbot-badge"></span>' +
       '</button>' +
@@ -226,7 +226,7 @@ var swbot = (function() {
 
     } catch (err) {
       _hideTyping();
-      _addMessage('bot', 'Connexion perdue. Vérifie ta connexion internet 🌐');
+      _addMessage('bot', 'Connexion perdue. Vérifie ta connexion internet');
     } finally {
       _isLoading = false;
     }

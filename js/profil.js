@@ -5,7 +5,7 @@
 
 /* ── Couleurs disponibles pour l'avatar */
 var AVATAR_COLORS = [
-  { bg: '#16A34A', text: '#FFFFFF', label: 'Vert SW' },
+  { bg: '#2563EB', text: '#FFFFFF', label: 'Bleu' },
   { bg: '#0284C7', text: '#FFFFFF', label: 'Bleu' },
   { bg: '#EA580C', text: '#FFFFFF', label: 'Orange' },
   { bg: '#DC2626', text: '#FFFFFF', label: 'Rouge' },
@@ -17,69 +17,69 @@ var AVATAR_COLORS = [
 
 /* ── Objectifs disponibles */
 var OBJECTIFS_LIST = [
-  { id: 'force',         label: 'Force maximale',    icon: '⚡', desc: 'Soulever lourd, progresser en lestés' },
-  { id: 'esthetique',    label: 'Esthétique',         icon: '💎', desc: 'Prise de masse, définition musculaire' },
-  { id: 'skills',        label: 'Skills & figures',   icon: '🤸', desc: 'Planche, front lever, muscle-up' },
-  { id: 'endurance',     label: 'Endurance',          icon: '🏃', desc: 'Tenir plus longtemps, récupérer vite' },
-  { id: 'perte_poids',   label: 'Perte de poids',     icon: '🔥', desc: 'Brûler des calories, rester actif' },
-  { id: 'flexibilite',   label: 'Flexibilité',        icon: '🧘', desc: 'Mobilité, prévention blessures' },
-  { id: 'streetlifting', label: 'Streetlifting',      icon: '🏋️', desc: 'Compétition, charges maximales' },
+  { id: 'force',         label: 'Force maximale',    icon: '', desc: 'Soulever lourd, progresser en lestés' },
+  { id: 'esthetique',    label: 'Esthétique',         icon: '', desc: 'Prise de masse, définition musculaire' },
+  { id: 'skills',        label: 'Skills & figures',   icon: '', desc: 'Planche, front lever, muscle-up' },
+  { id: 'endurance',     label: 'Endurance',          icon: '', desc: 'Tenir plus longtemps, récupérer vite' },
+  { id: 'perte_poids',   label: 'Perte de poids',     icon: '', desc: 'Brûler des calories, rester actif' },
+  { id: 'flexibilite',   label: 'Flexibilité',        icon: '', desc: 'Mobilité, prévention blessures' },
+  { id: 'streetlifting', label: 'Streetlifting',      icon: '', desc: 'Compétition, charges maximales' },
 ];
 
 /* ── Système de badges */
 var BADGES_LIST = [
   {
     id: 'first_session',
-    icon: '🎯', label: 'Première séance',
+    icon: '', label: 'Première séance',
     desc: 'Complète ta première séance',
     condition: function(data) { return (SW.load('sessions') || []).length >= 1; },
     color: '#16A34A'
   },
   {
     id: 'five_sessions',
-    icon: '🔥', label: 'En feu',
+    icon: '', label: 'En feu',
     desc: '5 séances complétées',
     condition: function(data) { return (SW.load('sessions') || []).length >= 5; },
     color: '#EA580C'
   },
   {
     id: 'ten_sessions',
-    icon: '💪', label: 'Régularité',
+    icon: '', label: 'Régularité',
     desc: '10 séances complétées',
     condition: function(data) { return (SW.load('sessions') || []).length >= 10; },
     color: '#0284C7'
   },
   {
     id: 'first_pullup',
-    icon: '🔼', label: 'Premier pull-up',
+    icon: '', label: 'Premier pull-up',
     desc: 'Enregistre tes premières tractions',
     condition: function(data) { return (data.pullups || 0) >= 1; },
     color: '#16A34A'
   },
   {
     id: 'ten_pullups',
-    icon: '⚡', label: 'Pulling Power',
+    icon: '', label: 'Pulling Power',
     desc: "10 tractions d'affilée",
     condition: function(data) { return (data.pullups || 0) >= 10; },
     color: '#D97706'
   },
   {
     id: 'twenty_pullups',
-    icon: '👑', label: 'Pull-up King',
+    icon: '', label: 'Pull-up King',
     desc: '20 tractions ou plus',
     condition: function(data) { return (data.pullups || 0) >= 20; },
     color: '#D97706'
   },
   {
     id: 'muscleup',
-    icon: '🚀', label: 'Muscle-up',
+    icon: '', label: 'Muscle-up',
     desc: 'Muscle-up maîtrisé',
     condition: function(data) { return data.muscleup === 'oui'; },
     color: '#EA580C'
   },
   {
     id: 'intermediaire',
-    icon: '🌟', label: 'Niveau Intermédiaire',
+    icon: '', label: 'Niveau Intermédiaire',
     desc: 'Atteindre le niveau Intermédiaire',
     condition: function(data) {
       var lvl = getLevelResult(data).level;
@@ -89,7 +89,7 @@ var BADGES_LIST = [
   },
   {
     id: 'avance',
-    icon: '🔥', label: 'Niveau Avancé',
+    icon: '', label: 'Niveau Avancé',
     desc: 'Atteindre le niveau Avancé',
     condition: function(data) {
       var lvl = getLevelResult(data).level;
@@ -99,14 +99,14 @@ var BADGES_LIST = [
   },
   {
     id: 'elite',
-    icon: '👑', label: 'Élite',
+    icon: '', label: 'Élite',
     desc: 'Atteindre le niveau Élite',
     condition: function(data) { return getLevelResult(data).level === 'Élite'; },
     color: '#D97706'
   },
   {
     id: 'profile_complete',
-    icon: '✅', label: 'Profil complet',
+    icon: '', label: 'Profil complet',
     desc: 'Renseigner prénom, pseudo et bio',
     condition: function(data) {
       var p = SW.load('userProfile') || {};
@@ -116,7 +116,7 @@ var BADGES_LIST = [
   },
   {
     id: 'objectifs_set',
-    icon: '🎯', label: 'Objectifs définis',
+    icon: '', label: 'Objectifs définis',
     desc: 'Sélectionner au moins 2 objectifs',
     condition: function(data) {
       var p = SW.load('userProfile') || {};
@@ -126,14 +126,14 @@ var BADGES_LIST = [
   },
   {
     id: 'first_program',
-    icon: '📋', label: 'Premier programme',
+    icon: '', label: 'Premier programme',
     desc: 'Générer et sauvegarder un programme',
     condition: function(data) { return (SW.load('generated_programs') || []).length >= 1; },
     color: '#0284C7'
   },
   {
     id: 'skills_5',
-    icon: '🤸', label: 'Apprenti Skills',
+    icon: '', label: 'Apprenti Skills',
     desc: '5 étapes de progression maîtrisées',
     condition: function(data) {
       var prog = SW.load('progression') || {};
@@ -143,7 +143,7 @@ var BADGES_LIST = [
   },
   {
     id: 'skills_15',
-    icon: '🌟', label: 'Maître des Skills',
+    icon: '', label: 'Maître des Skills',
     desc: '15 étapes de progression maîtrisées',
     condition: function(data) {
       var prog = SW.load('progression') || {};
@@ -172,6 +172,7 @@ async function initProfil() {
   loadHero(_profilData, profile);
   loadIdentityView(profile);
   renderAvatarColors(profile.avatarColor || AVATAR_COLORS[0].bg);
+  loadObjectifPrincipal(profile);
   renderObjectifs(profile.objectifs || []);
   renderBadges(_profilData);
   bindProfilEvents(_profilData);
@@ -253,11 +254,11 @@ function getLevelResult(data) {
 
   if (data.muscleup === 'oui') score += 15;
 
-  if (score >= 75) return { level: 'Élite',         emoji: '👑', color: '#D97706',  score: score };
-  if (score >= 55) return { level: 'Avancé',        emoji: '🔥', color: '#16A34A',  score: score };
-  if (score >= 35) return { level: 'Intermédiaire', emoji: '⚡', color: '#0284C7',  score: score };
-  if (score >= 15) return { level: 'Novice',        emoji: '🌟', color: '#EA580C',  score: score };
-  return              { level: 'Débutant',      emoji: '🌱', color: '#94A3B8',  score: score };
+  if (score >= 75) return { level: 'Élite',         emoji: '', color: '#D97706',  score: score };
+  if (score >= 55) return { level: 'Avancé',        emoji: '', color: '#16A34A',  score: score };
+  if (score >= 35) return { level: 'Intermédiaire', emoji: '', color: '#0284C7',  score: score };
+  if (score >= 15) return { level: 'Novice',        emoji: '', color: '#EA580C',  score: score };
+  return              { level: 'Débutant',      emoji: '', color: '#94A3B8',  score: score };
 }
 
 /* ════════════════════════════════════════
@@ -305,7 +306,7 @@ function bindProfilEvents(supaData) {
     if (isEditing) {
       editSection.style.display = 'none';
       viewSection.style.display = 'flex';
-      document.getElementById('btn-edit-identity').textContent = '✏️ Modifier';
+      document.getElementById('btn-edit-identity').textContent = 'Modifier';
     } else {
       var p = SW.load('userProfile') || {};
       document.getElementById('input-prenom').value = p.prenom || '';
@@ -315,7 +316,7 @@ function bindProfilEvents(supaData) {
 
       editSection.style.display = 'flex';
       viewSection.style.display = 'none';
-      document.getElementById('btn-edit-identity').textContent = '✕ Fermer';
+      document.getElementById('btn-edit-identity').textContent = 'Fermer';
       document.getElementById('input-prenom').focus();
     }
   });
@@ -338,13 +339,13 @@ function bindProfilEvents(supaData) {
     loadIdentityView(updated);
     document.getElementById('identity-edit').style.display = 'none';
     document.getElementById('identity-view').style.display = 'flex';
-    document.getElementById('btn-edit-identity').textContent = '✏️ Modifier';
+    document.getElementById('btn-edit-identity').textContent = 'Modifier';
 
     document.getElementById('hero-name').textContent = prenom || 'Athlète';
     document.getElementById('hero-pseudo').textContent = pseudo ? ('@' + pseudo) : '';
     document.getElementById('hero-avatar').textContent = (prenom || 'A').charAt(0).toUpperCase();
 
-    showToast('Profil mis à jour ✅');
+    showToast('Profil mis à jour');
     _checkBadgeUnlock('profile_complete', supaData);
   });
 
@@ -352,7 +353,7 @@ function bindProfilEvents(supaData) {
   document.getElementById('btn-cancel-identity').addEventListener('click', function() {
     document.getElementById('identity-edit').style.display = 'none';
     document.getElementById('identity-view').style.display = 'flex';
-    document.getElementById('btn-edit-identity').textContent = '✏️ Modifier';
+    document.getElementById('btn-edit-identity').textContent = 'Modifier';
   });
 
   /* Sauvegarder objectifs */
@@ -361,11 +362,36 @@ function bindProfilEvents(supaData) {
       .map(function(el) { return el.dataset.id; });
     var profile = SW.load('userProfile') || {};
     SW.save('userProfile', Object.assign({}, profile, { objectifs: selected }));
-    showToast(selected.length + ' objectif(s) sauvegardé(s) ✅');
+    showToast(selected.length + ' objectif(s) sauvegardé(s)');
 
     renderBadges(supaData);
     _checkBadgeUnlock('objectifs_set', supaData);
   });
+
+  /* Sauvegarder objectif principal */
+  var btnObjPrincipal = document.getElementById('btn-save-objectif-principal');
+  if (btnObjPrincipal) {
+    btnObjPrincipal.addEventListener('click', function() {
+      var cat = document.getElementById('objectif-principal-select').value;
+      var detail = document.getElementById('objectif-principal-detail').value.trim();
+      var profile = SW.load('userProfile') || {};
+      SW.save('userProfile', Object.assign({}, profile, {
+        objectif_principal: cat,
+        objectif_principal_detail: detail
+      }));
+      showToast('Objectif principal sauvegardé');
+    });
+  }
+}
+
+/* ════════════════════════════════════════
+   OBJECTIF PRINCIPAL
+   ════════════════════════════════════════ */
+function loadObjectifPrincipal(profile) {
+  var sel = document.getElementById('objectif-principal-select');
+  var det = document.getElementById('objectif-principal-detail');
+  if (sel && profile.objectif_principal) sel.value = profile.objectif_principal;
+  if (det && profile.objectif_principal_detail) det.value = profile.objectif_principal_detail;
 }
 
 /* ════════════════════════════════════════
@@ -413,7 +439,7 @@ function renderBadges(supaData) {
   grid.innerHTML = results.map(function(badge) {
     return '<div class="badge-card ' + (badge.unlocked ? 'badge-card--unlocked' : 'badge-card--locked') + '">'
       + '<div class="badge-icon"' + (badge.unlocked ? ' style="color:' + badge.color + '"' : '') + '>'
-      + (badge.unlocked ? badge.icon : '🔒')
+      + (badge.unlocked ? badge.icon : '')
       + '</div>'
       + '<div class="badge-label">' + badge.label + '</div>'
       + '<div class="badge-desc">' + badge.desc + '</div>'
@@ -425,7 +451,7 @@ function renderBadges(supaData) {
 function _checkBadgeUnlock(badgeId, supaData) {
   var badge = BADGES_LIST.find(function(b) { return b.id === badgeId; });
   if (badge && badge.condition(supaData)) {
-    showToast('🏆 Badge débloqué : ' + badge.label + ' !');
+    showToast('Badge débloqué : ' + badge.label + ' !');
     renderBadges(supaData);
   }
 }

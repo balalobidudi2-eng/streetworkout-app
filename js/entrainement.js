@@ -96,7 +96,7 @@ function renderTodayCard() {
 
   if (!exos) {
     card.innerHTML = '<div class="today-card-rest">' +
-      '<div class="today-card-icon">🧘</div>' +
+      '<div class="today-card-icon"></div>' +
       '<div class="today-card-content">' +
         '<div class="today-card-type" style="color:' + prog.couleur + '">' + prog.nom + '</div>' +
         '<div class="today-card-muscles">' + prog.muscles + '</div>' +
@@ -179,7 +179,7 @@ function renderTodaySession() {
 
   var exos = EXERCICES[prog.nom];
   if (!exos) {
-    container.innerHTML = '<div class="rest-day-msg"><p>🧘 Jour de repos</p><p>Profitez-en pour récupérer, vous étirer, ou faire une marche active.</p></div>';
+    container.innerHTML = '<div class="rest-day-msg"><p>Jour de repos</p><p>Profitez-en pour récupérer, vous étirer, ou faire une marche active.</p></div>';
     var saveBtn = document.getElementById('save-session');
     if (saveBtn) saveBtn.style.display = 'none';
     return;
@@ -234,7 +234,7 @@ async function saveSession() {
   var res = await SB.from('sessions').insert(session);
   if (res.error) { showToast('Erreur sauvegarde session.', 'error'); return; }
 
-  showToast('Session sauvegardée ! 💪');
+  showToast('Session sauvegardée');
   if (session.completion >= 80) launchConfetti();
   await renderHistory();
 }

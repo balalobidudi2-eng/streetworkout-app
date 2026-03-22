@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    COMPONENTS.CSS — Boutons, Cartes, Badges, Modals
    ======================================== */
 
@@ -26,9 +26,8 @@
 }
 .btn-primary:hover {
   background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-green);
-  animation: none;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-secondary {
@@ -92,9 +91,9 @@
   box-shadow: var(--shadow-card);
 }
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: var(--border-hover);
-  box-shadow: var(--shadow-green);
+  box-shadow: var(--shadow-primary);
 }
 
 .card-elevated {
@@ -109,15 +108,15 @@
 }
 
 .card-icon {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   margin-bottom: 16px;
-  background: rgba(0, 255, 135, 0.1);
+  background: rgba(37, 99, 235, 0.07);
   color: var(--primary);
 }
 
@@ -146,9 +145,9 @@
 }
 
 .badge-primary {
-  background: rgba(0, 255, 135, 0.12);
+  background: var(--primary-light);
   color: var(--primary);
-  border: 1px solid rgba(0, 255, 135, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
 .badge-orange {
@@ -170,7 +169,7 @@
 }
 
 .badge-pr {
-  background: rgba(0, 255, 135, 0.2);
+  background: var(--primary-light);
   color: var(--primary);
   font-weight: 700;
   padding: 4px 10px;
@@ -203,7 +202,7 @@
 }
 .form-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
   outline: none;
 }
 .form-input::placeholder {
@@ -447,9 +446,9 @@
   opacity: 1;
 }
 .toast-success {
-  background: rgba(0, 255, 135, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   color: var(--primary);
-  border: 1px solid rgba(0, 255, 135, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
 .toast-error {
   background: rgba(255, 61, 90, 0.15);

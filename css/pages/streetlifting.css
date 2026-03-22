@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    STREETLIFTING.CSS — Streetlifting Page Styles
    ======================================== */
 
@@ -110,8 +110,8 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: rgba(0, 255, 135, 0.06);
-  border: 1px solid rgba(0, 255, 135, 0.15);
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.15);
   border-radius: var(--radius-md);
 }
 .calc-result-label {

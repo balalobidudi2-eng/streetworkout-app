@@ -48,7 +48,6 @@ function _renderSessionTypeGrid() {
   Object.keys(SESSION_TYPES).forEach(function(key) {
     var type = SESSION_TYPES[key];
     html += '<button class="session-type-btn" data-type="' + type.id + '">' +
-      '<span class="session-type-icon">' + type.icon + '</span>' +
       '<span class="session-type-label">' + type.label + '</span>' +
       '</button>';
   });
@@ -99,20 +98,22 @@ async function _handleGenerate() {
 
   var durationSel = document.getElementById('duration-select');
   var objectifSel = document.getElementById('objectif-select');
+  var niveauSel   = document.getElementById('niveau-select');
   var duree   = durationSel ? parseInt(durationSel.value) : 45;
   var objectif = objectifSel ? objectifSel.value : 'street_workout';
+  var niveau   = niveauSel ? niveauSel.value : '';
 
   var btn = document.getElementById('btn-generate');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Génération...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Génération...'; }
 
   try {
-    currentProgram = await generateProgram({ type: selectedType, duree: duree, objectif: objectif }, _progUserProfile);
+    currentProgram = await generateProgram({ type: selectedType, duree: duree, objectif: objectif, niveau: niveau }, _progUserProfile);
     _renderProgram(currentProgram);
   } catch (err) {
     showToast('Erreur de génération. Réessaie.', 'error');
     console.error(err);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '⚡ Générer mon programme'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Générer mon programme'; }
   }
 }
 
@@ -166,7 +167,7 @@ function _renderProgram(program) {
       }
 
       var tipHtml = ex.notes
-        ? '<div class="exercise-tip">💡 ' + ex.notes + '</div>'
+        ? '<div class="exercise-tip">' + ex.notes + '</div>'
         : '';
 
       var wgerBadge = ex.source === 'wger'
@@ -217,7 +218,7 @@ function _handleStartProgram() {
 function _handleSaveProgram() {
   if (!currentProgram) return;
   saveGeneratedProgram(currentProgram);
-  showToast('Programme sauvegardé ✅');
+  showToast('Programme sauvegardé');
   _renderHistory();
 }
 

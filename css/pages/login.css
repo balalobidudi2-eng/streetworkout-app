@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    LOGIN.CSS — Login Page Styles
    ======================================== */
 
@@ -26,7 +26,7 @@
 .login-bg .hero-shape-1 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, rgba(0, 255, 135, 0.15), transparent);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent);
   top: -80px;
   right: -80px;
 }

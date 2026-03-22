@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    ANALYTICS.JS — Analytics Page (Supabase + Chart.js)
    ======================================== */
 
@@ -105,7 +105,7 @@ function renderEvolutionChart(mesures) {
 
   if (mesures.length < 2) {
     container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">' +
-      '<p style="font-size:2rem;">📊</p>' +
+      '<p style="font-size:2rem;"></p>' +
       '<p>Il faut au moins 2 enregistrements pour afficher les graphiques.</p></div>';
     return;
   }
@@ -119,14 +119,14 @@ function renderEvolutionChart(mesures) {
 
   container.innerHTML =
     '<div class="charts-grid">' +
-    '<div class="chart-wrap"><canvas id="an-chart-pullups"></canvas><div class="chart-label">💪 Tractions</div></div>' +
-    '<div class="chart-wrap"><canvas id="an-chart-dips"></canvas><div class="chart-label">🔥 Dips</div></div>' +
-    '<div class="chart-wrap"><canvas id="an-chart-pushups"></canvas><div class="chart-label">⚡ Pompes</div></div>' +
-    '<div class="chart-wrap"><canvas id="an-chart-poids"></canvas><div class="chart-label">⚖️ Poids</div></div>' +
+    '<div class="chart-wrap"><canvas id="an-chart-pullups"></canvas><div class="chart-label">Tractions</div></div>' +
+    '<div class="chart-wrap"><canvas id="an-chart-dips"></canvas><div class="chart-label">Dips</div></div>' +
+    '<div class="chart-wrap"><canvas id="an-chart-pushups"></canvas><div class="chart-label">Pompes</div></div>' +
+    '<div class="chart-wrap"><canvas id="an-chart-poids"></canvas><div class="chart-label">Poids</div></div>' +
     '</div>';
 
   var defs = [
-    { id: 'an-chart-pullups', key: 'pullups', color: '#16A34A', bg: 'rgba(22,163,74,0.1)' },
+    { id: 'an-chart-pullups', key: 'pullups', color: '#2563EB', bg: 'rgba(37,99,235,0.1)' },
     { id: 'an-chart-dips',    key: 'dips',    color: '#0284C7', bg: 'rgba(2,132,199,0.1)' },
     { id: 'an-chart-pushups', key: 'pushups', color: '#EA580C', bg: 'rgba(234,88,12,0.1)' },
     { id: 'an-chart-poids',   key: 'poids',   color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' }
@@ -186,10 +186,10 @@ function renderRadarChart(profile) {
       datasets: [{
         label: 'Niveau actuel (%)',
         data: [pullups, dips, pushups, squats, fl, hs],
-        borderColor: '#16A34A',
-        backgroundColor: 'rgba(22,163,74,0.15)',
+        borderColor: '#2563EB',
+        backgroundColor: 'rgba(37,99,235,0.15)',
         borderWidth: 2,
-        pointBackgroundColor: '#16A34A',
+        pointBackgroundColor: '#2563EB',
         pointRadius: 4
       }]
     },
@@ -290,7 +290,7 @@ function renderWeeklyVolumeChart(sessions) {
       labels: sortedWeeks.map(function(w) { return w.replace(/^\d{4}-/, ''); }),
       datasets: [{
         data: sortedWeeks.map(function(w) { return weekMap[w]; }),
-        backgroundColor: 'rgba(0,255,135,0.25)',
+        backgroundColor: 'rgba(37,99,235,0.25)',
         borderColor: '#00FF87',
         borderWidth: 2,
         borderRadius: 6
@@ -404,7 +404,7 @@ function renderComparisonRadar(profile) {
           label: 'Ton niveau (%)',
           data: userData,
           borderColor: '#00FF87',
-          backgroundColor: 'rgba(0,255,135,0.15)',
+          backgroundColor: 'rgba(37,99,235,0.15)',
           borderWidth: 2,
           pointBackgroundColor: '#00FF87',
           pointRadius: 5
@@ -450,25 +450,25 @@ function renderComparisonTable(profile) {
    */
   var rows = [
     {
-      nom: 'Tractions', emoji: '💪',
+      nom: 'Tractions', emoji: '',
       perf: profile.pullups || 0,
       niveaux: [3, 8, 12, 18, 23],
-      note: 'Epley 1RM / BW : <1.0, 1.0–1.3, 1.3–1.7, 1.7–2.1, >2.1'
+      note: 'Epley 1RM / BW : <1.0, 1.0\u20131.3, 1.3\u20131.7, 1.7\u20132.1, >2.1'
     },
     {
-      nom: 'Dips', emoji: '🔥',
+      nom: 'Dips', emoji: '',
       perf: profile.dips || 0,
       niveaux: [5, 12, 18, 25, 35],
-      note: 'Epley 1RM / BW : <1.0, 1.0–1.4, 1.4–1.8, 1.8–2.2, >2.2'
+      note: 'Epley 1RM / BW : <1.0, 1.0\u20131.4, 1.4\u20131.8, 1.8\u20132.2, >2.2'
     },
     {
-      nom: 'Pompes', emoji: '⚡',
+      nom: 'Pompes', emoji: '',
       perf: profile.pushups || 0,
       niveaux: [10, 20, 35, 50, 70],
       note: 'Charge effective ~64% BW (Winter 1990)'
     },
     {
-      nom: 'Squats', emoji: '🦵',
+      nom: 'Squats', emoji: '',
       perf: profile.squats || 0,
       niveaux: [15, 40, 70, 100, 140],
       note: 'Reps BW — référentiel NSCA'
@@ -510,11 +510,11 @@ function renderComparisonTable(profile) {
       var isCurrent = (lvl === i);
       var isNextTarget = (lvl === i - 1);
       html += '<td style="'
-        + (isCurrent    ? 'background:rgba(0,255,135,0.13);font-weight:700;' : '')
+        + (isCurrent    ? 'background:rgba(37,99,235,0.13);font-weight:700;' : '')
         + (isNextTarget ? 'background:rgba(255,107,53,0.08);' : '')
         + '">'
         + n
-        + (isNextTarget ? ' <span style="font-size:10px;color:#EA580C">🎯</span>' : '')
+        + (isNextTarget ? ' <span style="font-size:10px;color:#EA580C"></span>' : '')
         + '</td>';
     });
     html += '<td><span style="color:' + lvlColor + ';font-weight:700;font-size:12px">' + lvlLabel + '</span></td>';
@@ -523,7 +523,7 @@ function renderComparisonTable(profile) {
 
   html += '</tbody></table>' +
     '<p style="font-size:0.7rem;color:var(--text-muted);margin-top:6px">' +
-    '🎯 = prochain palier à atteindre · Valeurs en reps max poids de corps' +
+    'Prochain palier à atteindre · Valeurs en reps max poids de corps' +
     '</p></div>';
   container.innerHTML = html;
 }
