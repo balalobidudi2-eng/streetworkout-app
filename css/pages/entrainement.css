@@ -471,3 +471,345 @@
     font-size: 1.4rem;
   }
 }
+
+/* ══════════════════════════════════════════════════
+   TIMER 3 MODES — onglets, compte à rebours, séries
+   ══════════════════════════════════════════════════ */
+
+.timer-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+
+.timer-tab {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timer-tab--active {
+  background: var(--bg-card, #1a1a1a);
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.timer-panel { display: none; }
+.timer-panel--active { display: block; }
+
+.timer-arc-svg {
+  display: block;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 12px;
+}
+
+.timer-display {
+  font-size: 2.4rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+}
+
+.timer-presets {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.preset-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-btn.active,
+.preset-btn:hover {
+  background: var(--accent, #e63946);
+  border-color: var(--accent, #e63946);
+  color: #fff;
+}
+
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Séries intelligent */
+.series-config {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.series-config label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  gap: 4px;
+}
+
+.series-input {
+  width: 60px;
+  padding: 6px;
+  text-align: center;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.series-phase-bar-wrap {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.series-phase-bar {
+  height: 100%;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.9s linear, background 0.3s;
+}
+
+.series-phase {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  min-height: 20px;
+}
+
+.series-phase--work  { color: var(--accent, #e63946); }
+.series-phase--rest  { color: #4caf50; }
+.series-phase--done  { color: var(--primary, #00ff87); }
+.series-phase--idle  { color: var(--text-muted); }
+
+.series-set-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  min-height: 18px;
+}
+
+/* ══════════════════════════════════════════════════
+   CALENDRIER INTERACTIF
+   ══════════════════════════════════════════════════ */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 10px;
+  gap: 8px;
+}
+
+.cal-nav-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.cal-nav-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: var(--text-primary);
+}
+
+.cal-month-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  overflow-x: auto;
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 0;
+}
+
+.cal-day:hover { background: rgba(255,255,255,0.06); }
+
+.cal-day--today {
+  border-color: var(--primary, #00ff87);
+  background: rgba(0,255,135,0.07);
+}
+
+.cal-day--has-session {
+  background: rgba(255,255,255,0.04);
+}
+
+.cal-day-name {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.cal-day-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cal-session-dot {
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.cal-add-dot {
+  font-size: 12px;
+  color: rgba(255,255,255,0.15);
+  line-height: 1;
+}
+
+.cal-day:hover .cal-add-dot {
+  color: var(--primary, #00ff87);
+}
+
+/* Modal calendrier */
+.cal-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.cal-modal-content {
+  background: var(--bg-card, #1a1a1a);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.cal-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+
+.cal-existing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  gap: 8px;
+}
+
+.cal-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+  padding: 2px;
+  transition: opacity 0.2s;
+}
+.cal-del-btn:hover { opacity: 1; }
+
+.cal-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.cal-modal-form label {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cal-select,
+.cal-input {
+  flex: 1;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.cal-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cal-modal-actions .btn {
+  flex: 1;
+}
+

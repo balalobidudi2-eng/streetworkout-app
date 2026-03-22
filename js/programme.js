@@ -97,11 +97,16 @@ async function _handleGenerate() {
     return;
   }
 
+  var durationSel = document.getElementById('duration-select');
+  var objectifSel = document.getElementById('objectif-select');
+  var duree   = durationSel ? parseInt(durationSel.value) : 45;
+  var objectif = objectifSel ? objectifSel.value : 'street_workout';
+
   var btn = document.getElementById('btn-generate');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Génération...'; }
 
   try {
-    currentProgram = await generateProgram(selectedType, _progUserProfile);
+    currentProgram = await generateProgram({ type: selectedType, duree: duree, objectif: objectif }, _progUserProfile);
     _renderProgram(currentProgram);
   } catch (err) {
     showToast('Erreur de génération. Réessaie.', 'error');
@@ -125,7 +130,8 @@ function _renderProgram(program) {
       '<div class="program-title">' + program.nom + '</div>' +
       '<div class="program-meta">' +
         '<span class="badge">' + program.niveau + '</span>' +
-        '<span class="program-duration">⏱ ' + program.duree_estimee + '</span>' +
+        (program.objectif_label ? '<span class="badge badge--secondary">' + program.objectif_label + '</span>' : '') +
+        '<span class="program-duration">\u23f1 ' + (program.label_duree || '') + ' \u2014 ' + program.duree_estimee + '</span>' +
         '<span class="program-date">' + program.date + '</span>' +
       '</div>';
   }

@@ -24,7 +24,6 @@ async function initStreetlifting() {
   renderEquipmentToggles();
   renderRecordForms();
   await renderRecordsTables();
-  renderCalculator();
   await renderProgressChart();
 }
 
@@ -208,19 +207,6 @@ async function deleteRecord(recordId, exerciseId) {
   await renderRecordTable(exerciseId);
   await renderProgressChart();
   showToast('Record supprimé.');
-}
-
-/* Load calculator */
-function renderCalculator() {
-  var calcBtn = document.getElementById('calc-btn');
-  if (!calcBtn) return;
-
-  calcBtn.addEventListener('click', function() {
-    var bodyWeight = parseFloat(document.getElementById('calc-bodyweight').value) || 0;
-    var addedWeight = parseFloat(document.getElementById('calc-added').value) || 0;
-    var result = bodyWeight + addedWeight;
-    document.getElementById('calc-result').textContent = result.toFixed(1) + ' kg';
-  });
 }
 
 /* Progress chart (SVG) */

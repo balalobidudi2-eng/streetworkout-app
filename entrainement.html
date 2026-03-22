@@ -108,26 +108,8 @@
         <div class="training-aside">
           <!-- Timer -->
           <section class="card timer-section reveal">
-            <h2>⏱ Timer repos</h2>
-            <div class="timer-circle">
-              <svg viewBox="0 0 120 120">
-                <circle class="timer-circle-bg" cx="60" cy="60" r="54"/>
-                <circle class="timer-circle-fill" id="timer-circle-fill" cx="60" cy="60" r="54"/>
-              </svg>
-              <div id="timer-display">01:30</div>
-            </div>
-            <div class="timer-presets">
-              <button class="btn" data-timer-duration="30">30s</button>
-              <button class="btn" data-timer-duration="60">60s</button>
-              <button class="btn active" data-timer-duration="90">90s</button>
-              <button class="btn" data-timer-duration="120">2min</button>
-              <input type="number" class="timer-custom-input" id="timer-custom" placeholder="sec" min="5" max="600">
-            </div>
-            <div class="timer-controls">
-              <button class="btn btn-primary" id="timer-start">▶ Start</button>
-              <button class="btn btn-secondary" id="timer-pause">⏸ Pause</button>
-              <button class="btn" id="timer-reset">↺ Reset</button>
-            </div>
+            <h2>⏱ Timer</h2>
+            <div id="timer-container"></div>
           </section>
         </div>
       </div>

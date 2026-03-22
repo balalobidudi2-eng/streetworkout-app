@@ -66,7 +66,7 @@ async function initEntrainement() {
   renderTodaySession();
   renderCalendarSection();
   renderTodayCard();
-  initTimerUI();
+  initTimerUI('timer-container');
 
   var saveBtn = document.getElementById('save-session');
   if (saveBtn) saveBtn.addEventListener('click', saveSession);

@@ -1,270 +1,306 @@
-/* ========================================
+﻿/* ========================================
    PROGRAM-GENERATOR.JS
-   Génère des programmes basés sur le profil + exercices Wger
-   Dépend de : wger-client.js (globals), storage.js (SW global)
+   GÃ©nÃ©ration dynamique durÃ©e Ã— niveau Ã— objectif
+   Sources : NSCA Guidelines + Schoenfeld 2017
+   DÃ©pend de : wger-client.js (globals), storage.js (SW global)
    ======================================== */
 
-/* ── Types de séances ── */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MATRICES DE CONFIGURATION
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+var DURATION_MATRIX = {
+  5:  { exCount: 3, series: 2, label: 'Express'   },
+  15: { exCount: 4, series: 2, label: 'Court'      },
+  30: { exCount: 5, series: 3, label: 'Standard'   },
+  45: { exCount: 6, series: 3, label: 'Complet'    },
+  60: { exCount: 7, series: 4, label: 'Long'       },
+  90: { exCount: 9, series: 4, label: 'Endurance'  },
+};
+
+var LEVEL_MATRIX = {
+  debutant: {
+    repsMin: 12, repsMax: 15, reposMin: 90, reposMax: 120,
+    intensite: 0.6, supersets: false, tempoDesc: '3-0-1',
+    note: 'Amplitude complÃ¨te, technique prioritaire'
+  },
+  novice: {
+    repsMin: 10, repsMax: 12, reposMin: 75, reposMax: 90,
+    intensite: 0.7, supersets: false, tempoDesc: '2-0-1',
+    note: 'Commencer Ã  ajouter de la rÃ©sistance'
+  },
+  intermediaire: {
+    repsMin: 8, repsMax: 12, reposMin: 60, reposMax: 90,
+    intensite: 0.75, supersets: false, tempoDesc: '2-0-1',
+    note: 'Surcharge progressive semaine Ã  semaine'
+  },
+  avance: {
+    repsMin: 6, repsMax: 10, reposMin: 90, reposMax: 120,
+    intensite: 0.85, supersets: true, tempoDesc: '3-1-1',
+    note: 'Supersets + tempo contrÃ´lÃ©'
+  },
+  elite: {
+    repsMin: 3, repsMax: 6, reposMin: 120, reposMax: 180,
+    intensite: 0.95, supersets: true, tempoDesc: '4-2-1',
+    note: 'Force maximale, longue rÃ©cupÃ©ration'
+  }
+};
+
+var OBJECTIF_MATRIX = {
+  force: {
+    repsOverride: [3, 6], reposOverride: 180, seriesBonus: 1,
+    label: 'Force', priorite: 'lourd, peu de reps, long repos'
+  },
+  hypertrophie: {
+    repsOverride: [8, 12], reposOverride: 75, seriesBonus: 0,
+    label: 'Hypertrophie', priorite: 'volume modÃ©rÃ©, repos modÃ©rÃ©'
+  },
+  endurance: {
+    repsOverride: [15, 25], reposOverride: 45, seriesBonus: -1,
+    label: 'Endurance', priorite: 'beaucoup de reps, peu de repos'
+  },
+  street_workout: {
+    repsOverride: null, reposOverride: null, seriesBonus: 0,
+    label: 'Street Workout', priorite: 'Ã©quilibre push/pull/skills'
+  }
+};
+
+/* â”€â”€ Types de sÃ©ances (global pour programme.js) â”€â”€ */
 var SESSION_TYPES = {
-  FULL_BODY: { id: 'full_body', label: 'Full Body',     icon: '🔄' },
-  UPPER:     { id: 'upper',    label: 'Haut du corps',  icon: '💪' },
-  LOWER:     { id: 'lower',    label: 'Bas du corps',   icon: '🦵' },
-  PUSH:      { id: 'push',     label: 'Push',           icon: '⬆️' },
-  PULL:      { id: 'pull',     label: 'Pull',           icon: '⬇️' },
-  SKILLS:    { id: 'skills',   label: 'Skills SW',      icon: '🤸' },
-  CORE:      { id: 'core',     label: 'Core / Abdos',   icon: '🎯' }
+  FULL_BODY: { id: 'full_body', label: 'Full Body',     icon: 'ðŸ”„' },
+  UPPER:     { id: 'upper',    label: 'Haut du corps',  icon: 'ðŸ’ª' },
+  LOWER:     { id: 'lower',    label: 'Bas du corps',   icon: 'ðŸ¦µ' },
+  PUSH:      { id: 'push',     label: 'Push',           icon: 'â¬†ï¸' },
+  PULL:      { id: 'pull',     label: 'Pull',           icon: 'â¬‡ï¸' },
+  SKILLS:    { id: 'skills',   label: 'Skills SW',      icon: 'ðŸ¤¸' },
+  CORE:      { id: 'core',     label: 'Core / Abdos',   icon: 'ðŸŽ¯' }
 };
 
-/* ── Configuration par niveau (NSCA Position Statement 2016) ── */
-var LEVEL_CONFIG = {
-  debutant:      { series: 2, repsRange: [8, 12],  reposMin:  60, reposMax:  90, exercicesCount: 4, intensite: 'légère' },
-  novice:        { series: 3, repsRange: [8, 12],  reposMin:  75, reposMax:  90, exercicesCount: 5, intensite: 'modérée' },
-  intermediaire: { series: 3, repsRange: [6, 10],  reposMin:  90, reposMax: 120, exercicesCount: 6, intensite: 'modérée-haute' },
-  avance:        { series: 4, repsRange: [5,  8],  reposMin: 120, reposMax: 180, exercicesCount: 6, intensite: 'haute' },
-  elite:         { series: 5, repsRange: [3,  6],  reposMin: 180, reposMax: 300, exercicesCount: 7, intensite: 'maximale' }
-};
+/* â”€â”€ Configuration par niveau â€” alias legacy â”€â”€ */
+var LEVEL_CONFIG = LEVEL_MATRIX;
 
-/* ── Exercices SW statiques (complètent Wger pour les mouvements spécifiques) ── */
-var SW_EXERCISES = {
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   BASE DE DONNÃ‰ES EXERCICES SW STATIQUES
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+var SW_EXERCISES_DB = {
   pull: [
-    { id: 'tractions',        nom: 'Tractions (Pull-up)',      muscles: ['Grand dorsal', 'Biceps'],              niveau: 'novice' },
-    { id: 'chin_up',          nom: 'Chin-up (supination)',     muscles: ['Grand dorsal', 'Biceps', 'Pectoral'],  niveau: 'novice' },
-    { id: 'australian_row',   nom: 'Rangée australienne',      muscles: ['Grand dorsal', 'Trapèze'],             niveau: 'debutant' },
-    { id: 'muscle_up',        nom: 'Muscle-up',                muscles: ['Grand dorsal', 'Triceps', 'Pectoral'], niveau: 'avance' },
-    { id: 'front_lever',      nom: 'Front Lever (maintien)',   muscles: ['Grand dorsal', 'Abdos'],               niveau: 'avance' }
+    { id:'australian_row',  nom:'RangÃ©e australienne',      muscles:['Grand dorsal','TrapÃ¨ze'],            niveau:'debutant',      points:1 },
+    { id:'tractions',       nom:'Tractions (Pull-up)',       muscles:['Grand dorsal','Biceps'],             niveau:'novice',        points:2 },
+    { id:'chin_up',         nom:'Chin-up (supination)',      muscles:['Grand dorsal','Biceps','Pectoral'],  niveau:'novice',        points:2 },
+    { id:'archer_pullup',   nom:'Traction archer',           muscles:['Grand dorsal','Biceps'],             niveau:'intermediaire', points:3 },
+    { id:'weighted_pullup', nom:'Traction lestÃ©e',           muscles:['Grand dorsal','Biceps'],             niveau:'avance',        points:4 },
+    { id:'muscle_up',       nom:'Muscle-up',                 muscles:['Grand dorsal','Triceps','Pectoral'], niveau:'avance',        points:5 },
+    { id:'front_lever',     nom:'Front Lever (maintien)',    muscles:['Grand dorsal','Abdos'],              niveau:'avance',        points:5 },
   ],
   push: [
-    { id: 'pompes',           nom: 'Pompes strictes',          muscles: ['Pectoral', 'Triceps', 'Deltoïde'],    niveau: 'debutant' },
-    { id: 'dips',             nom: 'Dips',                     muscles: ['Triceps', 'Pectoral', 'Deltoïde'],    niveau: 'novice' },
-    { id: 'pike_pushup',      nom: 'Pike Push-up',             muscles: ['Deltoïde', 'Triceps'],                niveau: 'novice' },
-    { id: 'diamond_pushup',   nom: 'Pompes diamant',           muscles: ['Triceps', 'Pectoral'],                niveau: 'intermediaire' },
-    { id: 'hspu',             nom: 'Handstand Push-up',        muscles: ['Deltoïde', 'Triceps'],                niveau: 'elite' }
+    { id:'knee_pushup',     nom:'Pompes sur genoux',         muscles:['Pectoral','Triceps'],                niveau:'debutant',      points:1 },
+    { id:'pompes',          nom:'Pompes strictes',           muscles:['Pectoral','Triceps','DeltoÃ¯de'],     niveau:'debutant',      points:2 },
+    { id:'diamond_pushup',  nom:'Pompes diamant',            muscles:['Triceps','Pectoral'],                niveau:'novice',        points:2 },
+    { id:'dips',            nom:'Dips',                      muscles:['Triceps','Pectoral','DeltoÃ¯de'],     niveau:'novice',        points:3 },
+    { id:'pike_pushup',     nom:'Pike Push-up',              muscles:['DeltoÃ¯de','Triceps'],                niveau:'intermediaire', points:3 },
+    { id:'hspu',            nom:'Handstand Push-up (HSPU)',  muscles:['DeltoÃ¯de','Triceps'],                niveau:'elite',         points:5 },
   ],
   legs: [
-    { id: 'squat',            nom: 'Squat',                    muscles: ['Quadriceps', 'Fessiers'],             niveau: 'debutant' },
-    { id: 'pistol_squat',     nom: 'Pistol Squat',             muscles: ['Quadriceps', 'Fessiers', 'Équilibre'],niveau: 'avance' },
-    { id: 'jump_squat',       nom: 'Jump Squat',               muscles: ['Quadriceps', 'Mollets'],              niveau: 'intermediaire' },
-    { id: 'lunge',            nom: 'Fentes',                   muscles: ['Quadriceps', 'Fessiers'],             niveau: 'debutant' }
+    { id:'squat',           nom:'Squat',                     muscles:['Quadriceps','Fessiers'],             niveau:'debutant',      points:1 },
+    { id:'lunge',           nom:'Fentes',                    muscles:['Quadriceps','Fessiers'],             niveau:'debutant',      points:1 },
+    { id:'jump_squat',      nom:'Jump Squat',                muscles:['Quadriceps','Mollets'],              niveau:'novice',        points:2 },
+    { id:'bulgarian',       nom:'Bulgarian Split Squat',     muscles:['Quadriceps','Fessiers'],             niveau:'intermediaire', points:3 },
+    { id:'pistol_squat',    nom:'Pistol Squat',              muscles:['Quadriceps','Fessiers','Ã‰quilibre'], niveau:'avance',        points:5 },
   ],
   core: [
-    { id: 'hollow_body',      nom: 'Hollow Body Hold',         muscles: ['Abdos', 'Lombaires'],                 niveau: 'debutant' },
-    { id: 'l_sit',            nom: 'L-sit',                    muscles: ['Abdos', 'Hip flexors'],               niveau: 'intermediaire' },
-    { id: 'dragon_flag',      nom: 'Dragon Flag',              muscles: ['Abdos complets'],                     niveau: 'avance' },
-    { id: 'plank',            nom: 'Gainage planche',          muscles: ['Core complet'],                       niveau: 'debutant' }
-  ]
+    { id:'plank',           nom:'Gainage planche',           muscles:['Core complet'],                     niveau:'debutant',      points:1 },
+    { id:'hollow_body',     nom:'Hollow Body Hold',          muscles:['Abdos','Lombaires'],                niveau:'debutant',      points:2 },
+    { id:'l_sit',           nom:'L-sit',                     muscles:['Abdos','Hip flexors'],              niveau:'intermediaire', points:4 },
+    { id:'dragon_flag',     nom:'Dragon Flag',               muscles:['Abdos complets'],                   niveau:'avance',        points:5 },
+  ],
+  skills: [
+    { id:'handstand',       nom:'Handstand',                 muscles:['DeltoÃ¯de','Core'],                  niveau:'avance',        points:5 },
+    { id:'back_lever',      nom:'Back Lever',                muscles:['Grand dorsal','Triceps'],           niveau:'avance',        points:5 },
+  ],
 };
 
-/* ── Normaliser le niveau depuis Supabase ── */
+/* Alias legacy */
+var SW_EXERCISES = SW_EXERCISES_DB;
+
+/* â”€â”€ Normaliser le niveau depuis Supabase â”€â”€ */
 function _normalizeNiveau(raw) {
   var map = {
     '\u00c9lite': 'elite', 'Elite': 'elite',
-    'Avanc\u00e9': 'avance', 'Avance': 'avance', 'Avancé': 'avance',
-    'Interm\u00e9diaire': 'intermediaire', 'Intermediaire': 'intermediaire', 'Intermédiaire': 'intermediaire',
+    'Avanc\u00e9': 'avance', 'Avance': 'avance', 'AvancÃ©': 'avance',
+    'Interm\u00e9diaire': 'intermediaire', 'Intermediaire': 'intermediaire', 'IntermÃ©diaire': 'intermediaire',
     'Novice': 'novice',
-    'D\u00e9butant': 'debutant', 'Debutant': 'debutant', 'Débutant': 'debutant'
+    'D\u00e9butant': 'debutant', 'Debutant': 'debutant', 'DÃ©butant': 'debutant'
   };
   if (!raw) return 'debutant';
   return map[raw] || raw.toLowerCase() || 'debutant';
 }
 
-/* ── Formater les exercices Wger vers le format interne ── */
-function _formatWgerExercises(wgerExercises) {
-  return wgerExercises.map(function(ex) {
-    var translation = null;
-    if (ex.translations) {
-      for (var i = 0; i < ex.translations.length; i++) {
-        if (ex.translations[i].language === 2) { translation = ex.translations[i]; break; }
-      }
-      if (!translation && ex.translations.length > 0) translation = ex.translations[0];
-    }
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SÃ‰LECTION INTELLIGENTE â€” mÃ©lange dÃ©terministe par date
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-    var muscles = [];
-    (ex.muscles || []).forEach(function(m) { if (m.name_en || m.name) muscles.push(m.name_en || m.name); });
-    (ex.muscles_secondary || []).forEach(function(m) { if (m.name_en || m.name) muscles.push(m.name_en || m.name); });
-
-    return {
-      id: 'wger_' + ex.id,
-      nom: (translation && translation.name) || ex.name || 'Exercice',
-      description: translation && translation.description
-        ? translation.description.replace(/<[^>]*>/g, '').slice(0, 150) : '',
-      muscles: muscles.length ? muscles : ['Non spécifié'],
-      source: 'wger',
-      wger_id: ex.id,
-      equipement: (ex.equipment || []).map(function(e) { return e.name; }).join(', ') || 'Poids de corps'
-    };
-  });
-}
-
-/* ── Filtrer selon les blessures ── */
-function _filterByInjuries(exercises, blessures) {
-  if (!blessures || !blessures.length) return exercises;
-  var INJURY_FILTERS = {
-    epaules:  ['tractions', 'chin_up', 'muscle_up', 'hspu', 'dips'],
-    poignets: ['pompes', 'dips', 'handstand', 'planche'],
-    coudes:   ['diamond_pushup', 'dips', 'chin_up'],
-    dos_bas:  ['dragon_flag', 'hollow_body'],
-    genoux:   ['pistol_squat', 'jump_squat', 'lunge']
-  };
-  var toFilter = [];
-  blessures.forEach(function(z) {
-    (INJURY_FILTERS[z] || []).forEach(function(id) { toFilter.push(id); });
-  });
-  return exercises.filter(function(ex) { return toFilter.indexOf(ex.id) === -1; });
-}
-
-/* ── Builders par type de séance ── */
-async function _buildPull(config, blessures) {
-  var wgerExercises = await getExercisesByCategory(WGER_CATEGORIES.BACK, 20);
-  var formatted = _formatWgerExercises(wgerExercises);
-  var swPull = SW_EXERCISES.pull.filter(function(e) {
-    return !(blessures && blessures.indexOf('epaules') !== -1);
-  });
-  return swPull.concat(formatted);
-}
-
-async function _buildPush(config, blessures) {
-  var results = await Promise.allSettled([
-    getExercisesByCategory(WGER_CATEGORIES.CHEST, 10),
-    getExercisesByCategory(WGER_CATEGORIES.SHOULDERS, 10)
-  ]);
-  var formatted = [];
-  results.forEach(function(r) {
-    if (r.status === 'fulfilled') formatted = formatted.concat(_formatWgerExercises(r.value));
-  });
-  var swPush = SW_EXERCISES.push.filter(function(e) {
-    return !(blessures && blessures.indexOf('poignets') !== -1 &&
-      (e.id === 'pompes' || e.id === 'dips'));
-  });
-  return swPush.concat(formatted);
-}
-
-async function _buildLower(config, blessures) {
-  var wgerLegs = await getExercisesByCategory(WGER_CATEGORIES.LEGS, 15);
-  var formatted = _formatWgerExercises(wgerLegs);
-  var swLegs = SW_EXERCISES.legs.filter(function(e) {
-    return !(blessures && blessures.indexOf('genoux') !== -1 &&
-      (e.id === 'pistol_squat' || e.id === 'jump_squat'));
-  });
-  return swLegs.concat(formatted);
-}
-
-async function _buildUpper(config, blessures) {
-  var results = await Promise.allSettled([
-    _buildPull(config, blessures),
-    _buildPush(config, blessures)
-  ]);
-  var pull = results[0].status === 'fulfilled' ? results[0].value : SW_EXERCISES.pull;
-  var push = results[1].status === 'fulfilled' ? results[1].value : SW_EXERCISES.push;
-  var result = [];
-  var maxLen = Math.max(pull.length, push.length);
-  for (var i = 0; i < maxLen && result.length < config.exercicesCount + 2; i++) {
-    if (push[i]) result.push(push[i]);
-    if (pull[i]) result.push(pull[i]);
+function _seededShuffle(arr, seed) {
+  var a = arr.slice();
+  var s = seed >>> 0;
+  for (var i = a.length - 1; i > 0; i--) {
+    s = ((s * 1664525) + 1013904223) >>> 0;
+    var j = s % (i + 1);
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
   }
-  return result;
+  return a;
 }
 
-async function _buildFullBody(config, blessures) {
-  var results = await Promise.allSettled([
-    _buildPull(config, blessures),
-    _buildPush(config, blessures),
-    _buildLower(config, blessures)
-  ]);
-  var pull  = results[0].status === 'fulfilled' ? results[0].value : SW_EXERCISES.pull;
-  var push  = results[1].status === 'fulfilled' ? results[1].value : SW_EXERCISES.push;
-  var lower = results[2].status === 'fulfilled' ? results[2].value : SW_EXERCISES.legs;
-  return pull.slice(0, 2).concat(push.slice(0, 2), lower.slice(0, 2), SW_EXERCISES.core.slice(0, 1));
+function _getTodaySeed() {
+  var d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 }
 
-function _buildSkills(config, niveau) {
-  var niveauOrder = ['debutant', 'novice', 'intermediaire', 'avance', 'elite'];
-  var niveauIndex = niveauOrder.indexOf(niveau);
-  var allSkills = SW_EXERCISES.pull.concat(SW_EXERCISES.push);
-  return allSkills.filter(function(e) {
-    return niveauOrder.indexOf(e.niveau) <= niveauIndex;
+function _selectByLevel(pool, niveau, count) {
+  var ORDER = ['debutant','novice','intermediaire','avance','elite'];
+  var idx   = ORDER.indexOf(niveau);
+  var accessible = pool.filter(function(e) {
+    return ORDER.indexOf(e.niveau) <= idx + 1;
   });
+  var shuffled = _seededShuffle(accessible, _getTodaySeed());
+  return shuffled.slice(0, count);
 }
 
-function _buildFallback(sessionType, config, niveau) {
-  var map = {
-    pull:      SW_EXERCISES.pull,
-    push:      SW_EXERCISES.push,
-    legs:      SW_EXERCISES.legs,
-    core:      SW_EXERCISES.core,
-    upper:     SW_EXERCISES.pull.concat(SW_EXERCISES.push),
-    lower:     SW_EXERCISES.legs,
-    full_body: SW_EXERCISES.pull.slice(0,2).concat(SW_EXERCISES.push.slice(0,2), SW_EXERCISES.legs.slice(0,2)),
-    skills:    SW_EXERCISES.pull.concat(SW_EXERCISES.push)
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CONSTRUCTION EXERCICES PAR TYPE DE SÃ‰ANCE
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+async function _buildExercisesForType(sessionType, niveau, count) {
+  var wgerPool = [];
+
+  try {
+    if (typeof getExercisesByCategory === 'function' && typeof WGER_CATEGORIES !== 'undefined') {
+      var catIds = [];
+      if      (sessionType === 'pull')               catIds = [WGER_CATEGORIES.BACK, WGER_CATEGORIES.ARMS];
+      else if (sessionType === 'push')               catIds = [WGER_CATEGORIES.CHEST, WGER_CATEGORIES.SHOULDERS];
+      else if (sessionType === 'lower' || sessionType === 'legs') catIds = [WGER_CATEGORIES.LEGS];
+      else if (sessionType === 'upper')              catIds = [WGER_CATEGORIES.BACK, WGER_CATEGORIES.CHEST, WGER_CATEGORIES.SHOULDERS];
+      else if (sessionType === 'full_body')          catIds = [WGER_CATEGORIES.BACK, WGER_CATEGORIES.CHEST, WGER_CATEGORIES.LEGS, WGER_CATEGORIES.ABS];
+      else if (sessionType === 'core')               catIds = [WGER_CATEGORIES.ABS];
+
+      if (catIds.length) {
+        var results = await Promise.allSettled(catIds.map(function(id) { return getExercisesByCategory(id, 15); }));
+        results.forEach(function(r) {
+          if (r.status !== 'fulfilled') return;
+          (r.value || []).forEach(function(ex) {
+            var t = null;
+            if (ex.translations) {
+              for (var i = 0; i < ex.translations.length; i++) {
+                if (ex.translations[i].language === 2) { t = ex.translations[i]; break; }
+              }
+              if (!t && ex.translations.length) t = ex.translations[0];
+            }
+            var name = (t && t.name) || ex.name || '';
+            if (name && name !== 'Exercice') {
+              wgerPool.push({
+                id: 'wger_' + ex.id,
+                nom: name,
+                muscles: (ex.muscles || []).map(function(m) { return m.name_en || m.name; }),
+                niveau: 'novice',
+                points: 2,
+                source: 'wger',
+                wger_id: ex.id,
+              });
+            }
+          });
+        });
+      }
+    }
+  } catch(e) {
+    console.warn('Wger unavailable, using SW_EXERCISES_DB:', e.message);
+  }
+
+  var swMap = {
+    pull:      SW_EXERCISES_DB.pull,
+    push:      SW_EXERCISES_DB.push,
+    lower:     SW_EXERCISES_DB.legs,
+    legs:      SW_EXERCISES_DB.legs,
+    upper:     SW_EXERCISES_DB.pull.concat(SW_EXERCISES_DB.push),
+    full_body: SW_EXERCISES_DB.pull.slice(0,3).concat(SW_EXERCISES_DB.push.slice(0,3), SW_EXERCISES_DB.legs.slice(0,2), SW_EXERCISES_DB.core.slice(0,2)),
+    skills:    SW_EXERCISES_DB.skills.concat(SW_EXERCISES_DB.pull.filter(function(e){ return e.niveau === 'avance' || e.niveau === 'elite'; })),
+    core:      SW_EXERCISES_DB.core,
   };
-  return map[sessionType] || SW_EXERCISES.pull;
+  var swPool = swMap[sessionType] || SW_EXERCISES_DB.pull;
+  var combined = swPool.concat(wgerPool);
+  return _selectByLevel(combined, niveau, count);
 }
 
-/* ── Échauffement ── */
-function _buildWarmup(sessionType) {
+/* â”€â”€ Ã‰chauffement contextuel â”€â”€ */
+function _buildWarmup(sessionType, niveau) {
   var warmups = {
     pull: [
-      { nom: 'Rotations épaules',       duree: '60s',    desc: '10 rotations avant + arrière' },
-      { nom: 'Suspension passive',       duree: '30s',    desc: 'Se pendre à la barre, épaules décontractées' },
-      { nom: 'Rangée australienne légère', duree: '10 reps', desc: 'Échauffement grand dorsal' }
+      { nom:'Suspension passive barre', duree:'30s',    desc:'DÃ©compresser les Ã©paules' },
+      { nom:'Rotations Ã©paules',        duree:'60s',    desc:'10 rotations avant + arriÃ¨re' },
+      { nom:'RangÃ©e australienne lÃ©gÃ¨re', duree:'8 reps', desc:'Ã‰chauffement grand dorsal' },
     ],
     push: [
-      { nom: 'Rotations poignets',      duree: '60s',    desc: '10 rotations dans chaque sens' },
-      { nom: 'Pompes lentes',           duree: '10 reps', desc: 'Amplitude complète, tempo 3-0-3' },
-      { nom: 'Pike push-up',            duree: '8 reps',  desc: 'Activer les deltoïdes' }
+      { nom:'Rotations poignets',       duree:'60s',    desc:'10 rotations dans chaque sens' },
+      { nom:'Pompes lentes',            duree:'10 reps', desc:'Amplitude complÃ¨te, tempo 3-0-3' },
+      { nom:'Pike push-up',             duree:'8 reps',  desc:'Activer les deltoÃ¯des' },
+    ],
+    lower: [
+      { nom:'Jumping jacks',            duree:'60s',    desc:'Ã‰lever la tempÃ©rature corporelle' },
+      { nom:'Leg swings',               duree:'30s',    desc:'10 balancements par jambe' },
+      { nom:'Squats lents',             duree:'10 reps', desc:'Amplitude complÃ¨te' },
     ],
     legs: [
-      { nom: 'Jumping jacks',           duree: '60s',    desc: 'Élever la température corporelle' },
-      { nom: 'Leg swings',              duree: '30s',    desc: '10 balancements par jambe, avant/arrière' },
-      { nom: 'Squats lents',            duree: '10 reps', desc: 'Amplitude complète, descendre bas' }
-    ]
+      { nom:'Jumping jacks',            duree:'60s',    desc:'Ã‰lever la tempÃ©rature corporelle' },
+      { nom:'Leg swings',               duree:'30s',    desc:'10 balancements par jambe' },
+      { nom:'Squats lents',             duree:'10 reps', desc:'Amplitude complÃ¨te' },
+    ],
   };
   var def = [
-    { nom: 'Jumping jacks',             duree: '60s',    desc: 'Élever la température corporelle' },
-    { nom: 'Rotations articulaires',    duree: '2 min',  desc: 'Épaules, poignets, hanches, chevilles' },
-    { nom: 'Gainage planche',           duree: '30s',    desc: 'Activer le core' }
+    { nom:'Jumping jacks',              duree: niveau === 'elite' ? '90s' : '60s', desc:'Activer le systÃ¨me cardiovasculaire' },
+    { nom:'Rotations articulaires',     duree:'2 min',  desc:'Ã‰paules â†’ poignets â†’ hanches â†’ chevilles' },
+    { nom:'Gainage planche',            duree:'30s',    desc:'Activer le core' },
   ];
   return warmups[sessionType] || def;
 }
 
-/* ── Retour au calme ── */
+/* â”€â”€ Retour au calme â”€â”€ */
 function _buildCooldown() {
   return [
-    { nom: 'Étirement grand dorsal',  duree: '30s', desc: 'Bras tendu au-dessus, pencher latéralement' },
-    { nom: 'Étirement pectoral',      duree: '30s', desc: 'Bras en croix contre un mur' },
-    { nom: 'Respiration profonde',    duree: '60s', desc: '4s inspirer — 4s expirer, calmer le SNC' }
+    { nom:'Ã‰tirement grand dorsal',  duree:'30s',      desc:'Bras tendu au-dessus, pencher latÃ©ralement' },
+    { nom:'Ã‰tirement pectoral',      duree:'30s/cÃ´tÃ©', desc:'Bras en croix contre un mur' },
+    { nom:'Respiration 4-4-4',       duree:'1 min',    desc:'4s inspirer, 4s tenir, 4s expirer' },
   ];
 }
 
-/* ── Durée estimée ── */
-function _estimateDuration(config) {
-  var tempsExercice = config.exercicesCount * config.series * 45;
-  var tempsRepos    = config.exercicesCount * config.series * config.reposMin;
-  var total = Math.round((tempsExercice + tempsRepos + 600) / 60);
+/* â”€â”€ DurÃ©e estimÃ©e â”€â”€ */
+function _estimateDuration(count, series, repos) {
+  var workTime = count * series * 40;
+  var restTime = count * series * repos;
+  var total = Math.round((workTime + restTime + 600) / 60);
   return total + '\u2013' + (total + 10) + ' min';
 }
 
-/* ── Conseil par exercice selon niveau ── */
+/* â”€â”€ Conseil par exercice selon niveau â”€â”€ */
 function _getExerciseTip(exerciseId, niveau) {
   var tips = {
     tractions: {
-      debutant:      'Commence avec un élastique. Focus sur la descente lente (3s).',
-      novice:        'Vise 3×8 strict. Introduis le lest dès 3×10.',
-      intermediaire: 'Vise 3×10 lestés. Quand tu arrives à 3×12, ajoute 2.5 kg.',
-      avance:        'Travaille les variantes : prise large, neutre, lestée +20 kg.',
-      elite:         'Tractions lestées + one-arm progressions (archer pull-ups).'
+      debutant:      'Commence avec un Ã©lastique. Focus sur la descente lente (3s).',
+      novice:        'Vise 3\u00d78 strict. Introduis le lest dÃ¨s 3\u00d710.',
+      intermediaire: 'Vise 3\u00d710 lestÃ©s. Quand tu arrives Ã  3\u00d712, ajoute 2.5 kg.',
+      avance:        'Travaille les variantes : prise large, neutre, lestÃ©e +20 kg.',
+      elite:         'Tractions lestÃ©es + one-arm progressions (archer pull-ups).'
     },
     dips: {
-      debutant:      'Poids de corps. Descends jusqu\'aux épaules sous les coudes.',
-      novice:        'Vise 3×12. Garde le torse légèrement incliné vers l\'avant.',
-      intermediaire: 'Ajoute 5–10 kg. Ring dips pour l\'instabilité.',
-      avance:        'Dips lestés +20 kg + ring dips.',
-      elite:         'Ring dips lestés + Korean dips pour les coudes.'
+      debutant:      'Poids de corps. Descends jusqu\'aux Ã©paules sous les coudes.',
+      novice:        'Vise 3\u00d712. Garde le torse lÃ©gÃ¨rement inclinÃ© vers l\'avant.',
+      intermediaire: 'Ajoute 5\u201310 kg. Ring dips pour l\'instabilitÃ©.',
+      avance:        'Dips lestÃ©s +20 kg + ring dips.',
+      elite:         'Ring dips lestÃ©s + Korean dips pour les coudes.'
     },
     pompes: {
-      debutant:      'Corps parfaitement aligné. Pas de fesses en l\'air.',
-      novice:        'Pompes déclinées pour cibler le pectoral haut.',
-      intermediaire: 'Archer push-ups pour préparer le one-arm.',
-      avance:        'One-arm push-up : commence avec les pieds écartés.',
+      debutant:      'Corps parfaitement alignÃ©. Pas de fesses en l\'air.',
+      novice:        'Pompes dÃ©clinÃ©es pour cibler le pectoral haut.',
+      intermediaire: 'Archer push-ups pour prÃ©parer le one-arm.',
+      avance:        'One-arm push-up : commence avec les pieds Ã©cartÃ©s.',
       elite:         'Clap push-ups + one-arm pour la puissance maximale.'
     }
   };
@@ -272,61 +308,105 @@ function _getExerciseTip(exerciseId, niveau) {
   return tip ? (tip[niveau] || '') : '';
 }
 
-/* ══════════════════════════════════════
-   FONCTION PRINCIPALE DE GÉNÉRATION
-   ══════════════════════════════════════ */
-async function generateProgram(sessionType, userProfile) {
-  var niveau  = _normalizeNiveau(userProfile && userProfile.niveau);
-  var config  = LEVEL_CONFIG[niveau] || LEVEL_CONFIG.debutant;
-  var blessures = (userProfile && userProfile.zones_sensibles) ? userProfile.zones_sensibles : [];
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   FONCTION PRINCIPALE DE GÃ‰NÃ‰RATION
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-  var exercises = [];
+async function generateProgram(sessionTypeOrConfig, userProfile) {
+  /* Support deux signatures :
+     generateProgram('pull', profile)
+     generateProgram({ type, duree, objectif }, profile) */
+  var sessionType, dureeMin, objectif;
 
-  try {
-    if      (sessionType === 'full_body') exercises = await _buildFullBody(config, blessures);
-    else if (sessionType === 'upper')     exercises = await _buildUpper(config, blessures);
-    else if (sessionType === 'lower')     exercises = await _buildLower(config, blessures);
-    else if (sessionType === 'push')      exercises = await _buildPush(config, blessures);
-    else if (sessionType === 'pull')      exercises = await _buildPull(config, blessures);
-    else if (sessionType === 'skills')    exercises = _buildSkills(config, niveau);
-    else if (sessionType === 'core')      exercises = SW_EXERCISES.core.slice();
-    else                                  exercises = _buildFallback(sessionType, config, niveau);
-  } catch (err) {
-    console.warn('Wger API indisponible, fallback SW :', err.message);
-    exercises = _buildFallback(sessionType, config, niveau);
+  if (typeof sessionTypeOrConfig === 'string') {
+    sessionType = sessionTypeOrConfig;
+    dureeMin    = 45;
+    objectif    = 'street_workout';
+  } else {
+    sessionType = (sessionTypeOrConfig && sessionTypeOrConfig.type)    || 'full_body';
+    dureeMin    = parseInt((sessionTypeOrConfig && sessionTypeOrConfig.duree) || 45);
+    objectif    = (sessionTypeOrConfig && sessionTypeOrConfig.objectif) || 'street_workout';
   }
 
-  exercises = _filterByInjuries(exercises, blessures);
+  var niveau = _normalizeNiveau(userProfile && userProfile.niveau);
 
-  var sessionLabel = '';
-  Object.keys(SESSION_TYPES).forEach(function(k) {
-    if (SESSION_TYPES[k].id === sessionType) sessionLabel = SESSION_TYPES[k].label;
+  /* â”€â”€ 1. Configuration durÃ©e â”€â”€ */
+  var dureeKeys = [5, 15, 30, 45, 60, 90];
+  var dureeKey = dureeKeys.reduce(function(prev, curr) {
+    return Math.abs(curr - dureeMin) < Math.abs(prev - dureeMin) ? curr : prev;
+  });
+  var durationCfg = DURATION_MATRIX[dureeKey];
+
+  /* â”€â”€ 2. Configuration niveau â”€â”€ */
+  var levelCfg = LEVEL_MATRIX[niveau] || LEVEL_MATRIX.debutant;
+
+  /* â”€â”€ 3. Overrides objectif â”€â”€ */
+  var objCfg     = OBJECTIF_MATRIX[objectif] || OBJECTIF_MATRIX.street_workout;
+  var finalSeries = Math.max(1, durationCfg.series + (objCfg.seriesBonus || 0));
+  var finalReps   = objCfg.repsOverride
+    ? objCfg.repsOverride[0] + '\u2013' + objCfg.repsOverride[1]
+    : levelCfg.repsMin + '\u2013' + levelCfg.repsMax;
+  var finalRepos  = objCfg.reposOverride || levelCfg.reposMin;
+  var finalCount  = durationCfg.exCount;
+
+  /* â”€â”€ 4. SÃ©lectionner exercices â”€â”€ */
+  var exercises = [];
+  try {
+    exercises = await _buildExercisesForType(sessionType, niveau, finalCount + 3);
+  } catch(err) {
+    console.warn('GÃ©nÃ©ration exercices failed, fallback SW_DB:', err.message);
+    var fbMap = {
+      pull:'pull', push:'push', lower:'legs', legs:'legs',
+      upper:'pull', full_body:'pull', skills:'skills', core:'core'
+    };
+    exercises = (SW_EXERCISES_DB[fbMap[sessionType] || 'pull'] || SW_EXERCISES_DB.pull).slice();
+  }
+
+  /* â”€â”€ 5. Formatter exercices â”€â”€ */
+  var exercicesFormatted = exercises.slice(0, finalCount).map(function(ex, i) {
+    var isSuperset = levelCfg.supersets && i % 2 === 1;
+    return Object.assign({}, ex, {
+      series:        finalSeries,
+      reps:          finalReps,
+      repos:         isSuperset ? 0 : finalRepos,
+      tempo:         levelCfg.tempoDesc,
+      superset_with: isSuperset && exercises[i - 1] ? exercises[i - 1].nom : null,
+      notes:         ex.notes || _getExerciseTip(ex.id, niveau) || levelCfg.note,
+    });
   });
 
+  /* â”€â”€ 6. LibellÃ© type de sÃ©ance â”€â”€ */
+  var SESSION_LABELS = {
+    pull:'Pull', push:'Push', legs:'Legs', lower:'Bas du corps',
+    upper:'Haut du corps', full_body:'Full Body', skills:'Skills SW', core:'Core / Abdos'
+  };
+
   return {
-    type:           sessionType,
-    nom:            sessionLabel || sessionType,
-    niveau:         niveau,
-    date:           new Date().toISOString().slice(0, 10),
-    config:         config,
-    echauffement:   _buildWarmup(sessionType),
-    exercices:      exercises.slice(0, config.exercicesCount).map(function(ex) {
-      return Object.assign({}, ex, {
-        series:  config.series,
-        reps:    config.repsRange[0] + '\u2013' + config.repsRange[1],
-        repos:   config.reposMin,
-        notes:   _getExerciseTip(ex.id, niveau)
-      });
-    }),
+    type:            sessionType,
+    nom:             SESSION_LABELS[sessionType] || sessionType,
+    niveau:          niveau,
+    objectif:        objectif,
+    objectif_label:  objCfg.label,
+    duree_min:       dureeMin,
+    label_duree:     durationCfg.label,
+    date:            new Date().toISOString().slice(0, 10),
+    config:          { series: finalSeries, reps: finalReps, repos: finalRepos },
+    echauffement:    _buildWarmup(sessionType, niveau),
+    exercices:       exercicesFormatted,
     retour_au_calme: _buildCooldown(),
-    duree_estimee:   _estimateDuration(config)
+    duree_estimee:   _estimateDuration(finalCount, finalSeries, finalRepos),
+    seed:            _getTodaySeed(),
   };
 }
 
-/* ── Sauvegarder le programme généré ── */
+/* â”€â”€ Sauvegarder le programme gÃ©nÃ©rÃ© â”€â”€ */
 function saveGeneratedProgram(program) {
   if (typeof SW === 'undefined') return;
   var programs = SW.load('generated_programs') || [];
-  programs.unshift(Object.assign({}, program, { id: Date.now() }));
-  SW.save('generated_programs', programs.slice(0, 10));
+  var filtered = programs.filter(function(p) {
+    return !(p.type === program.type && p.date === program.date);
+  });
+  filtered.unshift(Object.assign({}, program, { id: Date.now() }));
+  SW.save('generated_programs', filtered.slice(0, 10));
 }
+
