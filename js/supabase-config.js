@@ -7,8 +7,8 @@
    3. Remplace les valeurs ci-dessous
    ======================================== */
 
-var SUPABASE_URL = 'REMPLACER_PAR_VOTRE_PROJECT_URL';
-var SUPABASE_ANON_KEY = 'REMPLACER_PAR_VOTRE_ANON_KEY';
+var SUPABASE_URL = 'https://tahuyewnuizejbkmqlcb.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_S8w-lAydkOh95SgDADx0pw_Bf9x-Z2S';
 
 /* Initialise le client Supabase (global) */
 var SB = null;
