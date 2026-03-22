@@ -52,17 +52,24 @@ function getTodayProgramme() { return PROGRAMME[getToday()]; }
 
 /* ==================== INIT (async) ==================== */
 async function initEntrainement() {
-  var user = await requireAuth();
-  if (!user) return;
-  _entUserId = user.id;
+  try {
+    var user = await requireAuth();
+    if (!user) return;
+    _entUserId = user.id;
+  } catch(e) {
+    console.error('Auth error:', e);
+    window.location.href = 'login.html';
+    return;
+  }
 
   renderPlanning();
   renderTodaySession();
-  await renderHistory();
   initTimerUI();
 
   var saveBtn = document.getElementById('save-session');
   if (saveBtn) saveBtn.addEventListener('click', saveSession);
+
+  try { await renderHistory(); } catch(e) { console.warn('History unavailable:', e); }
 }
 
 /* Render Weekly Planning Grid */

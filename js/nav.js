@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initNav();
   setActiveNav();
   initLogoutModal();
+  if (typeof initScrollReveal === 'function') initScrollReveal();
 });
 
 /* ==================== GLOBAL LOGOUT MODAL ==================== */
