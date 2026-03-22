@@ -1,0 +1,247 @@
+/* ========================================
+   WORKOUT-MODE.CSS — Mode séance immersif
+   Overlay plein écran guidé exercice par exercice
+   ======================================== */
+
+#workout-mode-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-deep, #0a0a12);
+  z-index: 10000;
+  overflow-y: auto;
+}
+
+.wm-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.wm-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wm-session-name {
+  font-size: 13px;
+  color: var(--text-secondary, #94A3B8);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.wm-progress-bar {
+  height: 4px;
+  background: var(--bg-elevated, rgba(255,255,255,0.07));
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.wm-progress-fill {
+  height: 100%;
+  background: var(--primary, #00FF87);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+  width: 0;
+}
+
+.wm-quit-btn {
+  align-self: flex-end;
+  background: none;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  color: var(--text-muted, #64748B);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.wm-quit-btn:hover {
+  border-color: #FF3D5A;
+  color: #FF3D5A;
+}
+
+/* Visual SVG */
+.wm-visual {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+  background: var(--bg-card, rgba(255,255,255,0.04));
+  border-radius: 20px;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wm-visual svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Exercise info */
+.wm-exercise-info {
+  text-align: center;
+}
+
+.wm-exercise-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary, #F0F0FF);
+  line-height: 1.2;
+}
+
+.wm-serie-info {
+  font-size: 14px;
+  color: var(--text-secondary, #94A3B8);
+  margin-top: 6px;
+}
+
+/* Phase containers */
+.wm-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Input row */
+.wm-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.wm-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wm-input-group label {
+  font-size: 12px;
+  color: var(--text-secondary, #94A3B8);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wm-input-group input {
+  background: var(--bg-elevated, rgba(255,255,255,0.07));
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 10px;
+  padding: 14px 8px;
+  color: var(--text-primary, #F0F0FF);
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.wm-input-group input:focus {
+  outline: none;
+  border-color: var(--primary, #00FF87);
+}
+
+.wm-validate-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+/* Rest timer */
+.wm-rest-label {
+  font-size: 18px;
+  color: var(--text-secondary, #94A3B8);
+  font-weight: 500;
+}
+
+.wm-timer-circle {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.wm-timer-circle svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wm-timer-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text-primary, #F0F0FF);
+}
+
+#wm-timer-arc {
+  transition: stroke 0.4s, stroke-dashoffset 0.9s linear;
+}
+
+.wm-rest-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Done screen */
+.wm-done-icon {
+  font-size: 64px;
+  margin-top: 20px;
+}
+
+.wm-done-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary, #F0F0FF);
+}
+
+.wm-done-stats {
+  display: flex;
+  gap: 28px;
+  margin: 8px 0 16px;
+}
+
+.done-stat {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary, #94A3B8);
+}
+
+.done-stat span {
+  display: block;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--primary, #00FF87);
+  margin-bottom: 2px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .wm-visual {
+    width: 150px;
+    height: 150px;
+  }
+  .wm-exercise-name {
+    font-size: 22px;
+  }
+  .wm-done-stats {
+    gap: 16px;
+  }
+}

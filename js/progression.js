@@ -239,9 +239,10 @@ function renderAccordions() {
     var stats = getExerciseStats(ex);
     var barPct = ex.steps.length > 0 ? Math.round((stats.mastered / ex.steps.length) * 100) : 0;
 
-    html += '<div class="accordion-item card" id="accordion-' + ex.id + '">' +
+    html += '<div class="accordion-item card" id="accordion-' + ex.id + '" data-category="' + ex.category + '">' +
       '<div class="accordion-header" onclick="toggleAccordion(\'' + ex.id + '\')">' +
       '<div class="accordion-header-left">' +
+      '<div class="accordion-visual-sm" id="vis-' + ex.id + '"></div>' +
       '<span class="accordion-icon">' + ex.icon + '</span>' +
       '<div>' +
       '<div class="accordion-title">' + ex.name + '</div>' +
@@ -289,6 +290,33 @@ function renderAccordions() {
   });
 
   container.innerHTML = html;
+
+  // Injecter les visuels SVG dans chaque en-tête d'accordéon
+  if (typeof getExerciseVisual === 'function') {
+    EXERCISES.forEach(function(ex) {
+      var visContainer = document.getElementById('vis-' + ex.id);
+      if (visContainer) {
+        var visual = getExerciseVisual(ex.id);
+        visContainer.innerHTML = visual.svg;
+      }
+    });
+  }
+}
+
+/* Filter exercises by category */
+function filterCategory(cat, btn) {
+  // Update active tab
+  document.querySelectorAll('.prog-tab').forEach(function(t) { t.classList.remove('prog-tab--active'); });
+  if (btn) btn.classList.add('prog-tab--active');
+
+  // Show/hide accordion items
+  document.querySelectorAll('.accordion-item[data-category]').forEach(function(item) {
+    if (cat === 'all' || item.dataset.category === cat) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
 }
 
 /* Toggle accordion */

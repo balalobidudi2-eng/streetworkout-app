@@ -67,6 +67,15 @@
       <h2 style="margin-bottom: 8px;">📈 Progression</h2>
       <p style="color: var(--text-secondary); margin-bottom: 24px;">Suis ton évolution étape par étape pour chaque exercice fondamental.</p>
 
+      <!-- Catégories -->
+      <div class="progression-tabs">
+        <button class="prog-tab prog-tab--active" data-cat="all" onclick="filterCategory('all', this)">Tous</button>
+        <button class="prog-tab" data-cat="pull" onclick="filterCategory('pull', this)">Traction</button>
+        <button class="prog-tab" data-cat="push" onclick="filterCategory('push', this)">Poussée</button>
+        <button class="prog-tab" data-cat="skills" onclick="filterCategory('skills', this)">Statique</button>
+        <button class="prog-tab" data-cat="legs" onclick="filterCategory('legs', this)">Jambes</button>
+      </div>
+
       <!-- Overview -->
       <div class="progression-overview">
         <div class="overview-header">
@@ -98,6 +107,7 @@
   <script src="js/storage.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/exercise-visuals.js"></script>
   <script src="js/progression.js"></script>
   <link rel="stylesheet" href="css/chatbot.css">
   <script src="js/chatbot.js"></script>

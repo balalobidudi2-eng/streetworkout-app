@@ -64,12 +64,85 @@ async function initEntrainement() {
 
   renderPlanning();
   renderTodaySession();
+  renderCalendarSection();
+  renderTodayCard();
   initTimerUI();
 
   var saveBtn = document.getElementById('save-session');
   if (saveBtn) saveBtn.addEventListener('click', saveSession);
 
   try { await renderHistory(); } catch(e) { console.warn('History unavailable:', e); }
+
+  // Rafraîchir le calendrier si une séance est sauvegardée via WorkoutMode
+  window.addEventListener('session:saved', function() {
+    renderCalendarSection();
+  });
+}
+
+/* Render Weekly Planning Grid */
+function renderCalendarSection() {
+  if (typeof renderCalendar === 'function') {
+    renderCalendar('weekly-calendar');
+  }
+}
+
+/* Afficher la carte séance du jour avec bouton lancer WorkoutMode */
+function renderTodayCard() {
+  var card = document.getElementById('today-workout-card');
+  if (!card) return;
+
+  var prog = getTodayProgramme();
+  var exos = EXERCICES[prog.nom];
+
+  if (!exos) {
+    card.innerHTML = '<div class="today-card-rest">' +
+      '<div class="today-card-icon">🧘</div>' +
+      '<div class="today-card-content">' +
+        '<div class="today-card-type" style="color:' + prog.couleur + '">' + prog.nom + '</div>' +
+        '<div class="today-card-muscles">' + prog.muscles + '</div>' +
+      '</div>' +
+    '</div>';
+    return;
+  }
+
+  card.innerHTML = '<div class="today-card-inner">' +
+    '<div class="today-card-content">' +
+      '<div class="today-card-badge">Aujourd\'hui</div>' +
+      '<div class="today-card-type" style="color:' + prog.couleur + '">' + prog.nom + '</div>' +
+      '<div class="today-card-muscles">' + prog.muscles + '</div>' +
+      '<div class="today-card-count">' + exos.length + ' exercices · ' + exos.reduce(function(s,e){return s+e.series;},0) + ' séries</div>' +
+    '</div>' +
+    '<button class="btn btn-primary today-card-btn" id="btn-start-workout">▶ Lancer la séance</button>' +
+  '</div>';
+
+  document.getElementById('btn-start-workout').addEventListener('click', function() {
+    var todayExos = getTodayExercises();
+    if (!todayExos.length) {
+      showToast('Aucun exercice prévu aujourd\'hui', 'info');
+      return;
+    }
+    if (typeof WorkoutMode !== 'undefined') {
+      var wm = new WorkoutMode(todayExos, prog.nom + ' — ' + prog.muscles);
+      wm.mount();
+    }
+  });
+}
+
+/* Convertir EXERCICES du jour en format WorkoutMode */
+function getTodayExercises() {
+  var prog = getTodayProgramme();
+  var exos = EXERCICES[prog.nom];
+  if (!exos) return [];
+  return exos.map(function(ex) {
+    return {
+      id: resolveExerciseId ? resolveExerciseId(ex.nom) : ex.nom.toLowerCase().replace(/\s+/g, '_'),
+      nom: ex.nom,
+      series: ex.series,
+      reps_objectif: ex.reps,
+      poids: 0,
+      repos_sec: 90
+    };
+  });
 }
 
 /* Render Weekly Planning Grid */

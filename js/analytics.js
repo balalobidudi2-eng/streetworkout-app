@@ -50,6 +50,13 @@ async function initAnalytics() {
 
   /* Measures table */
   renderMeasuresTable(mesures);
+
+  /* Graphiques avancés depuis localStorage */
+  var localSessions = (typeof SW !== 'undefined' ? SW.load('sessions') : null) || [];
+  renderWeeklyVolumeChart(localSessions);
+  renderFrequencyHeatmap(localSessions);
+  renderComparisonRadar(profile);
+  renderComparisonTable(profile);
 }
 
 /* Calculate score from profile (same logic as dashboard) */
@@ -238,3 +245,243 @@ function renderMeasuresTable(mesures) {
 }
 
 document.addEventListener('DOMContentLoaded', initAnalytics);
+
+/* ==================== GRAPHIQUES AVANCÉS ==================== */
+
+/* Graphique 4 — Volume hebdomadaire (barres) */
+function renderWeeklyVolumeChart(sessions) {
+  var container = document.getElementById('an-volume-container');
+  if (!container) return;
+
+  if (!sessions || sessions.length === 0) {
+    container.innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-muted);">Aucune session enregistr\u00e9e via le mode s\u00e9ance.</p>';
+    return;
+  }
+
+  if (typeof Chart === 'undefined') return;
+
+  // Grouper par semaine (dernières 8 semaines)
+  var weekMap = {};
+  sessions.forEach(function(s) {
+    if (!s.date) return;
+    var d = new Date(s.date);
+    // Numéro de semaine ISO simplifié
+    var startOfYear = new Date(d.getFullYear(), 0, 1);
+    var weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+    var weekKey = d.getFullYear() + '-W' + (weekNum < 10 ? '0' : '') + weekNum;
+    if (!weekMap[weekKey]) weekMap[weekKey] = 0;
+    weekMap[weekKey] += (s.volume_total || 0);
+  });
+
+  var sortedWeeks = Object.keys(weekMap).sort().slice(-8);
+  if (sortedWeeks.length === 0) {
+    container.innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-muted);">Pas assez de donn\u00e9es.</p>';
+    return;
+  }
+
+  container.innerHTML = '<canvas id="an-volume-chart"></canvas>';
+  var canvas = document.getElementById('an-volume-chart');
+  if (!canvas) return;
+
+  if (_anCharts['volume']) _anCharts['volume'].destroy();
+  _anCharts['volume'] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: sortedWeeks.map(function(w) { return w.replace(/^\d{4}-/, ''); }),
+      datasets: [{
+        data: sortedWeeks.map(function(w) { return weekMap[w]; }),
+        backgroundColor: 'rgba(0,255,135,0.25)',
+        borderColor: '#00FF87',
+        borderWidth: 2,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { beginAtZero: true, ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+/* Graphique 5 — Heatmap fréquence d'entraînement */
+function renderFrequencyHeatmap(sessions) {
+  var container = document.getElementById('an-heatmap-container');
+  if (!container) return;
+
+  // Construire un set des dates avec séance
+  var datesWithSession = {};
+  (sessions || []).forEach(function(s) {
+    if (s.date) datesWithSession[s.date] = true;
+  });
+
+  var today = new Date();
+  var html = '<div class="heatmap-grid">';
+
+  // Générer les 63 derniers jours (9 semaines × 7 jours)
+  var dayLabels = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  html += '<div class="heatmap-labels">';
+  dayLabels.forEach(function(l) { html += '<div class="heatmap-label">' + l + '</div>'; });
+  html += '</div>';
+
+  // Construire les colonnes (semaines)
+  var days = [];
+  for (var i = 62; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    days.push(d);
+  }
+
+  // Aligner sur lundi
+  var paddingDays = (days[0].getDay() + 6) % 7; // 0=lundi
+  html += '<div class="heatmap-weeks">';
+  // Padding pour aligner
+  var totalCells = paddingDays + days.length;
+  var weeks = Math.ceil(totalCells / 7);
+  for (var w = 0; w < weeks; w++) {
+    html += '<div class="heatmap-week">';
+    for (var weekDay = 0; weekDay < 7; weekDay++) {
+      var cellIdx = w * 7 + weekDay - paddingDays;
+      if (cellIdx < 0 || cellIdx >= days.length) {
+        html += '<div class="heatmap-cell heatmap-cell--empty"></div>';
+      } else {
+        var dayDate = days[cellIdx];
+        var dateStr = dayDate.toISOString().slice(0, 10);
+        var hasSession = !!datesWithSession[dateStr];
+        var isToday = dateStr === today.toISOString().slice(0, 10);
+        html += '<div class="heatmap-cell' +
+          (hasSession ? ' heatmap-cell--active' : '') +
+          (isToday ? ' heatmap-cell--today' : '') +
+          '" title="' + dateStr + '"></div>';
+      }
+    }
+    html += '</div>';
+  }
+  html += '</div></div>';
+  html += '<div class="heatmap-legend"><span>Moins</span><span class="heatmap-cell"></span><span class="heatmap-cell heatmap-cell--active"></span><span>Plus</span></div>';
+
+  container.innerHTML = html;
+}
+
+/* Graphique 6 — Radar comparaison aux standards */
+function renderComparisonRadar(profile) {
+  var canvas = document.getElementById('an-comparison-radar');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  var standards = {
+    tractions:  [3, 8, 15, 20],
+    dips:       [5, 12, 20, 30],
+    pompes:     [10, 25, 40, 60],
+    squats:     [15, 40, 80, 120]
+  };
+
+  var pullups = profile.pullups || 0;
+  var dips = profile.dips || 0;
+  var pushups = profile.pushups || 0;
+  var squats = profile.squats || 0;
+
+  // Pourcentage par rapport au niveau élite
+  function pct(val, elite) { return Math.min(Math.round((val / elite) * 100), 100); }
+
+  var userData = [
+    pct(pullups, 20),
+    pct(dips, 30),
+    pct(pushups, 60),
+    pct(squats, 120)
+  ];
+
+  if (_anCharts['compRadar']) _anCharts['compRadar'].destroy();
+  _anCharts['compRadar'] = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels: ['Tractions', 'Dips', 'Pompes', 'Squats'],
+      datasets: [
+        {
+          label: 'Ton niveau (%)',
+          data: userData,
+          borderColor: '#00FF87',
+          backgroundColor: 'rgba(0,255,135,0.15)',
+          borderWidth: 2,
+          pointBackgroundColor: '#00FF87',
+          pointRadius: 5
+        },
+        {
+          label: 'Standard avanc\u00e9 (100%)',
+          data: [100, 100, 100, 100],
+          borderColor: 'rgba(255,107,53,0.4)',
+          backgroundColor: 'rgba(255,107,53,0.06)',
+          borderWidth: 1,
+          pointRadius: 0,
+          borderDash: [4, 4]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: true, labels: { color: '#94A3B8', font: { size: 11 } } }
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { color: '#94A3B8', stepSize: 25, backdropColor: 'transparent', font: { size: 9 } },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          pointLabels: { color: '#94A3B8', font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+/* Tableau comparaison performances vs standards */
+function renderComparisonTable(profile) {
+  var container = document.getElementById('an-comparison-table');
+  if (!container) return;
+
+  var rows = [
+    { nom: 'Tractions', perf: profile.pullups || 0, niveaux: [3, 8, 15, 20] },
+    { nom: 'Dips',      perf: profile.dips || 0,    niveaux: [5, 12, 20, 30] },
+    { nom: 'Pompes',    perf: profile.pushups || 0,  niveaux: [10, 25, 40, 60] },
+    { nom: 'Squats',    perf: profile.squats || 0,   niveaux: [15, 40, 80, 120] }
+  ];
+
+  var levelNames = ['D\u00e9butant', 'Interm\u00e9diaire', 'Avanc\u00e9', '\u00c9lite'];
+  var levelColors = ['#94A3B8', '#00B4FF', '#FF6B35', '#00FF87'];
+
+  function getLevel(val, niveaux) {
+    if (val >= niveaux[3]) return 3;
+    if (val >= niveaux[2]) return 2;
+    if (val >= niveaux[1]) return 1;
+    if (val >= niveaux[0]) return 0;
+    return -1;
+  }
+
+  var html = '<div class="comparison-table-wrap"><table class="comparison-table"><thead><tr>' +
+    '<th>Exercice</th><th>Ta perf</th><th>D\u00e9but</th><th>Inter</th><th>Avanc\u00e9</th><th>\u00c9lite</th><th>Niveau</th>' +
+    '</tr></thead><tbody>';
+
+  rows.forEach(function(r) {
+    var lvl = getLevel(r.perf, r.niveaux);
+    var lvlLabel = lvl >= 0 ? levelNames[lvl] : 'Avant d\u00e9butant';
+    var lvlColor = lvl >= 0 ? levelColors[lvl] : '#475569';
+    html += '<tr>';
+    html += '<td style="font-weight:600">' + r.nom + '</td>';
+    html += '<td style="font-weight:700;color:var(--primary)">' + r.perf + '</td>';
+    r.niveaux.forEach(function(n, i) {
+      var isCurrent = (lvl === i);
+      html += '<td style="' + (isCurrent ? 'background:rgba(0,255,135,0.1);font-weight:600;' : '') + '">' + n + '</td>';
+    });
+    html += '<td><span style="color:' + lvlColor + ';font-weight:600;font-size:12px">' + lvlLabel + '</span></td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+

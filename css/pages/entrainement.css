@@ -2,6 +2,138 @@
    ENTRAINEMENT.CSS — Training Page Styles
    ======================================== */
 
+/* === Calendrier hebdomadaire === */
+.calendar-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 4px 0 10px;
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.cal-day--today {
+  border-color: var(--primary);
+  background: rgba(0, 255, 135, 0.07);
+}
+
+.cal-day--done {
+  background: rgba(0, 255, 135, 0.04);
+}
+
+.cal-day-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.cal-day-num {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.cal-dot--empty {
+  background: var(--border, rgba(255,255,255,0.08));
+}
+
+.calendar-legend {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* === Carte Séance du Jour === */
+.today-card {
+  margin-bottom: 8px;
+}
+
+.today-card-inner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.today-card-rest {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.today-card-icon {
+  font-size: 32px;
+}
+
+.today-card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.today-card-type {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.today-card-muscles {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.today-card-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.today-card-btn {
+  white-space: nowrap;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 /* Planning Grid */
 .planning-grid {
   display: grid;

@@ -9,6 +9,29 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/pages/dashboard.css">
+  <style>
+    /* Heatmap */
+    .heatmap-grid { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
+    .heatmap-labels { display: flex; flex-direction: column; gap: 2px; padding-top: 2px; }
+    .heatmap-label { width: 14px; height: 14px; font-size: 9px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+    .heatmap-weeks { display: flex; gap: 2px; }
+    .heatmap-week { display: flex; flex-direction: column; gap: 2px; }
+    .heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: var(--bg-elevated, rgba(255,255,255,0.07)); }
+    .heatmap-cell--active { background: var(--primary, #00FF87); opacity: 0.85; }
+    .heatmap-cell--today { outline: 2px solid var(--primary, #00FF87); }
+    .heatmap-cell--empty { background: transparent; }
+    .heatmap-legend { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+    .heatmap-legend .heatmap-cell { display: inline-block; }
+    /* Comparison table */
+    .comparison-table-wrap { overflow-x: auto; }
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .comparison-table th { padding: 8px 10px; text-align: left; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
+    .comparison-table td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-primary); }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    /* Volume chart height */
+    #an-volume-container { height: 220px; }
+    #an-volume-container canvas { max-height: 220px; }
+  </style>
 </head>
 <body>
 
@@ -103,6 +126,27 @@
       <div class="card" style="margin-top:1.5rem;">
         <h3>📏 Historique des mesures</h3>
         <div class="table-container" id="an-measures-table"></div>
+      </div>
+
+      <!-- Volume hebdomadaire -->
+      <div class="chart-section" style="margin-top:1.5rem;">
+        <h3>📊 Volume hebdomadaire</h3>
+        <div id="an-volume-container" style="min-height:220px;"></div>
+      </div>
+
+      <!-- Heatmap fréquence -->
+      <div class="chart-section" style="margin-top:1.5rem;">
+        <h3>🔥 Fréquence d'entraînement</h3>
+        <div id="an-heatmap-container"></div>
+      </div>
+
+      <!-- Radar comparaison niveaux -->
+      <div class="chart-section" style="margin-top:1.5rem;">
+        <h3>🎯 Comparaison aux standards</h3>
+        <div style="max-width:420px;margin:0 auto;">
+          <canvas id="an-comparison-radar"></canvas>
+        </div>
+        <div id="an-comparison-table" style="margin-top:16px;"></div>
       </div>
     </main>
   </div>

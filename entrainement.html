@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/pages/entrainement.css">
+  <link rel="stylesheet" href="css/workout-mode.css">
 </head>
 <body>
 
@@ -66,6 +67,17 @@
     <main class="main-content">
 
       <h1 class="reveal">💪 Entraînement</h1>
+
+      <!-- Agenda hebdomadaire -->
+      <section class="card reveal">
+        <h2>📅 Cette semaine</h2>
+        <div id="weekly-calendar"></div>
+      </section>
+
+      <!-- Bouton lancer séance du jour -->
+      <section class="reveal">
+        <div id="today-workout-card" class="today-card"></div>
+      </section>
 
       <!-- Weekly Planning -->
       <section class="card reveal">
@@ -138,6 +150,9 @@
   <script src="js/auth.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/timer.js"></script>
+  <script src="js/exercise-visuals.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/workout-mode.js"></script>
   <script src="js/entrainement.js"></script>
   <link rel="stylesheet" href="css/chatbot.css">
   <script src="js/chatbot.js"></script>
