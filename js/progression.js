@@ -319,6 +319,40 @@ function filterCategory(cat, btn) {
   });
 }
 
+/* ==================== READY-TO-PROGRESS CHECK ==================== */
+/* Shows a badge when all steps in an exercise are mastered */
+function checkReadyToProgress(stepId) {
+  /* Find which exercise this step belongs to */
+  var exerciseId = null;
+  EXERCISES.forEach(function(ex) {
+    ex.steps.forEach(function(s) {
+      if (s.id === stepId) exerciseId = ex.id;
+    });
+  });
+  if (!exerciseId) return;
+
+  var ex = EXERCISES.find(function(e) { return e.id === exerciseId; });
+  if (!ex) return;
+
+  var stats = getExerciseStats(ex);
+  if (stats.mastered >= stats.total && stats.total > 0) {
+    showReadyBadge(exerciseId, ex.nom);
+  }
+}
+
+function showReadyBadge(exerciseId, exerciseName) {
+  var accordion = document.getElementById('accordion-' + exerciseId);
+  if (!accordion) return;
+  /* Avoid duplicate badges */
+  if (accordion.querySelector('.ready-badge')) return;
+
+  var badge = document.createElement('div');
+  badge.className = 'ready-badge';
+  badge.innerHTML = '<span class="ready-badge-icon">🏆</span> Prêt pour le niveau suivant\u00a0!';
+  var header = accordion.querySelector('.accordion-header');
+  if (header) header.insertAdjacentElement('afterend', badge);
+}
+
 /* Toggle accordion */
 function toggleAccordion(exerciseId) {
   var el = document.getElementById('accordion-' + exerciseId);
@@ -342,6 +376,7 @@ async function updateStepStatus(stepId, newValue, inputEl) {
     var rect = inputEl.parentElement.getBoundingClientRect();
     launchConfetti(rect.left + rect.width / 2, rect.top);
     showToast('Étape maîtrisée ! 🎉');
+    checkReadyToProgress(stepId);
   }
 
   renderOverview();

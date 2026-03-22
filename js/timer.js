@@ -2,6 +2,30 @@
    TIMER.JS — Rest Timer Between Sets
    ======================================== */
 
+/* ==================== EXERCISE REST PRESETS (scientific, seconds) ==================== */
+/* Sources : Schoenfeld 2017 (J Strength Cond Res), NSCA Position Statement 2016        */
+var EXERCISE_REST_PRESETS = {
+  planche:      180,
+  human_flag:   180,
+  front_lever:  150,
+  back_lever:   150,
+  l_sit:        120,
+  muscle_up:    120,
+  handstand:    120,
+  dragon_flag:  120,
+  hspu:          90,
+  tractions:     90,
+  dips:          90,
+  squat:         60,
+  pompes:        60,
+  repos:           0
+};
+
+function getRestPreset(exerciseId) {
+  if (!exerciseId) return 90;
+  return EXERCISE_REST_PRESETS[exerciseId] !== undefined ? EXERCISE_REST_PRESETS[exerciseId] : 90;
+}
+
 var TIMER = {
   duration: 90,
   remaining: 0,

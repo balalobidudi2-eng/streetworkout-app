@@ -52,6 +52,28 @@
   height: 100%;
 }
 
+/* === Ready-to-progress badge === */
+.ready-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(0,255,135,0.12), transparent);
+  border-top: 1px solid rgba(0,255,135,0.25);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+  animation: ready-fade-in 0.4s ease;
+}
+.ready-badge-icon {
+  font-size: 1rem;
+}
+@keyframes ready-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
 /* === Overview === */
 .progression-overview {
   background: var(--bg-card);

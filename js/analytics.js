@@ -444,44 +444,87 @@ function renderComparisonTable(profile) {
   var container = document.getElementById('an-comparison-table');
   if (!container) return;
 
+  /*
+   * Reference thresholds (reps max, bodyweight) — MDPI Nutrients 2025 / NSCA Position Statement
+   * Columns: [Débutant, Novice, Intermédiaire, Avancé, Élite]
+   */
   var rows = [
-    { nom: 'Tractions', perf: profile.pullups || 0, niveaux: [3, 8, 15, 20] },
-    { nom: 'Dips',      perf: profile.dips || 0,    niveaux: [5, 12, 20, 30] },
-    { nom: 'Pompes',    perf: profile.pushups || 0,  niveaux: [10, 25, 40, 60] },
-    { nom: 'Squats',    perf: profile.squats || 0,   niveaux: [15, 40, 80, 120] }
+    {
+      nom: 'Tractions', emoji: '💪',
+      perf: profile.pullups || 0,
+      niveaux: [3, 8, 12, 18, 23],
+      note: 'Epley 1RM / BW : <1.0, 1.0–1.3, 1.3–1.7, 1.7–2.1, >2.1'
+    },
+    {
+      nom: 'Dips', emoji: '🔥',
+      perf: profile.dips || 0,
+      niveaux: [5, 12, 18, 25, 35],
+      note: 'Epley 1RM / BW : <1.0, 1.0–1.4, 1.4–1.8, 1.8–2.2, >2.2'
+    },
+    {
+      nom: 'Pompes', emoji: '⚡',
+      perf: profile.pushups || 0,
+      niveaux: [10, 20, 35, 50, 70],
+      note: 'Charge effective ~64% BW (Winter 1990)'
+    },
+    {
+      nom: 'Squats', emoji: '🦵',
+      perf: profile.squats || 0,
+      niveaux: [15, 40, 70, 100, 140],
+      note: 'Reps BW — référentiel NSCA'
+    }
   ];
 
-  var levelNames = ['D\u00e9butant', 'Interm\u00e9diaire', 'Avanc\u00e9', '\u00c9lite'];
-  var levelColors = ['#94A3B8', '#00B4FF', '#FF6B35', '#00FF87'];
+  var levelNames  = ['D\u00e9butant', 'Novice', 'Interm\u00e9diaire', 'Avanc\u00e9', '\u00c9lite'];
+  var levelColors = ['#94A3B8',      '#EA580C', '#0284C7',         '#16A34A',  '#7C3AED'];
 
   function getLevel(val, niveaux) {
-    if (val >= niveaux[3]) return 3;
-    if (val >= niveaux[2]) return 2;
-    if (val >= niveaux[1]) return 1;
-    if (val >= niveaux[0]) return 0;
+    for (var i = niveaux.length - 1; i >= 0; i--) {
+      if (val >= niveaux[i]) return i;
+    }
     return -1;
   }
 
-  var html = '<div class="comparison-table-wrap"><table class="comparison-table"><thead><tr>' +
-    '<th>Exercice</th><th>Ta perf</th><th>D\u00e9but</th><th>Inter</th><th>Avanc\u00e9</th><th>\u00c9lite</th><th>Niveau</th>' +
+  var html =
+    '<div class="comparison-table-wrap">' +
+    '<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:right">' +
+    'Sources : MDPI Nutrients 2025 · NSCA 2016 · Epley 1RM / BW' +
+    '</p>' +
+    '<table class="comparison-table"><thead><tr>' +
+    '<th>Exercice</th><th>Ta perf</th>' +
+    levelNames.map(function(n, i) {
+      return '<th style="color:' + levelColors[i] + '">' + n + '</th>';
+    }).join('') +
+    '<th>Niveau actuel</th>' +
     '</tr></thead><tbody>';
 
   rows.forEach(function(r) {
     var lvl = getLevel(r.perf, r.niveaux);
     var lvlLabel = lvl >= 0 ? levelNames[lvl] : 'Avant d\u00e9butant';
     var lvlColor = lvl >= 0 ? levelColors[lvl] : '#475569';
-    html += '<tr>';
-    html += '<td style="font-weight:600">' + r.nom + '</td>';
-    html += '<td style="font-weight:700;color:var(--primary)">' + r.perf + '</td>';
+
+    html += '<tr title="' + r.note + '">';
+    html += '<td style="font-weight:600">' + r.emoji + ' ' + r.nom + '</td>';
+    html += '<td style="font-weight:700;color:var(--primary);font-size:1.05rem">' + r.perf + '</td>';
     r.niveaux.forEach(function(n, i) {
       var isCurrent = (lvl === i);
-      html += '<td style="' + (isCurrent ? 'background:rgba(0,255,135,0.1);font-weight:600;' : '') + '">' + n + '</td>';
+      var isNextTarget = (lvl === i - 1);
+      html += '<td style="'
+        + (isCurrent    ? 'background:rgba(0,255,135,0.13);font-weight:700;' : '')
+        + (isNextTarget ? 'background:rgba(255,107,53,0.08);' : '')
+        + '">'
+        + n
+        + (isNextTarget ? ' <span style="font-size:10px;color:#EA580C">🎯</span>' : '')
+        + '</td>';
     });
-    html += '<td><span style="color:' + lvlColor + ';font-weight:600;font-size:12px">' + lvlLabel + '</span></td>';
+    html += '<td><span style="color:' + lvlColor + ';font-weight:700;font-size:12px">' + lvlLabel + '</span></td>';
     html += '</tr>';
   });
 
-  html += '</tbody></table></div>';
+  html += '</tbody></table>' +
+    '<p style="font-size:0.7rem;color:var(--text-muted);margin-top:6px">' +
+    '🎯 = prochain palier à atteindre · Valeurs en reps max poids de corps' +
+    '</p></div>';
   container.innerHTML = html;
 }
 

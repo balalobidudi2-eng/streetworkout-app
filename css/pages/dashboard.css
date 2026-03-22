@@ -2,6 +2,43 @@
    DASHBOARD.CSS — Dashboard Page Styles
    ======================================== */
 
+/* === Protein Display === */
+.protein-display {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border-left: 3px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.5;
+}
+.protein-display strong {
+  color: var(--primary);
+}
+.form-hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* === Level Info Block === */
+.level-info-block {
+  margin-top: 6px;
+}
+.level-phase {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+.level-conseil {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 /* === Profile Section === */
 .profile-section {
   display: flex;

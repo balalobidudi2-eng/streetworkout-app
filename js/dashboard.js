@@ -6,49 +6,102 @@
 var _profile = null;
 var _history = [];
 
-/* ==================== 5-LEVEL SYSTEM ==================== */
+/* ==================== 5-LEVEL SYSTEM (Epley force-relative, NSCA 2016) ==================== */
 function calculateLevel(data) {
+  var poids = parseFloat(data.poids) || 75;
+
+  /* Epley 1RM = (BW + added) × (1 + reps/30); relative = 1RM / BW */
+  function relStr(reps, added) {
+    if (!reps || reps <= 0) return 0;
+    return ((poids + (added || 0)) * (1 + reps / 30)) / poids;
+  }
+
+  /* Best available pullup data: prefer heaviest added weight */
+  var pullAdded = (data.pullups_20 > 0) ? 20 : (data.pullups_10 > 0) ? 10 : (data.pullups_5 > 0) ? 5 : 0;
+  var pullReps  = pullAdded === 20 ? (data.pullups_20 || 0)
+                : pullAdded === 10 ? (data.pullups_10 || 0)
+                : pullAdded ===  5 ? (data.pullups_5  || 0)
+                : (data.pullups || 0);
+  var pullRatio = relStr(pullReps, pullAdded);
+
+  /* Dips force relative */
+  var dipsAdded = (data.dips_20 > 0) ? 20 : (data.dips_10 > 0) ? 10 : (data.dips_5 > 0) ? 5 : 0;
+  var dipsReps  = dipsAdded === 20 ? (data.dips_20 || 0)
+                : dipsAdded === 10 ? (data.dips_10 || 0)
+                : dipsAdded ===  5 ? (data.dips_5  || 0)
+                : (data.dips || 0);
+  var dipsRatio = relStr(dipsReps, dipsAdded);
+
+  /* Pompes: ~64% of bodyweight on hands (Winter 1990 biomechanics model) */
+  var pushupsRatio = data.pushups > 0 ? (poids * 0.64 * (1 + data.pushups / 30)) / poids : 0;
+
   var score = 0;
 
-  if (data.pullups >= 20)      score += 25;
-  else if (data.pullups >= 15) score += 20;
-  else if (data.pullups >= 10) score += 14;
-  else if (data.pullups >= 5)  score += 8;
-  else if (data.pullups >= 1)  score += 3;
+  /* Tractions force-relative — 35 pts (thresholds: déb<1.0, nov 1.0–1.3, int 1.3–1.7, av 1.7–2.1, élite>2.1) */
+  if      (pullRatio >= 2.1) score += 35;
+  else if (pullRatio >= 1.7) score += 27;
+  else if (pullRatio >= 1.3) score += 18;
+  else if (pullRatio >= 1.0) score += 10;
+  else if (pullRatio >= 0.5) score +=  4;
 
-  if (data.dips >= 25)         score += 20;
-  else if (data.dips >= 18)    score += 15;
-  else if (data.dips >= 12)    score += 10;
-  else if (data.dips >= 6)     score += 5;
-  else if (data.dips >= 1)     score += 2;
+  /* Dips force-relative — 25 pts (thresholds: déb<1.0, nov 1.0–1.4, int 1.4–1.8, av 1.8–2.2, élite>2.2) */
+  if      (dipsRatio >= 2.2) score += 25;
+  else if (dipsRatio >= 1.8) score += 19;
+  else if (dipsRatio >= 1.4) score += 13;
+  else if (dipsRatio >= 1.0) score +=  7;
+  else if (dipsRatio >= 0.5) score +=  3;
 
-  if (data.pushups >= 50)      score += 15;
-  else if (data.pushups >= 35) score += 11;
-  else if (data.pushups >= 20) score += 7;
-  else if (data.pushups >= 10) score += 4;
-  else if (data.pushups >= 1)  score += 2;
+  /* Pompes — 15 pts */
+  if      (pushupsRatio >= 0.9)         score += 15;
+  else if (pushupsRatio >= 0.7)         score += 11;
+  else if (pushupsRatio >= 0.5)         score +=  7;
+  else if (pushupsRatio >= 0.3)         score +=  4;
+  else if ((data.pushups || 0) >= 1)    score +=  2;
 
-  if (data.squats >= 60)       score += 10;
-  else if (data.squats >= 40)  score += 7;
-  else if (data.squats >= 20)  score += 4;
-  else if (data.squats >= 5)   score += 2;
+  /* Squats — 10 pts */
+  if      ((data.squats || 0) >= 60)    score += 10;
+  else if ((data.squats || 0) >= 40)    score +=  7;
+  else if ((data.squats || 0) >= 20)    score +=  4;
+  else if ((data.squats || 0) >= 5)     score +=  2;
 
+  /* Skills — 15 pts */
   if (data.muscleup === 'oui') score += 15;
   score += (parseInt(data.frontlever) || 0) * 2;
-  score += (parseInt(data.handstand) || 0) * 2;
-  score += (parseInt(data.hspu) || 0) * 3;
-
-  if (data.pullups20 >= 1)      score += 5;
-  else if (data.pullups10 >= 1) score += 3;
-  else if (data.pullups5 >= 1)  score += 1;
+  score += (parseInt(data.handstand)  || 0) * 2;
+  score += (parseInt(data.hspu)       || 0) * 3;
 
   score = Math.min(score, 100);
 
-  if (score >= 85) return { level: 'Élite',         color: '#7C3AED', icon: '👑', score: score };
-  if (score >= 65) return { level: 'Avancé',         color: '#16A34A', icon: '🔥', score: score };
-  if (score >= 45) return { level: 'Intermédiaire',  color: '#0284C7', icon: '⚡', score: score };
-  if (score >= 20) return { level: 'Novice',         color: '#EA580C', icon: '🌟', score: score };
-  return              { level: 'Débutant',        color: '#94A3B8', icon: '🌱', score: score };
+  if (score >= 85) return { level: 'Élite',        color: '#7C3AED', icon: '👑', score: score,
+    desc: 'Niveau compétition', phase: 'Optimisation & spécialisation',
+    conseil: 'Travaille le force-skill (planche, front lever) et la périodisation ondulée.' };
+  if (score >= 65) return { level: 'Avancé',        color: '#16A34A', icon: '🔥', score: score,
+    desc: 'Athlète confirmé', phase: 'Développement des skills',
+    conseil: 'Entame les progressions front lever et muscle-up avec du lest.' };
+  if (score >= 45) return { level: 'Intermédiaire', color: '#0284C7', icon: '⚡', score: score,
+    desc: 'Base solide', phase: 'Augmentation du volume et du lest',
+    conseil: 'Vise 3×10 tractions lestées et 3×15 dips lestés.' };
+  if (score >= 20) return { level: 'Novice',        color: '#EA580C', icon: '🌟', score: score,
+    desc: 'En progression', phase: 'Construction de la force fondamentale',
+    conseil: 'Consolide 3 séries de 10 tractions et 15 dips. Introduis le lest dès que possible.' };
+  return               { level: 'Débutant',       color: '#94A3B8', icon: '🌱', score: score,
+    desc: 'Début du parcours', phase: 'Acquisition des fondamentaux',
+    conseil: 'Focus sur la régularité : 3 séances/sem. Tractions assistées + dips au banc.' };
+}
+
+/* ==================== PROTEIN GOAL CALCULATOR ==================== */
+/* Ref: Morton et al. 2018 — 1.6–2.2 g/kg; Stokes et al. 2018 — 2.2 g/kg upper bound */
+function updateProteinGoal(poids) {
+  var el = document.getElementById('protein-display');
+  if (!el) return;
+  if (!poids || poids < 30) {
+    el.textContent = 'Renseigne ton poids pour calculer ton objectif protéique.';
+    return;
+  }
+  var min = Math.round(poids * 1.6);
+  var max = Math.round(poids * 2.2);
+  el.innerHTML = '🥩 Objectif protéines\u00a0: <strong>' + min + '–' + max + '\u00a0g/jour</strong>'
+    + ' <span class="form-hint">(1.6–2.2\u00a0g/kg · Morton et al. 2018)</span>';
 }
 
 function getTargets(levelName) {
@@ -74,6 +127,15 @@ async function initDashboard() {
 
   var saveBtn = document.getElementById('save-data');
   if (saveBtn) saveBtn.addEventListener('click', function() { saveFormData(user.id); });
+
+  /* Protein goal — live update on weight change */
+  var weightInput = document.getElementById('input-weight');
+  if (weightInput) {
+    weightInput.addEventListener('input', function() {
+      updateProteinGoal(parseFloat(this.value));
+    });
+    updateProteinGoal(parseFloat(weightInput.value));
+  }
 
   /* Profile name editing */
   var editNameBtn = document.getElementById('edit-name-btn');
@@ -258,6 +320,13 @@ function updateStatsCards() {
     badge.style.background = result.color + '18';
     badge.classList.add('badge-bounce');
     setTimeout(function() { badge.classList.remove('badge-bounce'); }, 600);
+  }
+
+  var levelInfoEl = document.getElementById('level-info');
+  if (levelInfoEl) {
+    levelInfoEl.innerHTML =
+      '<div class="level-phase">' + result.phase + '</div>' +
+      '<div class="level-conseil">' + result.conseil + '</div>';
   }
 
   var scoreEl = document.getElementById('score-value');

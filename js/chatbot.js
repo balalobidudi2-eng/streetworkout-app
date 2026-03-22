@@ -41,9 +41,39 @@ var swbot = (function() {
       if (!profileRes.error && profileRes.data) {
         _userCtx = profileRes.data;
       }
+
+      /* Enrich with local session history */
+      var sessions = (typeof SW !== 'undefined') ? (SW.load('sessions') || []) : [];
+      var consecutive = _countConsecutiveTrainingDays(sessions);
+      _userCtx = Object.assign(_userCtx || {}, {
+        consecutiveDays: consecutive,
+        needsDeload: consecutive >= 28
+      });
     } catch (e) {
       // Contexte non critique — continuer sans
     }
+  }
+
+  /* Count consecutive days with at least one session (up to today) */
+  function _countConsecutiveTrainingDays(sessions) {
+    if (!sessions || sessions.length === 0) return 0;
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var daysWithSession = {};
+    sessions.forEach(function(s) {
+      if (!s.date) return;
+      var d = new Date(s.date);
+      d.setHours(0, 0, 0, 0);
+      daysWithSession[d.getTime()] = true;
+    });
+    var count = 0;
+    var cursor = new Date(today.getTime());
+    while (true) {
+      if (!daysWithSession[cursor.getTime()]) break;
+      count++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return count;
   }
 
   /* ── DOM ──────────────────────────────── */

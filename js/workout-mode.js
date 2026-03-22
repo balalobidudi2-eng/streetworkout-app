@@ -150,15 +150,16 @@ var WorkoutMode = (function() {
     document.getElementById('wm-reps').value = '';
 
     var totalSeries = ex.series || 3;
+    var exId = ex.id || resolveExerciseId(ex.nom);
     if (this.currentSerieIndex < totalSeries - 1) {
-      this._startRest(ex.repos_sec || 90, false);
+      this._startRest(ex.repos_sec || getRestPreset(exId), false);
     } else {
       this.currentExIndex++;
       this.currentSerieIndex = 0;
       if (this.currentExIndex >= this.exercises.length) {
         this._finishSession();
       } else {
-        this._startRest(ex.repos_sec || 90, true);
+        this._startRest(ex.repos_sec || getRestPreset(exId), true);
       }
     }
   };

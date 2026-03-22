@@ -70,25 +70,42 @@ export default async function handler(req) {
   if (userContext && typeof userContext === 'object') {
     var ctx = userContext;
     contextLines = '\nDonnées de l\'utilisateur :\n';
-    if (ctx.niveau)    contextLines += '- Niveau : ' + ctx.niveau + '\n';
-    if (ctx.poids)     contextLines += '- Poids : ' + parseFloat(ctx.poids) + ' kg\n';
-    if (ctx.taille)    contextLines += '- Taille : ' + parseFloat(ctx.taille) + ' cm\n';
-    if (ctx.pullups)   contextLines += '- Tractions max : ' + parseInt(ctx.pullups) + ' reps\n';
-    if (ctx.dips)      contextLines += '- Dips max : ' + parseInt(ctx.dips) + ' reps\n';
-    if (ctx.pushups)   contextLines += '- Pompes max : ' + parseInt(ctx.pushups) + ' reps\n';
-    if (ctx.muscleup)  contextLines += '- Muscle-up : ' + ctx.muscleup + '\n';
+    if (ctx.niveau)           contextLines += '- Niveau : ' + ctx.niveau + '\n';
+    if (ctx.poids)            contextLines += '- Poids : ' + parseFloat(ctx.poids) + ' kg\n';
+    if (ctx.taille)           contextLines += '- Taille : ' + parseFloat(ctx.taille) + ' cm\n';
+    if (ctx.pullups)          contextLines += '- Tractions max : ' + parseInt(ctx.pullups) + ' reps\n';
+    if (ctx.dips)             contextLines += '- Dips max : ' + parseInt(ctx.dips) + ' reps\n';
+    if (ctx.pushups)          contextLines += '- Pompes max : ' + parseInt(ctx.pushups) + ' reps\n';
+    if (ctx.muscleup)         contextLines += '- Muscle-up : ' + ctx.muscleup + '\n';
+    if (ctx.consecutiveDays)  contextLines += '- Jours d\'entraînement consécutifs : ' + parseInt(ctx.consecutiveDays) + '\n';
+    if (ctx.needsDeload)      contextLines += '- ALERTE DELOAD : l\'athlète s\'entraîne sans pause depuis ≥28 jours.\n';
+  }
+
+  // Deload alert prefix
+  var deloadAlert = '';
+  if (userContext && userContext.needsDeload) {
+    deloadAlert = '⚠️ PRIORITÉ : L\'athlète n\'a pas eu de semaine de décharge depuis au moins 28 jours. ' +
+      'Commence ta réponse en recommandant une semaine de déload (volume -40%, intensité -20%) ' +
+      'avant tout autre conseil. ';
   }
 
   const systemPrompt =
+    deloadAlert +
     'Tu es SwBot, un coach fitness expert en Street Workout, Calisthénie et Streetlifting. ' +
     'Tu parles en français, avec un ton motivant mais direct.' +
     contextLines + '\n' +
-    'Règles :\n' +
-    '- Réponses courtes et concrètes (3-5 phrases max sauf si programme demandé)\n' +
+    'Standards scientifiques à appliquer :\n' +
+    '- Progressions : règle 3×10 → lest (Tan 1999, NSCA)\n' +
+    '- Protéines : 1.6–2.2 g/kg/jour (Morton et al. 2018, MDPI Nutrients 2025)\n' +
+    '- Repos inter-séries : 2–3 min force (Schoenfeld 2017), 60–90 s hypertrophie\n' +
+    '- Déload : 1 semaine toutes les 4–6 semaines (semaine de décharge : -40% volume, -20% intensité)\n' +
+    '- Fréquence optimale : 2–4 séances/groupe musculaire/semaine (Krieger 2010)\n' +
+    'Règles générales :\n' +
+    '- Réponses courtes et concrètes (3–5 phrases max sauf si programme demandé)\n' +
     '- Toujours basé sur la science du sport\n' +
     '- Jamais de conseils médicaux (renvoyer vers un professionnel)\n' +
     '- Utiliser les données utilisateur pour personnaliser les conseils\n' +
-    '- Emojis avec modération (1-2 max par réponse)';
+    '- Emojis avec modération (1–2 max par réponse)';
 
   const apiKey = (process.env.OPENAI_API_KEY || '').trim();
   if (!apiKey) {
