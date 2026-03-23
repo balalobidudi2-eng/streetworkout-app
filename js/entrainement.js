@@ -562,9 +562,12 @@ function _getExercicesForType(type) {
   if (goal === 'endurance') trainingGoal = 'endurance';
   if (goal === 'skills' || goal === 'figures') trainingGoal = 'skills';
 
-  /* Step 2-3: Get exercises — API_MERGER first, local DATABASE as fallback */
+  /* Step 2-3: Get exercises — EXERCISEDB_API first, then API_MERGER, then local DB */
   var baseExercises;
-  if (typeof API_MERGER !== 'undefined' && API_MERGER.isLoaded) {
+  if (typeof EXERCISEDB_API !== 'undefined' && EXERCISEDB_API.isReady()) {
+    baseExercises = EXERCISEDB_API.getForType(type);
+    console.log('[Engine] ExerciseDB: ' + baseExercises.length + ' exercises for ' + type);
+  } else if (typeof API_MERGER !== 'undefined' && API_MERGER.isLoaded) {
     baseExercises = API_MERGER.getExercisesByType(type);
     console.log('[Engine] API_MERGER: ' + baseExercises.length + ' exercises for ' + type);
   } else {
@@ -584,40 +587,6 @@ function _getExercicesForType(type) {
 
   /* Step 4: Apply training rules */
   var program = applyTrainingRules(filtered, trainingGoal);
-
-  /* Step 5: OPTIONAL generateProgram() validation (treat as UNRELIABLE) */
-  /* If generateProgram exists, TRY to get additional context, but TRUST DATABASE more */
-  if (typeof generateProgram === 'function') {
-    try {
-      var fullProfile = {
-        niveau: level,
-        objectif: goal,
-        equipement: equipment
-      };
-      var apiProgram = generateProgram(
-        { type: type, objectif: goal, niveau: level },
-        fullProfile
-      );
-
-      /* API returned something — validate it */
-      if (apiProgram && apiProgram.exercices && apiProgram.exercices.length > 0) {
-        var apiExercises = apiProgram.exercices;
-        var validated = filterByType(apiExercises, type);
-        
-        /* Only use API if it makes sense (same type, decent count) */
-        if (validated.length > 0 && validated.length >= program.length * 0.7) {
-          console.log('generateProgram() validated for ' + type);
-          /* Merge API with database (prefer database) */
-          program = applyTrainingRules(validated, trainingGoal);
-        } else {
-          console.warn('generateProgram() output invalid or incoherent, using database');
-        }
-      }
-    } catch(e) {
-      console.warn('generateProgram() failed (non-blocking):', e);
-      /* Fall through to database-only */
-    }
-  }
 
   return program;
 }
@@ -1014,20 +983,21 @@ async function renderHistory() {
 async function testAllAPIs() {
   var apis = [
     {
-      name: 'ExerciseDB (RapidAPI)',
+      name: 'ExerciseDB (exercices reels)',
       test: async function() {
-        var key = (typeof RAPIDAPI_KEY !== 'undefined' && RAPIDAPI_KEY)
-                  ? RAPIDAPI_KEY
-                  : (typeof window._env !== 'undefined' ? window._env.RAPIDAPI_KEY : null);
-        if (!key || key === 'YOUR_API_KEY') return { status: 'error', msg: 'Clé API non configurée' };
-        var res = await fetch('https://exercisedb.p.rapidapi.com/exercises?limit=1', {
-          headers: { 'X-RapidAPI-Key': key, 'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com' }
-        });
+        var res = await fetch('/api/exercisedb?path=/exercises?limit=1');
         if (!res.ok) return { status: 'error', msg: 'HTTP ' + res.status };
         var data = await res.json();
-        return data && data.length > 0
-          ? { status: 'active', msg: 'Opérationnelle ✓ (' + data.length + ' exercice reçu)' }
-          : { status: 'error', msg: 'Réponse vide' };
+        if (data && data.error) return { status: 'error', msg: data.error };
+        if (!Array.isArray(data) || data.length === 0)
+          return { status: 'error', msg: 'Reponse vide' };
+        var count = (typeof EXERCISEDB_API !== 'undefined') ? EXERCISEDB_API._exercises.length : 0;
+        return {
+          status: 'active',
+          msg: (count > 0 ? count + ' exercices charges' : 'Operationnelle') + ' ✓'
+        };
+      }
+    },
       }
     },
     {
@@ -1109,10 +1079,10 @@ async function initEntrainement() {
     console.warn('Auth error (non bloquant):', e);
   }
 
-  /* Initialiser API_MERGER en arrière-plan (non-bloquant) */
-  if (typeof API_MERGER !== 'undefined') {
-    API_MERGER.init().catch(function(e) {
-      console.warn('[initEntrainement] API_MERGER init failed (non-bloquant):', e);
+  /* Initialiser EXERCISEDB_API en arriere-plan (non-bloquant) */
+  if (typeof EXERCISEDB_API !== 'undefined') {
+    EXERCISEDB_API.init().catch(function(e) {
+      console.warn('[initEntrainement] EXERCISEDB_API init failed (non-bloquant):', e);
     });
   }
 

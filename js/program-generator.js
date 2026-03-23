@@ -141,7 +141,7 @@ function _formatId(id) {
 /* ======================================================
    FONCTION PRINCIPALE DE GENERATION
    ====================================================== */
-function generateProgram(config, userProfile) {
+function _generateProgramBase(config, userProfile) {
   var type     = (config && config.type) || 'full_body';
   var objectif = (config && config.objectif) || 'street_workout';
   var rawNiveau = (config && config.niveau) || (userProfile && userProfile.niveau) || 'debutant';
@@ -183,7 +183,7 @@ function generateProgram(config, userProfile) {
   });
 
   var SESSION_LABELS = {
-    pull: 'Traction', push: 'Poussée', lower: 'Jambes',
+    pull: 'Traction', push: 'Poussee', lower: 'Jambes',
     upper: 'Haut du corps', full_body: 'Full Body',
     skills: 'Skills', core: 'Core / Abdos'
   };
@@ -203,88 +203,39 @@ function generateProgram(config, userProfile) {
   };
 }
 
-/* ── fetchExercisesFromAPI : appel via proxy Vercel /api/exercisedb ── */
-async function fetchExercisesFromAPI(type) {
-  /* Utilise EXERCISEDB_API (client sécurisé, jamais la clé en clair) */
-  if (typeof EXERCISEDB_API === 'undefined') return null;
-
-  var bodyPartMap = {
-    push:      'chest',
-    pull:      'back',
-    upper:     'back',
-    lower:     'upper legs',
-    core:      'waist',
-    full_body: null,
-    skills:    'upper arms'
-  };
-
-  var bodyPart = bodyPartMap[type] || null;
-
-  try {
-    var exercises;
-    if (bodyPart) {
-      exercises = await EXERCISEDB_API.getByBodyPart(bodyPart);
-    } else {
-      exercises = await EXERCISEDB_API.getExercises();
-    }
-
-    if (!exercises || exercises.length === 0) return null;
-
-    /* Map to program-generator format */
-    return exercises.map(function(ex) {
-      return {
-        id:      ex.id,
-        nom:     ex.nom || ex.name || ex.id,
-        muscles: ex.muscles || [],
-        series:  3,
-        reps:    '8–12',
-        repos:   90,
-        source:  'exercisedb'
-      };
-    });
-  } catch(e) {
-    console.warn('[ExerciseDB] fetchExercisesFromAPI failed:', e.message);
-    return null;
-  }
-}
-
-/* ── generateProgram — async, API-first avec fallback SW_DB ── */
-var _originalGenerateProgram = generateProgram;
-
+/* -- generateProgram -- async, ExerciseDB-first avec fallback SW_DB -- */
 async function generateProgram(config, userProfile) {
-  var type = (config && config.type) || 'full_body';
+  var type     = (config && config.type) || 'full_body';
+  var objectif = (config && config.objectif) || (userProfile && userProfile.objectif) || 'street_workout';
+  var niveau   = (config && config.niveau) || (userProfile && userProfile.niveau) || 'debutant';
 
-  /* Étape 1 : Tenter ExerciseDB via proxy Vercel */
-  var apiExercises = null;
-  try {
-    apiExercises = await fetchExercisesFromAPI(type);
-  } catch(e) { /* non bloquant */ }
-
-  /* Étape 2 : Construire le programme (SW_DB pour la structure) */
-  var program = _originalGenerateProgram(config, userProfile);
-
-  if (apiExercises && apiExercises.length >= 3) {
-    /* Enrichir : remplacer les exercices SW_DB par les résultats API */
-    var count = Math.min(apiExercises.length, program.exercices.length);
-    for (var i = 0; i < count; i++) {
-      program.exercices[i] = Object.assign({}, program.exercices[i], {
-        id:     apiExercises[i].id,
-        nom:    apiExercises[i].nom,
-        muscles: apiExercises[i].muscles.length > 0
-                  ? apiExercises[i].muscles
-                  : program.exercices[i].muscles,
-        source: 'exercisedb'
-      });
+  /* Etape 1 : ExerciseDB (donnees en memoire apres init()) */
+  if (typeof EXERCISEDB_API !== 'undefined' && EXERCISEDB_API.isReady()) {
+    try {
+      var apiExos = EXERCISEDB_API.getForType(type);
+      if (apiExos && apiExos.length >= 3) {
+        console.log('[Programme] Source exercices: ExerciseDB (' + apiExos.length + ' exercices)');
+        var baseProgram = _generateProgramBase(config, userProfile);
+        var count = Math.min(apiExos.length, baseProgram.exercices.length);
+        for (var i = 0; i < count; i++) {
+          baseProgram.exercices[i] = Object.assign({}, baseProgram.exercices[i], {
+            id:      apiExos[i].id,
+            nom:     apiExos[i].nom,
+            muscles: apiExos[i].muscles.length > 0 ? apiExos[i].muscles : baseProgram.exercices[i].muscles,
+            source:  'exercisedb'
+          });
+        }
+        return baseProgram;
+      }
+    } catch(e) {
+      console.warn('[Programme] ExerciseDB.getForType failed:', e);
     }
-    console.log('[Programme] Source exercices:', program.exercices[0] && program.exercices[0].source || 'fallback');
-  } else {
-    program.exercices.forEach(function(ex) { ex.source = ex.source || 'sw_db'; });
-    console.log('[Programme] Source exercices:', 'fallback');
   }
 
-  return program;
+  /* Etape 2 : Fallback SW_DB */
+  console.log('[Programme] Source exercices: fallback (sw_db)');
+  return _generateProgramBase(config, userProfile);
 }
-
 /* -- Sauvegarder le programme genere -- */
 function saveGeneratedProgram(program) {
   if (typeof SW === 'undefined') return;

@@ -16,10 +16,10 @@ async function initProgramPage() {
     await _loadProgramUserProfile(user.id);
   }
 
-  /* Initialiser API_MERGER en arrière-plan (non-bloquant) */
-  if (typeof API_MERGER !== 'undefined') {
-    API_MERGER.init().catch(function(e) {
-      console.warn('[initProgramPage] API_MERGER init failed (non-bloquant):', e);
+  /* Initialiser EXERCISEDB_API en arriere-plan (non-bloquant) */
+  if (typeof EXERCISEDB_API !== 'undefined') {
+    EXERCISEDB_API.init().catch(function(e) {
+      console.warn('[initProgramPage] EXERCISEDB_API init failed (non-bloquant):', e);
     });
   }
 

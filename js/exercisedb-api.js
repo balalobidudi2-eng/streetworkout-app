@@ -1,182 +1,85 @@
-/* ========================================
+﻿/* ========================================
    EXERCISEDB-API.JS — ExerciseDB via Vercel Proxy
-   Clé API stockée server-side dans Vercel ENV
+   Cle API stockee server-side dans Vercel ENV
    Le client appelle /api/exercisedb (jamais RapidAPI directement)
    ======================================== */
 
 var EXERCISEDB_API = {
-  proxyUrl: '/api/exercisedb',
-  timeout: 7000,
-  cache: {},
-  cacheExpiry: 3600000, /* 1 hour */
+  _cache: {},
+  _ready: false,
+  _exercises: [],
 
-  /* Helper: fetch avec timeout via AbortController */
-  _fetch: async function(url) {
-    var controller = new AbortController();
-    var timer = setTimeout(function() { controller.abort(); }, this.timeout);
+  init: async function() {
+    if (this._ready) return true;
     try {
-      var response = await fetch(url, { signal: controller.signal });
-      clearTimeout(timer);
-      return response;
-    } catch(e) {
-      clearTimeout(timer);
-      throw e;
-    }
-  },
-
-  /* Fetch all exercises (general, split into relevant bodyParts for SW) */
-  async getExercises() {
-    var cacheKey = 'exercisedb_all';
-    var now = Date.now();
-    if (this.cache[cacheKey] && (now - this.cache[cacheKey].timestamp) < this.cacheExpiry) {
-      return this.cache[cacheKey].data;
-    }
-
-    /* For street workout, only fetch relevant body parts to save quota */
-    var bodyParts = ['back', 'chest', 'shoulders', 'upper arms', 'upper legs', 'waist'];
-    var allExercises = [];
-
-    for (var i = 0; i < bodyParts.length; i++) {
-      try {
-        var exercises = await this.getByBodyPart(bodyParts[i]);
-        allExercises = allExercises.concat(exercises);
-      } catch(e) {
-        console.warn('ExerciseDB bodyPart failed:', bodyParts[i], e.message);
-      }
-    }
-
-    /* Deduplicate by id */
-    var seen = {};
-    allExercises = allExercises.filter(function(ex) {
-      if (seen[ex.id]) return false;
-      seen[ex.id] = true;
+      console.log('[ExerciseDB] Chargement...');
+      var res = await fetch('/api/exercisedb?path=/exercises?limit=300');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      if (data && data.error) throw new Error(data.error);
+      if (!Array.isArray(data) || data.length === 0) throw new Error('Reponse vide');
+      var self = this;
+      self._exercises = data.map(function(ex) {
+        return {
+          id:        ex.id,
+          nom:       ex.name,
+          muscles:   [ex.target].concat(ex.secondaryMuscles || []).filter(Boolean),
+          bodyPart:  ex.bodyPart,
+          equipment: ex.equipment,
+          gif:       ex.gifUrl || null,
+          series:    3,
+          reps:      '8-12',
+          repos:     90,
+          source:    'exercisedb'
+        };
+      });
+      self._ready = true;
+      console.log('[ExerciseDB] OK ' + self._exercises.length + ' exercices charges');
       return true;
+    } catch(e) {
+      console.warn('[ExerciseDB] Echec:', e.message);
+      this._ready = false;
+      return false;
+    }
+  },
+
+  getByMuscle: function(muscle) {
+    if (!this._ready) return [];
+    var m = muscle.toLowerCase();
+    return this._exercises.filter(function(ex) {
+      return ex.muscles.some(function(mu) { return mu.toLowerCase().indexOf(m) !== -1; }) ||
+             ex.bodyPart.toLowerCase().indexOf(m) !== -1;
     });
-
-    this.cache[cacheKey] = { data: allExercises, timestamp: now };
-    console.log('[ExerciseDB] Loaded', allExercises.length, 'exercises (via proxy)');
-    return allExercises;
   },
 
-  /* Fetch exercises by body part via proxy */
-  async getByBodyPart(bodyPart) {
-    var cacheKey = 'exercisedb_bp_' + bodyPart;
-    var now = Date.now();
-    if (this.cache[cacheKey] && (now - this.cache[cacheKey].timestamp) < this.cacheExpiry) {
-      return this.cache[cacheKey].data;
-    }
-
-    try {
-      var url = this.proxyUrl + '?filter=bodyPart&value=' + encodeURIComponent(bodyPart) + '&limit=50';
-      var response = await this._fetch(url);
-
-      if (!response.ok) return [];
-
-      var exercises = await response.json();
-      /* Handle proxy error response (still returns 200 with error key) */
-      if (!Array.isArray(exercises)) return [];
-
-      var mapped = exercises.map(function(ex) {
-        return {
-          id: 'exercisedb_' + ex.id,
-          nom: ex.name || '',
-          muscles: _mapExerciseDBMuscles(ex.target, ex.bodyPart),
-          equipment: _mapExerciseDBEquipment(ex.equipment || []),
-          difficulty: 'intermediate',
-          source: 'exercisedb'
-        };
-      });
-
-      this.cache[cacheKey] = { data: mapped, timestamp: now };
-      return mapped;
-    } catch(e) {
-      console.warn('[ExerciseDB] bodyPart fetch failed (non-blocking):', e.message);
-      return [];
-    }
+  getByBodyPart: function(part) {
+    if (!this._ready) return [];
+    var p = part.toLowerCase();
+    return this._exercises.filter(function(ex) {
+      return ex.bodyPart.toLowerCase() === p;
+    });
   },
 
-  /* Fetch exercises by muscle target via proxy */
-  async getByTarget(target) {
-    var cacheKey = 'exercisedb_target_' + target;
-    var now = Date.now();
-    if (this.cache[cacheKey] && (now - this.cache[cacheKey].timestamp) < this.cacheExpiry) {
-      return this.cache[cacheKey].data;
-    }
+  getForType: function(type) {
+    if (!this._ready) return [];
+    var MAP = {
+      push:      ['chest', 'shoulders', 'triceps'],
+      pull:      ['back', 'biceps', 'upper arms'],
+      lower:     ['upper legs', 'lower legs', 'glutes'],
+      full_body: ['chest', 'back', 'upper legs'],
+      upper:     ['chest', 'back', 'shoulders'],
+      core:      ['waist', 'abs'],
+      skills:    ['back', 'shoulders', 'upper arms']
+    };
+    var parts = MAP[type] || MAP.full_body;
+    var results = [];
+    var self = this;
+    parts.forEach(function(part) {
+      var exos = self.getByBodyPart(part).slice(0, 3);
+      results = results.concat(exos);
+    });
+    return results.slice(0, 8);
+  },
 
-    try {
-      var url = this.proxyUrl + '?filter=target&value=' + encodeURIComponent(target) + '&limit=50';
-      var response = await this._fetch(url);
-
-      if (!response.ok) return [];
-
-      var exercises = await response.json();
-      if (!Array.isArray(exercises)) return [];
-
-      var mapped = exercises.map(function(ex) {
-        return {
-          id: 'exercisedb_' + ex.id,
-          nom: ex.name || '',
-          muscles: _mapExerciseDBMuscles(ex.target, ex.bodyPart),
-          equipment: _mapExerciseDBEquipment(ex.equipment || []),
-          difficulty: 'intermediate',
-          source: 'exercisedb'
-        };
-      });
-
-      this.cache[cacheKey] = { data: mapped, timestamp: now };
-      return mapped;
-    } catch(e) {
-      console.warn('[ExerciseDB] target fetch failed (non-blocking):', e.message);
-      return [];
-    }
-  }
+  isReady: function() { return this._ready; }
 };
-
-/* ── Mapping helpers ── */
-function _mapExerciseDBMuscles(target, bodyPart) {
-  var targetMap = {
-    'abs': 'abdominaux',
-    'back': 'dos',
-    'biceps': 'biceps',
-    'chest': 'poitrine',
-    'delts': 'épaules',
-    'shoulders': 'épaules',
-    'forearms': 'avant-bras',
-    'glutes': 'fessiers',
-    'hamstrings': 'ischio-jambiers',
-    'lats': 'grand-dorsal',
-    'lower back': 'lombaires',
-    'middle back': 'dos-milieu',
-    'neck': 'cou',
-    'quads': 'quadriceps',
-    'quadriceps': 'quadriceps',
-    'traps': 'trapèzes',
-    'triceps': 'triceps',
-    'calves': 'mollets'
-  };
-
-  var muscles = [];
-  if (target) muscles.push(targetMap[target] || target);
-  if (bodyPart) muscles.push(targetMap[bodyPart] || bodyPart);
-
-  return Array.from(new Set(muscles)).filter(Boolean);
-}
-
-function _mapExerciseDBEquipment(equipmentList) {
-  var equipMap = {
-    'barbell': 'barbell',
-    'dumbbell': 'dumbbell',
-    'cable': 'cable',
-    'band': 'bands',
-    'pull-up bar': 'pullup_bar',
-    'pullup bar': 'pullup_bar',
-    'kettlebell': 'kettlebell',
-    'medicine ball': 'medicine_ball',
-    'body weight': 'bodyweight',
-    'bodyweight': 'bodyweight'
-  };
-
-  return (equipmentList || []).map(function(eq) {
-    return equipMap[eq.toLowerCase()] || eq.toLowerCase();
-  });
-}
