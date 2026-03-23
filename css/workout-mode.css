@@ -245,3 +245,200 @@
     gap: 16px;
   }
 }
+
+/* ══════════════════════════════════════════════
+   WORKOUT MODE v2 — Nouvelles phases
+   ══════════════════════════════════════════════ */
+
+/* ── Barre de progression exécution ── */
+.execution-timer-bar-container {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-elevated, #1a1a2e);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.execution-timer-bar {
+  height: 100%;
+  width: 100%;
+  background: #2563EB;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+.execution-timer-bar.warning { background: #F59E0B; }
+.execution-timer-bar.danger  { background: #EF4444; }
+
+/* ── Phase exécution ── */
+.execution-phase {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.objectif-label {
+  font-size: 1rem;
+  color: var(--text-secondary, #B0B0C8);
+  margin: 0;
+}
+.time-remaining {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary, #F0F0FF);
+  margin: 4px 0;
+  line-height: 1;
+}
+.execution-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+}
+.btn-validate-serie {
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  min-height: 56px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-validate-serie:hover { opacity: 0.88; }
+.btn-fail-serie {
+  background: transparent;
+  color: var(--text-secondary, #B0B0C8);
+  border: 2px solid var(--bg-elevated, #1a1a2e);
+  border-radius: 12px;
+  font-size: 1rem;
+  min-height: 48px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.btn-fail-serie:hover { border-color: #EF4444; color: #EF4444; }
+
+/* ── Phase résultat ── */
+.result-phase {
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+.result-phase h3 {
+  font-size: 1.1rem;
+  color: var(--text-primary, #F0F0FF);
+  margin: 0;
+}
+.result-inputs {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.result-inputs label {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #B0B0C8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.reps-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.reps-counter span {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary, #F0F0FF);
+  min-width: 64px;
+  text-align: center;
+}
+.reps-counter button {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-elevated, #1a1a2e);
+  background: var(--bg-card, #14142a);
+  color: var(--text-primary, #F0F0FF);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s;
+}
+.reps-counter button:hover { border-color: #2563EB; }
+.ressenti-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ressenti-btn {
+  flex: 1;
+  min-width: 90px;
+  min-height: 48px;
+  border-radius: 10px;
+  border: 2px solid var(--bg-elevated, #1a1a2e);
+  background: var(--bg-card, #14142a);
+  color: var(--text-primary, #F0F0FF);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.ressenti-btn.active {
+  border-color: #2563EB;
+  background: rgba(37,99,235,0.15);
+}
+.btn-confirm-result {
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-height: 56px;
+  width: 100%;
+  max-width: 340px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+.btn-confirm-result:hover { opacity: 0.88; }
+
+/* ── Phase préparation ── */
+#wm-phase-preparation {
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.prep-label {
+  font-size: 1rem;
+  color: var(--text-secondary, #B0B0C8);
+  text-align: center;
+}
+.prep-countdown {
+  font-size: 6rem;
+  font-weight: 800;
+  color: #2563EB;
+  line-height: 1;
+  animation: countPulse 1s ease-in-out;
+}
+.btn-skip-prep {
+  background: transparent;
+  color: var(--text-secondary, #B0B0C8);
+  border: 2px solid var(--bg-elevated, #1a1a2e);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  min-height: 48px;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.btn-skip-prep:hover { border-color: #2563EB; color: var(--text-primary, #F0F0FF); }
+
+@keyframes countPulse {
+  0%   { transform: scale(1.3); opacity: 0.5; }
+  100% { transform: scale(1);   opacity: 1; }
+}
