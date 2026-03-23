@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect fill="#0f172a" width="200" height="200" rx="16"/>
+  <!-- Wall -->
+  <line x1="160" y1="30" x2="160" y2="170" stroke="#334155" stroke-width="4"/>
+  <!-- Person leaning against wall at 45deg -->
+  <circle cx="120" cy="110" r="10" fill="#7C3AED"/>
+  <!-- Arms on ground -->
+  <line x1="120" y1="115" x2="130" y2="145" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+  <line x1="120" y1="115" x2="110" y2="145" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+  <!-- Torso diagonal -->
+  <line x1="120" y1="100" x2="145" y2="70" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+  <!-- Legs on wall -->
+  <line x1="145" y1="70" x2="155" y2="55" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+  <line x1="145" y1="70" x2="155" y2="85" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+  <!-- Ground -->
+  <line x1="30" y1="150" x2="170" y2="150" stroke="#334155" stroke-width="2"/>
+  <text x="100" y="175" text-anchor="middle" fill="#64748b" font-size="11" font-family="Inter,sans-serif">Incliné mur</text>
+  <text x="100" y="194" text-anchor="middle" fill="#7C3AED" font-size="12" font-weight="bold" font-family="Inter,sans-serif">Niveau 1</text>
+</svg>

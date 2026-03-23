@@ -7,13 +7,13 @@
 
 /* -- Types de seances (global pour programme.js) -- */
 var SESSION_TYPES = {
-  push:      { id: 'push',      label: 'Poussée' },
-  pull:      { id: 'pull',      label: 'Traction' },
-  lower:     { id: 'lower',     label: 'Jambes' },
-  upper:     { id: 'upper',     label: 'Haut du corps' },
-  full_body: { id: 'full_body', label: 'Full Body' },
-  skills:    { id: 'skills',    label: 'Skills' },
-  core:      { id: 'core',      label: 'Core / Abdos' }
+  push:      { id: 'push',      label: 'Poussée',      icon: '💪' },
+  pull:      { id: 'pull',      label: 'Traction',      icon: '🏋️' },
+  lower:     { id: 'lower',     label: 'Jambes',        icon: '🦵' },
+  upper:     { id: 'upper',     label: 'Haut du corps', icon: '🔝' },
+  full_body: { id: 'full_body', label: 'Full Body',     icon: '⚡' },
+  skills:    { id: 'skills',    label: 'Skills',        icon: '🤸' },
+  core:      { id: 'core',      label: 'Core / Abdos',  icon: '🎯' }
 };
 
 /* -- Normaliser le niveau -- */

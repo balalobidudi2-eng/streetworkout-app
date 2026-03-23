@@ -43,7 +43,6 @@
       <a href="progression.html">Progression</a>
       <a href="entrainement.html">Entraînement</a>
       <a href="analytics.html" class="active">Analytics</a>
-      <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
     </div>
@@ -63,7 +62,6 @@
       <a href="progression.html">Progression</a>
       <a href="entrainement.html">Entraînement</a>
       <a href="analytics.html" class="active">Analytics</a>
-      <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
     </div>
@@ -78,7 +76,6 @@
         <a href="progression.html">Progression</a>
         <a href="entrainement.html">Entraînement</a>
         <a href="analytics.html" class="active">Analytics</a>
-        <a href="streetlifting.html">Streetlifting</a>
         <a href="abonnement.html">Plans</a>
         <a href="#" data-action="logout">Déconnexion</a>
       </div>
@@ -128,6 +125,13 @@
         <div class="table-container" id="an-measures-table"></div>
       </div>
 
+      <!-- Historique des séances -->
+      <div class="card" style="margin-top:1.5rem;">
+        <h3>Historique des séances</h3>
+        <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:12px;">Séances enregistrées via le mode séance.</p>
+        <div id="an-session-history"></div>
+      </div>
+
       <!-- Volume hebdomadaire -->
       <div class="chart-section" style="margin-top:1.5rem;">
         <h3>Volume hebdomadaire</h3>
@@ -148,6 +152,56 @@
         </div>
         <div id="an-comparison-table" style="margin-top:16px;"></div>
       </div>
+
+      <!-- ══════════════ TEST DE NIVEAU ══════════════ -->
+      <div class="card" id="test-niveau-section" style="margin-top:1.5rem;">
+        <h3 style="margin-bottom:4px;">⚡ Test de Niveau</h3>
+        <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:20px;">
+          Saisis tes maximums pour calculer ton niveau global et alimenter le diagramme radar.
+        </p>
+
+        <div class="test-niveau-grid">
+          <div class="test-field">
+            <label class="test-label" for="tn-pullups">🏋️ Tractions (poids de corps)</label>
+            <input type="number" id="tn-pullups" class="test-input" min="0" max="60" placeholder="Ex : 10">
+          </div>
+          <div class="test-field">
+            <label class="test-label" for="tn-pullups-w">🏋️ Tractions lestées (kg max)</label>
+            <input type="number" id="tn-pullups-w" class="test-input" min="0" max="100" placeholder="Ex : 20 (optionnel)">
+          </div>
+          <div class="test-field">
+            <label class="test-label" for="tn-pushups">💪 Pompes (max)</label>
+            <input type="number" id="tn-pushups" class="test-input" min="0" max="200" placeholder="Ex : 30">
+          </div>
+          <div class="test-field">
+            <label class="test-label" for="tn-dips">🔥 Dips (poids de corps)</label>
+            <input type="number" id="tn-dips" class="test-input" min="0" max="80" placeholder="Ex : 15">
+          </div>
+          <div class="test-field">
+            <label class="test-label" for="tn-squats">🦵 Squats (max)</label>
+            <input type="number" id="tn-squats" class="test-input" min="0" max="300" placeholder="Ex : 50">
+          </div>
+          <div class="test-field">
+            <label class="test-label" for="tn-plank">⏱ Gainage (secondes)</label>
+            <input type="number" id="tn-plank" class="test-input" min="0" max="600" placeholder="Ex : 60">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="btn-test-niveau" style="width:100%;margin-top:16px;font-size:1rem;padding:14px;">
+          Calculer mon niveau
+        </button>
+
+        <!-- Résultats du test -->
+        <div id="test-niveau-results" style="display:none;margin-top:20px;">
+          <div id="test-niveau-badge" style="text-align:center;margin-bottom:16px;"></div>
+          <div id="test-niveau-axes" class="test-axes-grid" style="margin-bottom:16px;"></div>
+          <p style="font-size:0.82rem;color:var(--text-muted);text-align:center;">
+            Ces résultats alimentent automatiquement le diagramme radar ci-dessus.
+            <a href="#" onclick="initAnalytics();return false;" style="color:var(--primary);text-decoration:underline;">Rafraîchir les graphiques</a>
+          </p>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -156,8 +210,7 @@
     <a href="progression.html">Progression</a>
     <a href="entrainement.html">Entraînement</a>
     <a href="analytics.html" class="active">Analytics</a>
-    <a href="streetlifting.html">Streetlifting</a>
-  </nav>
+    </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/supabase-config.js"></script>
@@ -166,7 +219,218 @@
   <script src="js/nav.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/analytics.js"></script>
+  <script>
+  /* ════════════ TEST DE NIVEAU — Logique JS ════════════ */
+  (function() {
+    /* Barèmes de référence */
+    var BAREMES = {
+      pullups: [
+        { min: 0,  max: 4,  niveau: 'Débutant',       score: 10 },
+        { min: 5,  max: 9,  niveau: 'Novice',          score: 25 },
+        { min: 10, max: 14, niveau: 'Intermédiaire',   score: 50 },
+        { min: 15, max: 19, niveau: 'Avancé',          score: 75 },
+        { min: 20, max: 999,niveau: 'Expert',          score: 100 }
+      ],
+      pushups: [
+        { min: 0,  max: 14, niveau: 'Débutant',       score: 10 },
+        { min: 15, max: 29, niveau: 'Novice',          score: 25 },
+        { min: 30, max: 49, niveau: 'Intermédiaire',   score: 50 },
+        { min: 50, max: 79, niveau: 'Avancé',          score: 75 },
+        { min: 80, max: 999,niveau: 'Expert',          score: 100 }
+      ],
+      dips: [
+        { min: 0,  max: 7,  niveau: 'Débutant',       score: 10 },
+        { min: 8,  max: 14, niveau: 'Novice',          score: 25 },
+        { min: 15, max: 24, niveau: 'Intermédiaire',   score: 50 },
+        { min: 25, max: 39, niveau: 'Avancé',          score: 75 },
+        { min: 40, max: 999,niveau: 'Expert',          score: 100 }
+      ],
+      squats: [
+        { min: 0,  max: 19, niveau: 'Débutant',       score: 10 },
+        { min: 20, max: 39, niveau: 'Novice',          score: 25 },
+        { min: 40, max: 69, niveau: 'Intermédiaire',   score: 50 },
+        { min: 70, max: 99, niveau: 'Avancé',          score: 75 },
+        { min: 100,max: 999,niveau: 'Expert',          score: 100 }
+      ],
+      plank: [
+        { min: 0,  max: 29, niveau: 'Débutant',       score: 10 },
+        { min: 30, max: 59, niveau: 'Novice',          score: 25 },
+        { min: 60, max: 119,niveau: 'Intermédiaire',   score: 50 },
+        { min: 120,max: 179,niveau: 'Avancé',          score: 75 },
+        { min: 180,max: 999,niveau: 'Expert',          score: 100 }
+      ]
+    };
+
+    function getScore(key, val) {
+      if (!val || val <= 0) return 0;
+      var tiers = BAREMES[key];
+      for (var i = 0; i < tiers.length; i++) {
+        if (val >= tiers[i].min && val <= tiers[i].max) return tiers[i].score;
+      }
+      return 0;
+    }
+
+    function getNiveauLabel(score) {
+      if (score >= 90) return { label: 'Expert',        emoji: '🏆', color: '#F59E0B' };
+      if (score >= 70) return { label: 'Avancé',        emoji: '⚡', color: '#3B82F6' };
+      if (score >= 45) return { label: 'Intermédiaire', emoji: '💪', color: '#10B981' };
+      if (score >= 20) return { label: 'Novice',        emoji: '🔥', color: '#8B5CF6' };
+      return               { label: 'Débutant',        emoji: '🌱', color: '#6B7280' };
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var btn = document.getElementById('btn-test-niveau');
+      if (!btn) return;
+
+      btn.addEventListener('click', function() {
+        var pullups = parseInt(document.getElementById('tn-pullups').value) || 0;
+        var pullupsW = parseInt(document.getElementById('tn-pullups-w').value) || 0;
+        var pushups = parseInt(document.getElementById('tn-pushups').value) || 0;
+        var dips    = parseInt(document.getElementById('tn-dips').value)    || 0;
+        var squats  = parseInt(document.getElementById('tn-squats').value)  || 0;
+        var plank   = parseInt(document.getElementById('tn-plank').value)   || 0;
+
+        if (pullups + pushups + dips + squats === 0) {
+          if (typeof showToast === 'function') showToast('Remplis au moins un champ pour calculer ton niveau.', 'error');
+          return;
+        }
+
+        var scores = {
+          Tractions: getScore('pullups', pullups),
+          Pompes:    getScore('pushups', pushups),
+          Dips:      getScore('dips',    dips),
+          Squats:    getScore('squats',  squats),
+          Gainage:   getScore('plank',   plank)
+        };
+
+        /* Score global (moyenne pondérée) */
+        var filled = Object.values(scores).filter(function(v) { return v > 0; });
+        var avgScore = filled.length > 0 ? Math.round(filled.reduce(function(a, b) { return a + b; }, 0) / filled.length) : 0;
+        var niveau = getNiveauLabel(avgScore);
+
+        /* Identifier points forts et faibles */
+        var sorted = Object.entries(scores).sort(function(a, b) { return b[1] - a[1]; });
+        var pointFort  = sorted[0][0];
+        var pointFaible = sorted[sorted.length - 1] && sorted[sorted.length - 1][1] > 0 ? sorted[sorted.length - 1][0] : '—';
+
+        /* Sauvegarder dans localStorage */
+        if (typeof SW !== 'undefined') {
+          SW.save('sw_test_niveau', {
+            pullups: pullups, pullups_weighted: pullupsW,
+            pushups: pushups, dips: dips, squats: squats,
+            gainage: plank,
+            score_global: avgScore,
+            niveau_label: niveau.label,
+            date: new Date().toISOString().slice(0, 10)
+          });
+        }
+
+        /* Afficher les résultats */
+        var resultsEl = document.getElementById('test-niveau-results');
+        var badgeEl   = document.getElementById('test-niveau-badge');
+        var axesEl    = document.getElementById('test-niveau-axes');
+        if (resultsEl) resultsEl.style.display = '';
+
+        if (badgeEl) {
+          badgeEl.innerHTML =
+            '<div style="font-size:2.5rem;margin-bottom:4px">' + niveau.emoji + '</div>' +
+            '<div style="font-size:1.4rem;font-weight:800;color:' + niveau.color + '">' + niveau.label + '</div>' +
+            '<div style="font-size:0.9rem;color:var(--text-secondary);margin-top:4px">Score global : ' + avgScore + '/100</div>' +
+            '<div style="font-size:0.85rem;margin-top:8px;">💪 Point fort : <strong>' + pointFort + '</strong> · ⚠️ À travailler : <strong>' + pointFaible + '</strong></div>';
+        }
+
+        if (axesEl) {
+          var html = '';
+          Object.entries(scores).forEach(function(entry) {
+            var key = entry[0], val = entry[1];
+            if (val === 0 && key !== 'Tractions' && key !== 'Pompes') return;
+            var barColor = val >= 75 ? '#10B981' : val >= 50 ? '#3B82F6' : val >= 25 ? '#F59E0B' : '#EF4444';
+            html += '<div class="test-axis-row">' +
+              '<span class="test-axis-label">' + key + '</span>' +
+              '<div class="test-axis-bar-track">' +
+                '<div class="test-axis-bar-fill" style="width:' + val + '%;background:' + barColor + '"></div>' +
+              '</div>' +
+              '<span class="test-axis-pct">' + val + '%</span>' +
+            '</div>';
+          });
+          axesEl.innerHTML = html;
+        }
+
+        /* Rafraîchir le radar chart avec les nouvelles données */
+        if (typeof renderRadarChart === 'function') {
+          renderRadarChart({
+            pullups: pullups, dips: dips, pushups: pushups, squats: squats,
+            core_level: Math.round(plank / 36), /* 180s = niveau 5 */
+            mobility_level: 2
+          });
+        }
+
+        if (typeof showToast === 'function') showToast('Niveau calculé ! Résultats mis à jour.', 'success');
+      });
+    });
+  })();
+  </script>
+  <style>
+    /* Test de Niveau */
+    .test-niveau-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .test-niveau-grid { grid-template-columns: 1fr; } }
+    .test-field { display: flex; flex-direction: column; gap: 6px; }
+    .test-label { font-size: 0.85rem; font-weight: 600; color: #94a3b8; }
+    .test-input {
+      background: #2a2a3e;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 1rem;
+      padding: 10px 14px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .test-input::placeholder { color: #64748b; }
+    .test-input:focus { border-color: #6C63FF; }
+    .test-axes-grid { display: flex; flex-direction: column; gap: 10px; }
+    .test-axis-row { display: flex; align-items: center; gap: 10px; }
+    .test-axis-label { width: 90px; font-size: 0.82rem; color: #94a3b8; text-align: right; }
+    .test-axis-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; }
+    .test-axis-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+    .test-axis-pct { width: 38px; font-size: 0.82rem; font-weight: 700; color: #e2e8f0; text-align: right; }
+    /* Section Test de Niveau — fond sombre, texte clair */
+    #test-niveau-section {
+      background-color: #1e1e2e;
+      color: #e2e8f0;
+    }
+    #test-niveau-section h3 { color: #ffffff; }
+    #test-niveau-section p { color: #94a3b8; }
+    /* Stats cards — fond sombre */
+    #analytics-overview .stat-card {
+      background-color: #1e1e2e;
+      color: #e2e8f0;
+      border-color: rgba(255,255,255,0.1);
+    }
+    #analytics-overview .stat-card-title { color: #94a3b8; }
+    #analytics-overview .stat-card-value { color: #ffffff; }
+    /* Bouton principal */
+    #btn-test-niveau {
+      background: #6C63FF;
+      color: #ffffff !important;
+    }
+    /* Session history */
+    .session-history-list { display: flex; flex-direction: column; gap: 10px; }
+    .sh-item { background: #1e1e2e; border-radius: 12px; padding: 14px 16px; color: #e2e8f0; }
+    .sh-item-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .sh-item-date { font-size: 0.82rem; color: #64748b; }
+    .sh-item-type { font-size: 0.9rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+    .sh-item-stats { font-size: 0.82rem; color: #94a3b8; display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .sh-progress-bar { height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; }
+    .sh-progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+    /* Analytics table */
+    .analytics-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .analytics-table th { padding: 8px 10px; text-align: left; color: #94a3b8; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 11px; text-transform: uppercase; }
+    .analytics-table td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: var(--text-primary); }
+  </style>
   <link rel="stylesheet" href="css/chatbot.css">
   <script src="js/chatbot.js"></script>
 </body>
 </html>
+

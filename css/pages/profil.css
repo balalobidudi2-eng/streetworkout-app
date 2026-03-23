@@ -341,3 +341,54 @@
   .objectifs-grid { grid-template-columns: repeat(2, 1fr); }
   .badges-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── CONTRASTE WCAG AA — sections sombres */
+.profile-section {
+  background-color: #1e1e2e;
+  color: #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+}
+.profile-section h2,
+.profile-section h3 { color: #ffffff; }
+
+.stat-card {
+  background-color: #1e1e2e !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.stat-card .stat-card-title { color: #94a3b8; }
+.stat-card .stat-card-value { color: #ffffff; }
+.stat-card .stat-card-target { color: #64748b; }
+.stat-card .progress-bar { background: rgba(255,255,255,0.12); }
+
+.section-subtitle { color: #94a3b8; }
+
+/* Form inputs dans data-form-card */
+.data-form-card .form-field input,
+.data-form-card .form-field select {
+  background: #2a2a3e;
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.data-form-card .form-field input::placeholder { color: #64748b; }
+.data-form-card .form-field label { color: #94a3b8; }
+.data-form-card .form-section-title {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 16px 0 8px;
+}
+.data-form-card h3 { color: #ffffff; }
+.data-form-card { background-color: #1e1e2e; color: #e2e8f0; }
+
+/* Radio labels */
+.radio-label { color: #e2e8f0 !important; }
+
+/* Score display */
+.score-label { color: #94a3b8; }
+.score-value { color: #6C63FF !important; }
+

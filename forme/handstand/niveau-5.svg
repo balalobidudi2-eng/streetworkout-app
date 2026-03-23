@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect fill="#0f172a" width="200" height="200" rx="16"/>
+  <!-- No wall — free handstand -->
+  <!-- Person in perfect handstand -->
+  <circle cx="100" cy="85" r="10" fill="#22c55e"/>
+  <!-- Arms straight down -->
+  <line x1="95" y1="90" x2="90" y2="130" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <line x1="105" y1="90" x2="110" y2="130" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <!-- Torso straight up -->
+  <line x1="100" y1="75" x2="100" y2="50" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <!-- Legs straight up -->
+  <line x1="100" y1="50" x2="97" y2="25" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <line x1="100" y1="50" x2="103" y2="25" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <!-- Balance sparkles -->
+  <text x="75" y="45" fill="#22c55e" font-size="10" opacity="0.6">&#10024;</text>
+  <text x="125" y="55" fill="#22c55e" font-size="10" opacity="0.6">&#10024;</text>
+  <!-- Ground -->
+  <line x1="30" y1="135" x2="170" y2="135" stroke="#334155" stroke-width="2"/>
+  <text x="100" y="160" text-anchor="middle" fill="#64748b" font-size="11" font-family="Inter,sans-serif">Libre / Free</text>
+  <text x="100" y="194" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="bold" font-family="Inter,sans-serif">Niveau 5</text>
+</svg>

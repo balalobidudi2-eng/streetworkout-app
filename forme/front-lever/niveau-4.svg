@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect fill="#0f172a" width="200" height="200" rx="16"/>
+  <line x1="30" y1="60" x2="170" y2="60" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="80" cy="78" r="10" fill="#3B82F6"/>
+  <!-- Arms -->
+  <line x1="80" y1="83" x2="65" y2="65" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+  <line x1="80" y1="83" x2="95" y2="65" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+  <!-- Torso horizontal -->
+  <line x1="80" y1="85" x2="140" y2="82" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+  <!-- Legs in straddle -->
+  <line x1="140" y1="82" x2="165" y2="68" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="82" x2="165" y2="96" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+  <text x="100" y="140" text-anchor="middle" fill="#64748b" font-size="11" font-family="Inter,sans-serif">Straddle</text>
+  <text x="100" y="194" text-anchor="middle" fill="#3B82F6" font-size="12" font-weight="bold" font-family="Inter,sans-serif">Niveau 4</text>
+</svg>

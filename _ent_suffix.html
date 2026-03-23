@@ -1,80 +1,10 @@
-﻿<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entraînement — Street Workout</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/animations.css">
-  <link rel="stylesheet" href="css/pages/entrainement.css">
-  <link rel="stylesheet" href="css/pages/streetlifting.css">
-  <link rel="stylesheet" href="css/pages/programme.css">
-  <link rel="stylesheet" href="css/workout-mode.css">
-  <style>
-    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--border,rgba(15,23,42,.1));margin-bottom:28px}
-    .page-tab{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:12px 24px;font-size:.95rem;font-weight:600;color:var(--text-muted,#64748B);cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s}
-    .page-tab:hover{color:var(--text-primary,#0F172A)}
-    .page-tab.active{color:var(--primary,#2563EB);border-bottom-color:var(--primary,#2563EB)}
-  </style></head>
-<body>
-
-  <!-- Top Navigation -->
-  <nav class="top-nav">
-    <a href="index.html" class="nav-logo">SW</a>
-    <div class="nav-links">
-      <a href="profil.html">Profil</a>
-      <a href="progression.html">Progression</a>
-      <a href="entrainement.html" class="active">Entraînement</a>
-      <a href="analytics.html">Analytics</a>
-      <a href="abonnement.html">Plans</a>
-      <a href="#" data-action="logout">Déconnexion</a>
-    </div>
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
-
-  <!-- Mobile Menu -->
-  <div class="mobile-menu" id="mobile-menu">
-    <div class="mobile-menu-header">
-      <span class="nav-logo">SW</span>
-      <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
-    </div>
-    <div class="mobile-menu-links">
-      <a href="profil.html">Profil</a>
-      <a href="progression.html">Progression</a>
-      <a href="entrainement.html" class="active">Entraînement</a>
-      <a href="analytics.html">Analytics</a>
-      <a href="abonnement.html">Plans</a>
-      <a href="#" data-action="logout">Déconnexion</a>
-    </div>
-  </div>
-  <div class="menu-backdrop" id="menu-backdrop"></div>
-
-  <!-- App Layout -->
-  <div class="app-layout">
-    <!-- Sidebar (desktop) -->
-    <aside class="sidebar">
-      <div class="sidebar-links">
-        <a href="profil.html">Profil</a>
-        <a href="progression.html">Progression</a>
-        <a href="entrainement.html" class="active">Entraînement</a>
-        <a href="analytics.html">Analytics</a>
-        <a href="abonnement.html">Plans</a>
-        <a href="#" data-action="logout">Déconnexion</a>
-      </div>
-    </aside>
-
     <!-- Main Content -->
     <main class="main-content">
 
       <!-- Navigation par onglets -->
       <div class="page-tabs">
         <button class="page-tab active" data-tab="seances">Séances</button>
-        <button class="page-tab" data-tab="programme">Programme</button>
-        <button class="page-tab" data-tab="streetlifting">Streetlifting</button>
+        <button class="page-tab" data-tab="programme">Générer un programme</button>
       </div>
 
       <!-- ═══════════ ONGLET 1 : Séances ═══════════ -->
@@ -210,30 +140,6 @@
 
       </div><!-- /tab-programme -->
 
-      <!-- ═══════════ ONGLET 3 : Streetlifting ═══════════ -->
-      <div id="tab-streetlifting" class="tab-pane" style="display:none">
-
-        <h1 style="margin-bottom:4px;">Streetlifting</h1>
-        <p style="color:var(--text-muted);margin-bottom:20px;">Tracking des charges et records personnels pour les exercices lestés.</p>
-
-        <!-- Equipment Section -->
-        <div class="card" style="margin-bottom:20px;">
-          <h3 style="margin-bottom:8px;">Mes équipements</h3>
-          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Sélectionne le matériel que tu possèdes.</p>
-          <div class="equipment-list" id="equipment-list"></div>
-        </div>
-
-        <!-- Record Forms & Tables -->
-        <div id="record-forms"></div>
-
-        <!-- Progress Chart -->
-        <div class="card" style="margin-top:20px;">
-          <h3 style="margin-bottom:12px;">Évolution du volume (charge × reps)</h3>
-          <div id="sl-chart-container"></div>
-        </div>
-
-      </div><!-- /tab-streetlifting -->
-
     </main>
   </div>
 
@@ -243,7 +149,8 @@
     <a href="progression.html">Progression</a>
     <a href="entrainement.html" class="active">Entraînement</a>
     <a href="analytics.html">Analytics</a>
-    </nav>
+    <a href="streetlifting.html">Streetlifting</a>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/supabase-config.js"></script>
@@ -261,7 +168,6 @@
   <script src="js/program-generator.js"></script>
   <script src="js/workout-mode.js"></script>
   <script src="js/programme.js"></script>
-  <script src="js/streetlifting.js"></script>
   <script src="js/entrainement.js"></script>
   <script>
     (function(){
@@ -285,4 +191,3 @@
   <script src="js/chatbot.js"></script>
 </body>
 </html>
-

@@ -7,7 +7,7 @@
   inset: 0;
   z-index: 9999;
   display: none;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: center;
 }
 .skill-swiper-overlay.active {
@@ -24,17 +24,17 @@
 .swiper-panel {
   position: relative;
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   background: var(--bg-card, #1a1a2e);
-  border-radius: 20px 20px 0 0;
+  border-radius: 0 0 20px 20px;
   padding: 20px 16px 32px;
-  max-height: 85vh;
+  max-height: 90vh;
   overflow-y: auto;
-  animation: swiper-slide-up 0.3s ease;
+  animation: swiper-slide-down 0.3s ease;
 }
-@keyframes swiper-slide-up {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes swiper-slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 
 /* Header */
@@ -117,17 +117,36 @@
   50%  { transform: scale(1.05); background: rgba(34, 197, 94, 0.15); }
   100% { transform: scale(1); }
 }
+.swiper-card-wrap {
+  overflow: hidden;
+  position: relative;
+  border-radius: 16px;
+}
 .swiper-card.slide-left {
-  animation: slide-out-left 0.25s ease forwards;
+  animation: slide-out-left 0.3s ease forwards;
 }
 .swiper-card.slide-right {
-  animation: slide-out-right 0.25s ease forwards;
+  animation: slide-out-right 0.3s ease forwards;
 }
 @keyframes slide-out-left {
-  to { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(-110%); opacity: 0; }
 }
 @keyframes slide-out-right {
-  to { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(110%); opacity: 0; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.swiper-card.entering-left {
+  animation: slide-in-left 0.3s ease forwards;
+}
+.swiper-card.entering-right {
+  animation: slide-in-right 0.3s ease forwards;
 }
 
 .swiper-card-num {
@@ -137,11 +156,21 @@
 }
 
 .swiper-card-illustration {
-  width: 80px;
-  height: 80px;
+  width: 200px;
+  height: 200px;
   margin: 0 auto 16px;
-  border-radius: 50%;
+  border-radius: 16px;
   background: var(--bg-tertiary, #232347);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swiper-card-illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
 }
 
 .swiper-card-content {
@@ -186,6 +215,38 @@
   border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
+}
+
+/* Locked banner — niveau verrouillé */
+.swiper-locked-banner {
+  padding: 12px 14px;
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--text-secondary, #94a3b8);
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.88rem;
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+}
+
+/* Carte verrouillée */
+.swiper-card.locked {
+  opacity: 0.7;
+  border: 1px dashed rgba(148, 163, 184, 0.25);
+}
+
+/* Dot verrouillé */
+.swiper-dot.locked {
+  background: rgba(148, 163, 184, 0.2);
+  cursor: default;
+}
+
+/* image responsive dans le swiper */
+.swiper-card-illustration picture,
+.swiper-card-illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 /* Navigation */

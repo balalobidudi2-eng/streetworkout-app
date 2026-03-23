@@ -4,11 +4,33 @@
    Depend de : progression.js (EXERCISES)
    ======================================== */
 
+/* Image map for skills with visual progressions
+   Front-lever dispose de fichiers .webp optimisés + .svg en fallback.
+   Handstand : uniquement .svg disponible actuellement. */
+var SKILL_IMAGES = {
+  frontlever: {
+    1: { webp: 'forme/front-lever/niveau-1.webp', svg: 'forme/front-lever/niveau-1.svg' },
+    2: { webp: 'forme/front-lever/niveau-2.webp', svg: 'forme/front-lever/niveau-2.svg' },
+    3: { webp: 'forme/front-lever/niveau-3.webp', svg: 'forme/front-lever/niveau-3.svg' },
+    4: { webp: 'forme/front-lever/niveau-4.webp', svg: 'forme/front-lever/niveau-4.svg' },
+    5: { webp: 'forme/front-lever/niveau-5.webp', svg: 'forme/front-lever/niveau-5.svg' }
+  },
+  handstand: {
+    1: { svg: 'forme/handstand/niveau-1.svg' },
+    2: { svg: 'forme/handstand/niveau-2.svg' },
+    3: { svg: 'forme/handstand/niveau-3.svg' },
+    4: { svg: 'forme/handstand/niveau-4.svg' },
+    5: { svg: 'forme/handstand/niveau-5.svg' }
+  }
+};
+
 var SkillSwiper = {
 
   skill: null,
   currentIndex: 0,
   startX: 0,
+  _lastDirection: null,
+  _isNavigating: false,
 
   open: function(skillId) {
     var skill = null;
@@ -54,10 +76,20 @@ var SkillSwiper = {
     var status = (_progData && _progData[step.id]) || 'not-acquired';
     var isDone = status === 'mastered';
 
+    /* Déterminer le premier niveau non encore maîtrisé (= le niveau actif) */
+    var activeIndex = 0;
+    for (var a = 0; a < steps.length; a++) {
+      if (_progData && _progData[steps[a].id] === 'mastered') {
+        activeIndex = Math.min(a + 1, steps.length - 1);
+      }
+    }
+    /* Niveau verrouillé = pas encore atteint et pas maîtrisé */
+    var isLocked = !isDone && idx > activeIndex;
+
     /* Compteur d'etapes acquises */
     var acquiredCount = 0;
-    for (var a = 0; a < steps.length; a++) {
-      if (_progData && _progData[steps[a].id] === 'mastered') acquiredCount++;
+    for (var ac = 0; ac < steps.length; ac++) {
+      if (_progData && _progData[steps[ac].id] === 'mastered') acquiredCount++;
     }
     var pct = Math.round((acquiredCount / total) * 100);
 
@@ -68,12 +100,23 @@ var SkillSwiper = {
       var cls = 'swiper-dot';
       if (d === idx) cls += ' active';
       if (dotStatus === 'mastered') cls += ' done';
+      if (!(_progData && _progData[steps[d].id] === 'mastered') && d > activeIndex) cls += ' locked';
       dotsHtml += '<span class="' + cls + '" data-idx="' + d + '"></span>';
+    }
+
+    /* Bouton d'action selon l'état du niveau */
+    var actionBtn = '';
+    if (isDone) {
+      actionBtn = '<div class="swiper-done-banner">&#10003; Maîtrisé</div>';
+    } else if (isLocked) {
+      actionBtn = '<div class="swiper-locked-banner">&#128274; Niveau verrouillé — maîtrise le niveau précédent d\'abord</div>';
+    } else {
+      actionBtn = '<button class="swiper-validate-btn" onclick="SkillSwiper.validate()">&#10003; Valider cette étape</button>';
     }
 
     overlay.innerHTML =
       '<div class="swiper-backdrop" onclick="SkillSwiper.close()"></div>' +
-      '<div class="swiper-panel">' +
+      '<div class="swiper-panel" style="' + (this._isNavigating ? 'animation:none;' : '') + '">' +
         '<div class="swiper-header">' +
           '<span class="swiper-skill-name">' + this.skill.name + '</span>' +
           '<button class="swiper-close" onclick="SkillSwiper.close()">&times;</button>' +
@@ -82,20 +125,18 @@ var SkillSwiper = {
           '<div class="swiper-global-fill" style="width:' + pct + '%"></div>' +
         '</div>' +
         '<div class="swiper-dots">' + dotsHtml + '</div>' +
-        '<div class="swiper-card' + (isDone ? ' done' : '') + '" id="swiper-card">' +
-          '<div class="swiper-card-num">' + (idx + 1) + ' / ' + total + '</div>' +
-          '<div class="swiper-card-illustration"></div>' +
+        '<div class="swiper-card' + (isDone ? ' done' : '') + (isLocked ? ' locked' : '') + '" id="swiper-card">' +
+          '<div class="swiper-card-num">' + (idx + 1) + ' / ' + total + (isLocked ? ' &#128274;' : '') + '</div>' +
+          '<div class="swiper-card-illustration">' + this._getIllustration(this.skill.id, idx) + '</div>' +
           '<div class="swiper-card-content">' +
             '<h3 class="swiper-card-title">' + step.name + '</h3>' +
             '<p class="swiper-card-desc">' + step.desc + '</p>' +
           '</div>' +
-          (isDone
-            ? '<div class="swiper-done-banner">Maitrise</div>'
-            : '<button class="swiper-validate-btn" onclick="SkillSwiper.validate()">Valider cette etape</button>') +
+          actionBtn +
         '</div>' +
         '<div class="swiper-nav">' +
-          '<button class="swiper-nav-btn" onclick="SkillSwiper.prev()"' + (idx === 0 ? ' disabled' : '') + '>&larr;</button>' +
-          '<button class="swiper-nav-btn" onclick="SkillSwiper.next()"' + (idx === total - 1 ? ' disabled' : '') + '>&rarr;</button>' +
+          '<button class="swiper-nav-btn" onclick="SkillSwiper.prev()"' + (idx === 0 ? ' disabled' : '') + '>&larr; Précédent</button>' +
+          '<button class="swiper-nav-btn" onclick="SkillSwiper.next()"' + (idx === total - 1 ? ' disabled' : '') + '>Suivant &rarr;</button>' +
         '</div>' +
       '</div>';
 
@@ -177,12 +218,47 @@ var SkillSwiper = {
     }
   },
 
+  _getIllustration: function(skillId, stepIdx) {
+    var imgs = SKILL_IMAGES[skillId];
+    if (imgs && imgs[stepIdx + 1]) {
+      var entry = imgs[stepIdx + 1];
+      /* Avec WebP + fallback SVG (balise <picture> responsive) */
+      if (entry.webp) {
+        return '<picture>' +
+          '<source srcset="' + entry.webp + '" type="image/webp">' +
+          '<img src="' + entry.svg + '" alt="Niveau ' + (stepIdx + 1) + '" loading="lazy" ' +
+            'style="max-width:100%;height:auto;border-radius:8px;" onerror="this.style.display=\'none\'">' +
+          '</picture>';
+      }
+      if (entry.svg) {
+        return '<img src="' + entry.svg + '" alt="Niveau ' + (stepIdx + 1) + '" loading="lazy" ' +
+          'style="max-width:100%;height:auto;border-radius:8px;" onerror="this.style.display=\'none\'">';
+      }
+      /* Compat ancienne structure (chaîne de caractères) */
+      if (typeof entry === 'string') {
+        return '<img src="' + entry + '" alt="Niveau ' + (stepIdx + 1) + '" loading="lazy" onerror="this.style.display=\'none\'">';
+      }
+    }
+    return '';
+  },
+
   _renderWithAnimation: function(direction) {
     var card = document.getElementById('swiper-card');
+    var enterDir = direction === 'slide-left' ? 'entering-left' : 'entering-right';
+    var self = this;
     if (card) {
       card.classList.add(direction);
-      var self = this;
-      setTimeout(function() { self._render(); }, 250);
+      setTimeout(function() {
+        self._lastDirection = enterDir;
+        self._isNavigating = true;
+        self._render();
+        self._isNavigating = false;
+        var newCard = document.getElementById('swiper-card');
+        if (newCard) {
+          newCard.classList.add(enterDir);
+          setTimeout(function() { newCard.classList.remove(enterDir); }, 350);
+        }
+      }, 300);
     } else {
       this._render();
     }

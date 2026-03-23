@@ -48,6 +48,7 @@ function _renderSessionTypeGrid() {
   Object.keys(SESSION_TYPES).forEach(function(key) {
     var type = SESSION_TYPES[key];
     html += '<button class="session-type-btn" data-type="' + type.id + '">' +
+      (type.icon ? '<span class="session-type-icon">' + type.icon + '</span>' : '') +
       '<span class="session-type-label">' + type.label + '</span>' +
       '</button>';
   });
