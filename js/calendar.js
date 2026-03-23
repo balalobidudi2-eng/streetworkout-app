@@ -5,14 +5,14 @@
    ======================================== */
 
 var CAL_SESSION_LABELS = {
-  full_body: { label: 'Full Body',    color: '#e63946' },
-  pull:      { label: 'Pull',         color: '#457b9d' },
-  push:      { label: 'Push',         color: '#e9c46a' },
-  lower:     { label: 'Bas du corps', color: '#2a9d8f' },
-  upper:     { label: 'Haut du corps',color: '#f4a261' },
-  skills:    { label: 'Skills SW',    color: '#8338ec' },
-  core:      { label: 'Core / Abdos', color: '#06d6a0' },
-  libre:     { label: 'Libre',        color: '#adb5bd' },
+  full_body: { label: 'Full Body',     color: '#e63946' },
+  pull:      { label: 'Traction',      color: '#457b9d' },
+  push:      { label: 'Poussée',       color: '#e9c46a' },
+  lower:     { label: 'Jambes',        color: '#2a9d8f' },
+  upper:     { label: 'Haut du corps', color: '#f4a261' },
+  skills:    { label: 'Skills',        color: '#8338ec' },
+  core:      { label: 'Core / Abdos',  color: '#06d6a0' },
+  libre:     { label: 'Libre',         color: '#adb5bd' },
 };
 
 var _calStartOffset = 0;

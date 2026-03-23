@@ -14,14 +14,14 @@ var _currentExercices = []; // exercices de la séance courante
 
 /* ── Types de séances ── */
 var TYPES_SEANCE = [
-  { id: 'push',      label: 'Push',      color: '#3B82F6' },
-  { id: 'pull',      label: 'Pull',      color: '#8B5CF6' },
-  { id: 'lower',     label: 'Jambes',    color: '#10B981' },
-  { id: 'upper',     label: 'Upper',     color: '#F59E0B' },
-  { id: 'full_body', label: 'Full Body', color: '#2563EB' },
-  { id: 'skills',    label: 'Skills',    color: '#EC4899' },
-  { id: 'core',      label: 'Core',      color: '#14B8A6' },
-  { id: 'repos',     label: 'Repos',     color: '#9CA3AF' }
+  { id: 'push',      label: 'Poussée',     color: '#3B82F6' },
+  { id: 'pull',      label: 'Traction',    color: '#8B5CF6' },
+  { id: 'lower',     label: 'Jambes',      color: '#10B981' },
+  { id: 'upper',     label: 'Haut du corps', color: '#F59E0B' },
+  { id: 'full_body', label: 'Full Body',   color: '#2563EB' },
+  { id: 'skills',    label: 'Skills',      color: '#EC4899' },
+  { id: 'core',      label: 'Core / Abdos',color: '#14B8A6' },
+  { id: 'repos',     label: 'Repos',       color: '#9CA3AF' }
 ];
 
 /* ── Planning statique de référence ── */

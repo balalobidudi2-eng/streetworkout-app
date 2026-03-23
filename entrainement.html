@@ -10,19 +10,22 @@
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/pages/entrainement.css">
   <link rel="stylesheet" href="css/workout-mode.css">
-</head>
+  <style>
+    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--border,rgba(15,23,42,.1));margin-bottom:28px}
+    .page-tab{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:12px 24px;font-size:.95rem;font-weight:600;color:var(--text-muted,#64748B);cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s}
+    .page-tab:hover{color:var(--text-primary,#0F172A)}
+    .page-tab.active{color:var(--primary,#2563EB);border-bottom-color:var(--primary,#2563EB)}
+  </style></head>
 <body>
 
   <!-- Top Navigation -->
   <nav class="top-nav">
     <a href="index.html" class="nav-logo">SW</a>
     <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
       <a href="profil.html">Profil</a>
       <a href="progression.html">Progression</a>
       <a href="entrainement.html" class="active">Entraînement</a>
       <a href="analytics.html">Analytics</a>
-      <a href="programme.html">Programme</a>
       <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
@@ -39,12 +42,10 @@
       <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
     </div>
     <div class="mobile-menu-links">
-      <a href="dashboard.html">Dashboard</a>
       <a href="profil.html">Profil</a>
       <a href="progression.html">Progression</a>
       <a href="entrainement.html" class="active">Entraînement</a>
       <a href="analytics.html">Analytics</a>
-      <a href="programme.html">Programme</a>
       <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
@@ -57,12 +58,10 @@
     <!-- Sidebar (desktop) -->
     <aside class="sidebar">
       <div class="sidebar-links">
-        <a href="dashboard.html">Dashboard</a>
         <a href="profil.html">Profil</a>
         <a href="progression.html">Progression</a>
         <a href="entrainement.html" class="active">Entraînement</a>
         <a href="analytics.html">Analytics</a>
-        <a href="programme.html">Programme</a>
         <a href="streetlifting.html">Streetlifting</a>
         <a href="abonnement.html">Plans</a>
         <a href="#" data-action="logout">Déconnexion</a>
@@ -72,61 +71,151 @@
     <!-- Main Content -->
     <main class="main-content">
 
-      <h1 class="reveal">Entraînement</h1>
-
-      <!-- Agenda hebdomadaire -->
-      <section class="card reveal">
-        <h2>Cette semaine</h2>
-        <div id="weekly-calendar"></div>
-      </section>
-
-      <!-- Bouton lancer séance du jour -->
-      <section class="reveal">
-        <div id="today-workout-card" class="today-card"></div>
-      </section>
-
-      <!-- Weekly Planning -->
-      <section class="card reveal">
-        <h2>Programme de la semaine</h2>
-        <div class="planning-grid" id="planning-grid"></div>
-      </section>
-
-      <!-- Training Layout: Session + Timer side by side -->
-      <div class="training-layout">
-        <div class="training-main">
-          <!-- Today's Session -->
-          <section class="card session-section reveal">
-            <h2>Séance du jour</h2>
-            <h3 class="session-title" id="session-title"></h3>
-            <p class="session-duree">Durée estimée : <span id="dureeBadge">—</span></p>
-            <div id="session-content"></div>
-            <div class="save-session-wrap">
-              <button class="btn btn-primary" id="save-session">Sauvegarder la séance</button>
-            </div>
-          </section>
-        </div>
-
-        <div class="training-aside">
-          <!-- Timer -->
-          <section class="card timer-section reveal">
-            <h2>Timer</h2>
-            <div id="timer-container"></div>
-          </section>
-        </div>
+      <!-- Navigation par onglets -->
+      <div class="page-tabs">
+        <button class="page-tab active" data-tab="seances">Séances</button>
+        <button class="page-tab" data-tab="programme">Générer un programme</button>
       </div>
 
-      <!-- History -->
-      <section class="card reveal">
-        <h2>Historique des séances</h2>
-        <div class="history-list" id="history-list"></div>
-      </section>
+      <!-- ═══════════ ONGLET 1 : Séances ═══════════ -->
+      <div id="tab-seances" class="tab-pane">
+
+        <h1 class="reveal">Entraînement</h1>
+
+        <!-- Agenda hebdomadaire -->
+        <section class="card reveal">
+          <h2>Cette semaine</h2>
+          <div id="weekly-calendar"></div>
+        </section>
+
+        <!-- Bouton lancer séance du jour -->
+        <section class="reveal">
+          <div id="today-workout-card" class="today-card"></div>
+        </section>
+
+        <!-- Planning hebdomadaire éditable -->
+        <section class="card reveal">
+          <h2>Programme de la semaine</h2>
+          <div class="planning-grid" id="planning-grid"></div>
+        </section>
+
+        <!-- Séance du jour + Timer -->
+        <div class="training-layout">
+          <div class="training-main">
+            <section class="card session-section reveal">
+              <h2>Séance du jour</h2>
+              <h3 class="session-title" id="session-title"></h3>
+              <p class="session-duree">Durée estimée : <span id="dureeBadge">—</span></p>
+              <div id="session-content"></div>
+              <div class="save-session-wrap">
+                <button class="btn btn-primary" id="save-session">Sauvegarder la séance</button>
+              </div>
+            </section>
+          </div>
+          <div class="training-aside">
+            <section class="card timer-section reveal">
+              <h2>Timer</h2>
+              <div id="timer-container"></div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Historique des séances -->
+        <section class="card reveal">
+          <h2>Historique des séances</h2>
+          <div class="history-list" id="history-list"></div>
+        </section>
+
+      </div><!-- /tab-seances -->
+
+      <!-- ═══════════ ONGLET 2 : Générer un programme ═══════════ -->
+      <div id="tab-programme" class="tab-pane" style="display:none">
+
+        <!-- Sélecteur de type de séance -->
+        <section class="section reveal">
+          <h1 style="margin-bottom:4px;">Générer un programme</h1>
+          <p style="color:var(--text-muted);margin-bottom:20px;">Adapté à ton niveau, ton équipement et tes objectifs</p>
+          <div class="session-type-grid" id="session-type-grid"></div>
+        </section>
+
+        <!-- Paramètres de génération -->
+        <section class="section reveal" id="section-params" style="display:none">
+          <div class="params-card">
+            <div class="param-group">
+              <label class="form-label">Jours disponibles par semaine</label>
+              <div class="days-selector" id="days-selector"></div>
+            </div>
+            <div class="param-group">
+              <label class="form-label" for="duration-select">Durée souhaitée</label>
+              <select id="duration-select" class="form-input">
+                <option value="5">5 min (Express)</option>
+                <option value="15">15 min (Court)</option>
+                <option value="30">30 min</option>
+                <option value="45" selected>45 min</option>
+                <option value="60">60 min</option>
+                <option value="90">90 min</option>
+              </select>
+            </div>
+            <div class="param-group">
+              <label class="form-label" for="niveau-select">Niveau</label>
+              <select id="niveau-select" class="form-input">
+                <option value="debutant">Débutant</option>
+                <option value="intermediaire" selected>Intermédiaire</option>
+                <option value="avance">Avancé</option>
+                <option value="elite">Élite</option>
+              </select>
+            </div>
+            <div class="param-group">
+              <label class="form-label" for="objectif-select">Objectif</label>
+              <select id="objectif-select" class="form-input">
+                <option value="street_workout" selected>Street Workout</option>
+                <option value="force">Force</option>
+                <option value="hypertrophie">Hypertrophie</option>
+                <option value="endurance">Endurance</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btn-generate" style="width:100%;margin-top:4px;">
+              Générer mon programme
+            </button>
+          </div>
+        </section>
+
+        <!-- Programme généré -->
+        <section class="section reveal card" id="section-result" style="display:none">
+          <div id="program-header"></div>
+          <div class="program-block">
+            <div class="program-block-title">Échauffement</div>
+            <div id="warmup-list"></div>
+          </div>
+          <div class="program-block">
+            <div class="program-block-title">Exercices</div>
+            <div id="exercises-list"></div>
+          </div>
+          <div class="program-block">
+            <div class="program-block-title">Retour au calme</div>
+            <div id="cooldown-list"></div>
+          </div>
+          <div class="program-actions">
+            <button class="btn btn-primary" id="btn-start-program">Démarrer la séance</button>
+            <button class="btn btn-secondary" id="btn-save-program">Sauvegarder</button>
+            <button class="btn btn-secondary" id="btn-regenerate">Regénérer</button>
+          </div>
+        </section>
+
+        <!-- Programmes sauvegardés -->
+        <section class="section reveal">
+          <h2 style="margin-bottom:12px;">Programmes récents</h2>
+          <div id="programs-history"></div>
+        </section>
+
+      </div><!-- /tab-programme -->
 
     </main>
   </div>
 
   <!-- Bottom Navigation (mobile) -->
   <nav class="bottom-nav">
-    <a href="dashboard.html">Dashboard</a>
+    <a href="profil.html">Profil</a>
     <a href="progression.html">Progression</a>
     <a href="entrainement.html" class="active">Entraînement</a>
     <a href="analytics.html">Analytics</a>
@@ -145,9 +234,29 @@
   <script src="js/wger-api.js"></script>
   <script src="js/exercisedb-api.js"></script>
   <script src="js/api-merger.js"></script>
+  <script src="js/wger-client.js"></script>
   <script src="js/program-generator.js"></script>
   <script src="js/workout-mode.js"></script>
+  <script src="js/programme.js"></script>
   <script src="js/entrainement.js"></script>
+  <script>
+    (function(){
+      document.addEventListener('DOMContentLoaded',function(){
+        var tabs=document.querySelectorAll('.page-tab');
+        function switchTab(n){
+          tabs.forEach(function(t){t.classList.toggle('active',t.dataset.tab===n);});
+          document.querySelectorAll('.tab-pane').forEach(function(p){p.style.display='none';});
+          var pane=document.getElementById('tab-'+n);
+          if(pane)pane.style.display='';
+        }
+        tabs.forEach(function(t){t.addEventListener('click',function(){switchTab(t.dataset.tab);});});
+        var p=new URLSearchParams(window.location.search).get('tab');
+        if(p)switchTab(p);
+        var h=window.location.hash.replace('#','');
+        if(h&&document.getElementById('tab-'+h))switchTab(h);
+      });
+    })();
+  </script>
   <link rel="stylesheet" href="css/chatbot.css">
   <script src="js/chatbot.js"></script>
 </body>

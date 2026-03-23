@@ -7,12 +7,12 @@
 
 /* -- Types de seances (global pour programme.js) -- */
 var SESSION_TYPES = {
-  push:      { id: 'push',      label: 'Push' },
-  pull:      { id: 'pull',      label: 'Pull' },
+  push:      { id: 'push',      label: 'Poussée' },
+  pull:      { id: 'pull',      label: 'Traction' },
   lower:     { id: 'lower',     label: 'Jambes' },
   upper:     { id: 'upper',     label: 'Haut du corps' },
   full_body: { id: 'full_body', label: 'Full Body' },
-  skills:    { id: 'skills',    label: 'Skills SW' },
+  skills:    { id: 'skills',    label: 'Skills' },
   core:      { id: 'core',      label: 'Core / Abdos' }
 };
 
@@ -183,9 +183,9 @@ function generateProgram(config, userProfile) {
   });
 
   var SESSION_LABELS = {
-    pull: 'Pull', push: 'Push', lower: 'Jambes',
+    pull: 'Traction', push: 'Poussée', lower: 'Jambes',
     upper: 'Haut du corps', full_body: 'Full Body',
-    skills: 'Skills SW', core: 'Core / Abdos'
+    skills: 'Skills', core: 'Core / Abdos'
   };
 
   return {

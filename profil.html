@@ -9,6 +9,12 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/pages/profil.css">
+  <style>
+    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--border,rgba(15,23,42,.1));margin-bottom:28px}
+    .page-tab{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:12px 24px;font-size:.95rem;font-weight:600;color:var(--text-muted,#64748B);cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s}
+    .page-tab:hover{color:var(--text-primary,#0F172A)}
+    .page-tab.active{color:var(--primary,#2563EB);border-bottom-color:var(--primary,#2563EB)}
+  </style>
 </head>
 <body>
 
@@ -16,12 +22,10 @@
   <nav class="top-nav">
     <a href="index.html" class="nav-logo">SW</a>
     <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
       <a href="profil.html" class="active">Profil</a>
       <a href="progression.html">Progression</a>
       <a href="entrainement.html">Entraînement</a>
       <a href="analytics.html">Analytics</a>
-      <a href="programme.html">Programme</a>
       <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
@@ -38,12 +42,10 @@
       <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
     </div>
     <div class="mobile-menu-links">
-      <a href="dashboard.html">Dashboard</a>
       <a href="profil.html" class="active">Profil</a>
       <a href="progression.html">Progression</a>
       <a href="entrainement.html">Entraînement</a>
       <a href="analytics.html">Analytics</a>
-      <a href="programme.html">Programme</a>
       <a href="streetlifting.html">Streetlifting</a>
       <a href="abonnement.html">Plans</a>
       <a href="#" data-action="logout">Déconnexion</a>
@@ -56,12 +58,10 @@
     <!-- Sidebar (desktop) -->
     <aside class="sidebar">
       <div class="sidebar-links">
-        <a href="dashboard.html">Dashboard</a>
         <a href="profil.html" class="active">Profil</a>
         <a href="progression.html">Progression</a>
         <a href="entrainement.html">Entraînement</a>
         <a href="analytics.html">Analytics</a>
-        <a href="programme.html">Programme</a>
         <a href="streetlifting.html">Streetlifting</a>
         <a href="abonnement.html">Plans</a>
         <a href="#" data-action="logout">Déconnexion</a>
@@ -70,6 +70,15 @@
 
     <!-- Main Content -->
     <main class="main-content">
+
+      <!-- Navigation par onglets -->
+      <div class="page-tabs">
+        <button class="page-tab active" data-tab="profil">Mon Profil</button>
+        <button class="page-tab" data-tab="stats">Stats &amp; Données</button>
+      </div>
+
+      <!-- ═══════════ ONGLET 1 : Mon Profil ═══════════ -->
+      <div id="tab-profil" class="tab-pane">
 
       <!-- HERO PROFIL -->
       <section class="profil-hero reveal">
@@ -128,7 +137,7 @@
           </div>
         </div>
 
-        <!-- Mode édition (caché par défaut) -->
+        <!-- Mode édition -->
         <div id="identity-edit" class="identity-edit" style="display:none">
           <div class="form-grid">
             <div class="form-group">
@@ -156,24 +165,24 @@
       <!-- SECTION 2 — OBJECTIF PRINCIPAL -->
       <section class="section reveal">
         <h2 class="section-title">Objectif principal</h2>
-        <p class="section-subtitle">Ton objectif prioritaire guide la g&eacute;n&eacute;ration de programmes.</p>
+        <p class="section-subtitle">Ton objectif prioritaire guide la génération de programmes.</p>
         <div class="form-group" style="margin-bottom:12px;">
-          <label class="form-label" for="objectif-principal-select">Cat&eacute;gorie</label>
+          <label class="form-label" for="objectif-principal-select">Catégorie</label>
           <select id="objectif-principal-select" class="form-input">
             <option value="">-- Choisir --</option>
             <option value="force">Force maximale</option>
-            <option value="esthetique">Esth&eacute;tique / Hypertrophie</option>
+            <option value="esthetique">Esthétique / Hypertrophie</option>
             <option value="skills">Skills &amp; figures</option>
             <option value="endurance">Endurance</option>
             <option value="perte_poids">Perte de poids</option>
-            <option value="flexibilite">Flexibilit&eacute; / Mobilit&eacute;</option>
+            <option value="flexibilite">Flexibilité / Mobilité</option>
             <option value="streetlifting">Streetlifting</option>
           </select>
         </div>
         <div class="form-group" style="margin-bottom:12px;">
-          <label class="form-label" for="objectif-principal-detail">D&eacute;tails (optionnel)</label>
+          <label class="form-label" for="objectif-principal-detail">Détails (optionnel)</label>
           <input type="text" id="objectif-principal-detail" class="form-input"
-            placeholder="Ex: R&eacute;ussir un muscle-up d'ici 3 mois" maxlength="100">
+            placeholder="Ex: Réussir un muscle-up d'ici 3 mois" maxlength="100">
         </div>
         <button class="btn btn-primary" id="btn-save-objectif-principal">Sauvegarder</button>
       </section>
@@ -183,12 +192,12 @@
         <h2 class="section-title">Objectifs fitness</h2>
         <p class="section-subtitle">Sélectionne tes objectifs — ils influencent les recommandations du coach IA.</p>
         <div class="objectifs-grid" id="objectifs-grid"></div>
-        <button class="btn btn-primary" id="btn-save-objectifs" style="margin-top: 16px">
+        <button class="btn btn-primary" id="btn-save-objectifs" style="margin-top:16px">
           Sauvegarder les objectifs
         </button>
       </section>
 
-      <!-- SECTION 3 — BADGES & ACHIEVEMENTS -->
+      <!-- SECTION 4 — BADGES & ACHIEVEMENTS -->
       <section class="section reveal">
         <h2 class="section-title">Badges &amp; Achievements</h2>
         <p class="section-subtitle">
@@ -198,26 +207,212 @@
         <div class="badges-grid" id="badges-grid"></div>
       </section>
 
+      </div><!-- /tab-profil -->
+
+      <!-- ═══════════ ONGLET 2 : Stats & Données ═══════════ -->
+      <div id="tab-stats" class="tab-pane" style="display:none">
+
+        <!-- En-tête niveau & score -->
+        <div class="profile-section">
+          <div class="profile-avatar" id="profile-avatar">A</div>
+          <div class="profile-info">
+            <div class="profile-name-row">
+              <span class="profile-name-display" id="profile-name-display">Athlète</span>
+              <input type="text" class="profile-name-input" id="profile-name-input" maxlength="30" placeholder="Ton prénom">
+              <button class="edit-name-btn" id="edit-name-btn">Modifier</button>
+              <button class="save-name-btn" id="save-name-btn">✓</button>
+            </div>
+            <div class="profile-level badge" id="level-badge">Débutant</div>
+            <div id="level-info" class="level-info-block"></div>
+          </div>
+          <div class="score-display">
+            <span class="score-label">Score</span>
+            <span class="score-value" id="score-value">0/100</span>
+          </div>
+        </div>
+
+        <!-- Formulaire de saisie des données -->
+        <div class="card data-form-card">
+          <h3>Saisie des données</h3>
+
+          <div class="form-section-title">Mensurations</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="input-weight">Poids corporel (kg)</label>
+              <input type="number" id="input-weight" min="30" max="200" step="0.1" placeholder="Ex : 75">
+              <div id="protein-display" class="protein-display">Renseigne ton poids pour calculer ton objectif protéique.</div>
+            </div>
+            <div class="form-field">
+              <label for="input-height">Taille (cm)</label>
+              <input type="number" id="input-height" min="100" max="230" placeholder="Ex : 178">
+            </div>
+            <div class="form-field">
+              <label for="input-age">Âge (ans)</label>
+              <input type="number" id="input-age" min="10" max="80" placeholder="Ex : 22">
+            </div>
+          </div>
+
+          <div class="form-section-title">Tractions (reps max)</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="input-pullups">Poids de corps</label>
+              <input type="number" id="input-pullups" min="0" max="50" placeholder="Ex : 10">
+            </div>
+            <div class="form-field">
+              <label for="input-pullups5">+5 kg</label>
+              <input type="number" id="input-pullups5" min="0" max="40" placeholder="Optionnel">
+            </div>
+            <div class="form-field">
+              <label for="input-pullups10">+10 kg</label>
+              <input type="number" id="input-pullups10" min="0" max="30" placeholder="Optionnel">
+            </div>
+            <div class="form-field">
+              <label for="input-pullups20">+20 kg</label>
+              <input type="number" id="input-pullups20" min="0" max="20" placeholder="Optionnel">
+            </div>
+          </div>
+
+          <div class="form-section-title">Dips (reps max)</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="input-dips">Poids de corps</label>
+              <input type="number" id="input-dips" min="0" max="80" placeholder="Ex : 15">
+            </div>
+            <div class="form-field">
+              <label for="input-dips5">+5 kg</label>
+              <input type="number" id="input-dips5" min="0" max="60" placeholder="Optionnel">
+            </div>
+            <div class="form-field">
+              <label for="input-dips10">+10 kg</label>
+              <input type="number" id="input-dips10" min="0" max="50" placeholder="Optionnel">
+            </div>
+            <div class="form-field">
+              <label for="input-dips20">+20 kg</label>
+              <input type="number" id="input-dips20" min="0" max="40" placeholder="Optionnel">
+            </div>
+          </div>
+
+          <div class="form-section-title">Pompes (reps max)</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="input-pushups">Pompes strictes</label>
+              <input type="number" id="input-pushups" min="0" max="150" placeholder="Ex : 30">
+            </div>
+            <div class="form-field">
+              <label for="input-pushups-explo">Pompes explosives</label>
+              <input type="number" id="input-pushups-explo" min="0" max="80" placeholder="Optionnel">
+            </div>
+          </div>
+
+          <div class="form-section-title">Squats (reps max)</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="input-squats">Poids de corps</label>
+              <input type="number" id="input-squats" min="0" max="200" placeholder="Ex : 40">
+            </div>
+            <div class="form-field">
+              <label for="input-squats-weighted">Lesté (kg ajouté)</label>
+              <input type="number" id="input-squats-weighted" min="0" max="200" placeholder="Optionnel">
+            </div>
+          </div>
+
+          <div class="form-section-title">Skills &amp; Figures</div>
+          <div class="form-grid-skills">
+            <div class="form-field">
+              <label>Muscle-up (+20 pts)</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="muscleup" value="oui"> Oui</label>
+                <label class="radio-label"><input type="radio" name="muscleup" value="non" checked> Non</label>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="input-frontlever">Front Lever</label>
+              <select id="input-frontlever" class="form-input">
+                <option value="0">Non acquis</option>
+                <option value="1">Tuck front lever</option>
+                <option value="2">One leg</option>
+                <option value="3">Straddle</option>
+                <option value="4">Full front lever</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="input-handstand">Handstand</label>
+              <select id="input-handstand" class="form-input">
+                <option value="0">Non acquis</option>
+                <option value="1">Contre le mur</option>
+                <option value="2">Balance libre (5s+)</option>
+                <option value="3">Balance libre (15s+)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="input-hspu">Handstand Push-up</label>
+              <select id="input-hspu" class="form-input">
+                <option value="0">Non acquis</option>
+                <option value="1">Assisté mur</option>
+                <option value="2">Strict contre mur</option>
+                <option value="3">Free HSPU</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="save-data" style="margin-top:8px;">
+            <span class="btn-text">Sauvegarder mes données</span>
+          </button>
+        </div>
+
+        <!-- Cartes de stats -->
+        <div class="stats-cards">
+          <div class="stat-card">
+            <div class="stat-card-header"><span class="stat-card-title">Tractions</span></div>
+            <div class="stat-card-value" id="stat-pullups-value">0</div>
+            <div class="stat-card-target" id="stat-pullups-target">Objectif : 8 reps</div>
+            <div class="progress-bar"><div class="progress-bar-fill" id="stat-pullups-bar" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header"><span class="stat-card-title">Dips</span></div>
+            <div class="stat-card-value" id="stat-dips-value">0</div>
+            <div class="stat-card-target" id="stat-dips-target">Objectif : 10 reps</div>
+            <div class="progress-bar"><div class="progress-bar-fill blue" id="stat-dips-bar" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header"><span class="stat-card-title">Pompes</span></div>
+            <div class="stat-card-value" id="stat-pushups-value">0</div>
+            <div class="stat-card-target" id="stat-pushups-target">Objectif : 20 reps</div>
+            <div class="progress-bar"><div class="progress-bar-fill orange" id="stat-pushups-bar" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header"><span class="stat-card-title">Squats</span></div>
+            <div class="stat-card-value" id="stat-squats-value">0</div>
+            <div class="stat-card-target" id="stat-squats-target">Objectif : 30 reps</div>
+            <div class="progress-bar"><div class="progress-bar-fill" id="stat-squats-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Graphiques d'évolution -->
+        <div class="chart-section">
+          <h3>Évolution des performances</h3>
+          <div id="chart-container"></div>
+        </div>
+
+        <!-- Export PDF -->
+        <div class="card" style="text-align:center;margin-top:1.5rem;">
+          <h3>Exporter ma progression</h3>
+          <p style="color:var(--text-muted);margin-bottom:1rem;font-size:0.9rem;">Télécharge un récapitulatif PDF de tes performances.</p>
+          <button class="btn btn-primary" onclick="exportProgressionPDF()">Exporter en PDF</button>
+        </div>
+
+      </div><!-- /tab-stats -->
+
     </main>
   </div>
 
   <!-- Bottom Navigation (mobile) -->
   <nav class="bottom-nav">
-    <a href="dashboard.html">
-      Dashboard
-    </a>
-    <a href="profil.html" class="active">
-      Profil
-    </a>
-    <a href="entrainement.html">
-      Entraînement
-    </a>
-    <a href="programme.html">
-      Programme
-    </a>
-    <a href="progression.html">
-      Progress.
-    </a>
+    <a href="profil.html" class="active">Profil</a>
+    <a href="progression.html">Progression</a>
+    <a href="entrainement.html">Entraînement</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="streetlifting.html">Streetlifting</a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -226,6 +421,28 @@
   <script src="js/auth.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/profil.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/export-pdf.js"></script>
+  <script>
+    (function(){
+      document.addEventListener('DOMContentLoaded',function(){
+        var tabs=document.querySelectorAll('.page-tab');
+        function switchTab(n){
+          tabs.forEach(function(t){t.classList.toggle('active',t.dataset.tab===n);});
+          document.querySelectorAll('.tab-pane').forEach(function(p){p.style.display='none';});
+          var pane=document.getElementById('tab-'+n);
+          if(pane)pane.style.display='';
+        }
+        tabs.forEach(function(t){t.addEventListener('click',function(){switchTab(t.dataset.tab);});});
+        var p=new URLSearchParams(window.location.search).get('tab');
+        if(p)switchTab(p);
+        var h=window.location.hash.replace('#','');
+        if(h&&document.getElementById('tab-'+h))switchTab(h);
+      });
+    })();
+  </script>
   <link rel="stylesheet" href="css/chatbot.css">
   <script src="js/chatbot.js"></script>
 </body>
