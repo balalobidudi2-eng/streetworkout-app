@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/exercisedb.js": {
-      "runtime": "@vercel/edge"
-    }
-  },
   "headers": [
     {
       "source": "/js/config.js",
