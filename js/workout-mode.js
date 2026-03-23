@@ -1,10 +1,9 @@
 ﻿/* ========================================
-   WORKOUT-MODE.JS — Mode séance immersif v2
-   Phases : Préparation → Exécution → Résultat → Repos
-   Dépend de : exercise-visuals.js, timer.js, storage.js (globals)
+   WORKOUT-MODE.JS — v3 Refined Series Management
+   Phases : Préparation → Exécution → (Validation/Échec) → (Fin d'exercice/Repos)
+   RestTimer replaces circular rest timer, improved failure handling
    ======================================== */
 
-/* -- Durée estimée par type d exercice -- */
 var REP_DURATION = {
   pompes: 2.5, pompes_standard: 2.5, pompes_genoux: 2.5, pompes_declin: 2.5,
   pike_pushup: 3, hspu_mur: 3.5,
@@ -18,10 +17,7 @@ var REP_DURATION = {
   default: 3
 };
 
-var LEVEL_MODIFIER = {
-  debutant: 1.4, novice: 1.2, intermediaire: 1.0, avance: 0.9, elite: 0.8
-};
-
+var LEVEL_MODIFIER = { debutant: 1.4, novice: 1.2, intermediaire: 1.0, avance: 0.9, elite: 0.8 };
 var ISOMETRIC_EXERCISES = ['gainage_planche', 'hollow_body', 'l_sit_sol', 'planche', 'handstand', 'l_sit', 'gainage'];
 
 function getEstimatedDuration(exercise, repsTarget, userLevel) {
@@ -71,9 +67,7 @@ var ExerciseTimerBar = {
       else if (ratio < 0.33) this._barEl.classList.add('warning');
     }
 
-    if (this._timeEl) {
-      this._timeEl.textContent = Math.ceil(remaining / 1000);
-    }
+    if (this._timeEl) this._timeEl.textContent = Math.ceil(remaining / 1000);
 
     if (remaining > 0) {
       this._rafId = requestAnimationFrame(function() { self._tick(); });
@@ -99,7 +93,70 @@ var ExerciseTimerBar = {
 window.ExerciseTimerBar = ExerciseTimerBar;
 
 /* ══════════════════════════════════════════════
-   WORKOUT MODE — Classe principale
+   REST TIMER (replaces circular SVG timer)
+   ══════════════════════════════════════════════ */
+var RestTimer = {
+  _rafId: null,
+  _endTime: null,
+  _totalMs: null,
+  _barEl: null,
+  _numEl: null,
+  _onDone: null,
+
+  start: function(seconds, barEl, numEl, onDone) {
+    this.stop();
+    this._totalMs = seconds * 1000;
+    this._endTime = Date.now() + this._totalMs;
+    this._barEl = barEl;
+    this._numEl = numEl;
+    this._onDone = onDone;
+    this._tick();
+  },
+
+  _tick: function() {
+    var self = this;
+    var remaining = this._endTime - Date.now();
+    if (remaining <= 0) {
+      if (this._numEl) this._numEl.textContent = '0';
+      if (this._barEl) this._barEl.style.width = '0%';
+      if (this._onDone) this._onDone();
+      return;
+    }
+
+    var ratio = remaining / this._totalMs;
+    if (this._barEl) {
+      this._barEl.style.width = (ratio * 100) + '%';
+      this._barEl.classList.remove('warning', 'danger');
+      if (ratio < 0.20) this._barEl.classList.add('danger');
+      else if (ratio < 0.40) this._barEl.classList.add('warning');
+    }
+    if (this._numEl) this._numEl.textContent = Math.ceil(remaining / 1000);
+
+    this._rafId = requestAnimationFrame(function() { self._tick(); });
+  },
+
+  adjust: function(deltaSeconds) {
+    if (!this._endTime) return;
+    this._endTime += deltaSeconds * 1000;
+    var remaining = this._endTime - Date.now();
+    if (remaining < 1000) this._endTime = Date.now() + 1000;
+    this._totalMs = Math.max(1000, remaining);
+  },
+
+  stop: function() {
+    if (this._rafId) { cancelAnimationFrame(this._rafId); this._rafId = null; }
+  },
+
+  skip: function() {
+    this.stop();
+    if (this._onDone) this._onDone();
+  }
+};
+
+window.RestTimer = RestTimer;
+
+/* ══════════════════════════════════════════════
+   WORKOUT MODE — Main class
    ══════════════════════════════════════════════ */
 var WorkoutMode = (function() {
 
@@ -112,13 +169,24 @@ var WorkoutMode = (function() {
     this.phase = 'preparation';
     this.seriesLog = [];
     this.startTime = Date.now();
-    /* État de la série courante */
+
+    /* Current series state */
     this._serieStartTime = null;
     this._estimatedDuration = 0;
     this._currentReps = 0;
-    this._currentRessenti = 'ok';
+    this._currentRessenti = 'moyen';
     this._currentSucces = true;
     this._prepCountdownInterval = null;
+
+    /* Series per-exercise */
+    this._seriesData = [];
+
+    /* End-of-exercise state */
+    this._ressentiFin = 'ok';
+    this._difficulte = 3;
+
+    /* Default rest time */
+    this._defaultRestSeconds = 60;
   }
 
   WorkoutMode.prototype.mount = function() {
@@ -133,11 +201,11 @@ var WorkoutMode = (function() {
 
   WorkoutMode.prototype.unmount = function() {
     ExerciseTimerBar.stop();
+    RestTimer.stop();
     this._clearPrepCountdown();
     var el = document.getElementById('workout-mode-overlay');
     if (el) el.remove();
     document.body.style.overflow = '';
-    if (typeof TIMER !== 'undefined') TIMER.reset();
   };
 
   WorkoutMode.prototype._renderHTML = function() {
@@ -145,7 +213,7 @@ var WorkoutMode = (function() {
       '<div class="wm-header">' +
         '<div class="wm-session-name">' + this.sessionName + '</div>' +
         '<div class="wm-progress-bar"><div class="wm-progress-fill" id="wm-progress"></div></div>' +
-        '<button class="wm-quit-btn" id="wm-quit">&#10005; Terminer</button>' +
+        '<button class="wm-quit-btn" id="wm-quit">✕ Terminer</button>' +
       '</div>' +
       '<div class="wm-visual" id="wm-visual"></div>' +
       '<div class="wm-exercise-info">' +
@@ -153,92 +221,119 @@ var WorkoutMode = (function() {
         '<div class="wm-serie-info" id="wm-serie-info"></div>' +
       '</div>' +
 
-      /* PHASE PREPARATION */
+      /* PREPARATION */
       '<div class="wm-phase" id="wm-phase-preparation" style="display:none">' +
-        '<div class="prep-label" id="prep-label">Pr\u00eats ?</div>' +
+        '<div class="prep-label" id="prep-label">Prêts ?</div>' +
         '<div class="prep-countdown" id="prep-countdown">3</div>' +
         '<button class="btn-skip-prep" id="btn-skip-prep">Commencer maintenant</button>' +
       '</div>' +
 
-      /* PHASE EXECUTION */
+      /* EXECUTION */
       '<div class="wm-phase execution-phase" id="wm-phase-execution" style="display:none">' +
-        '<p class="objectif-label">Objectif\u00a0: <strong id="repsObjectif">12 reps</strong></p>' +
+        '<p class="objectif-label">Objectif : <strong id="repsObjectif">12 reps</strong></p>' +
         '<div class="execution-timer-bar-container">' +
           '<div class="execution-timer-bar" id="execTimerBar"></div>' +
         '</div>' +
         '<p class="time-remaining"><span id="timeRemaining">20</span>s</p>' +
         '<div class="execution-actions">' +
-          '<button class="btn-validate-serie" id="btnValidate">\u2713 Valider la s\u00e9rie</button>' +
-          '<button class="btn-fail-serie" id="btnFail">\u2717 S\u00e9rie non r\u00e9ussie</button>' +
+          '<button class="btn-valider" id="btnValider">✓ Valider la série</button>' +
+          '<button class="btn-ratee" id="btnRatee">✗ Série ratée</button>' +
         '</div>' +
       '</div>' +
 
-      /* PHASE RESULTAT */
-      '<div class="wm-phase result-phase" id="wm-phase-result" style="display:none">' +
-        '<h3>Comment \u00e7a s\'est pass\u00e9\u00a0?</h3>' +
-        '<div class="result-inputs">' +
-          '<label>Reps r\u00e9alis\u00e9es</label>' +
-          '<div class="reps-counter">' +
-            '<button id="btn-reps-minus">\u2212</button>' +
-            '<span id="resultReps">12</span>' +
-            '<button id="btn-reps-plus">+</button>' +
-          '</div>' +
-          '<label>Ressenti</label>' +
-          '<div class="ressenti-buttons">' +
-            '<button class="ressenti-btn" data-value="difficile" id="ressenti-difficile">\ud83d\ude30 Difficile</button>' +
-            '<button class="ressenti-btn active" data-value="ok" id="ressenti-ok">\ud83d\ude0a OK</button>' +
-            '<button class="ressenti-btn" data-value="facile" id="ressenti-facile">\ud83d\udcaa Facile</button>' +
-          '</div>' +
+      /* FAILURE STATE */
+      '<div class="wm-phase phase-echec" id="wm-phase-echec" style="display:none">' +
+        '<div class="echec-header">' +
+          '<span class="echec-icon">✗</span>' +
+          '<h3>Série non réussie</h3>' +
+          '<p class="echec-sub">Série <span id="echecSerieNum">2</span> / <span id="echecSerieTotal">4</span></p>' +
         '</div>' +
-        '<button class="btn-confirm-result" id="btn-confirm-result">Confirmer \u2192</button>' +
+        '<label class="field-label">Reps réalisées</label>' +
+        '<div class="reps-stepper">' +
+          '<button id="echecMinus">−</button>' +
+          '<span id="echecRepsVal">8</span>' +
+          '<button id="echecPlus">+</button>' +
+        '</div>' +
+        '<label class="field-label">Ressenti</label>' +
+        '<div class="ressenti-row">' +
+          '<button class="ressenti-btn" data-v="difficile" id="res-difficile">😰 Difficile</button>' +
+          '<button class="ressenti-btn active" data-v="moyen" id="res-moyen">😐 Moyen</button>' +
+          '<button class="ressenti-btn" data-v="facile" id="res-facile">😊 Facile</button>' +
+        '</div>' +
+        '<button class="btn-confirm-echec" id="btn-confirm-echec">Enregistrer →</button>' +
       '</div>' +
 
-      /* PHASE REPOS */
-      '<div class="wm-phase" id="wm-phase-rest" style="display:none">' +
-        '<div class="wm-rest-label">Repos</div>' +
-        '<div class="wm-timer-circle">' +
-          '<svg viewBox="0 0 100 100">' +
-            '<circle cx="50" cy="50" r="44" fill="none" stroke="var(--bg-elevated)" stroke-width="8"/>' +
-            '<circle id="wm-timer-arc" cx="50" cy="50" r="44" fill="none"' +
-              ' stroke="#00FF87" stroke-width="8" stroke-linecap="round"' +
-              ' stroke-dasharray="276.5" stroke-dashoffset="0"' +
-              ' transform="rotate(-90 50 50)"/>' +
-          '</svg>' +
-          '<div class="wm-timer-text" id="wm-timer-text">90</div>' +
+      /* END OF EXERCISE */
+      '<div class="wm-phase phase-fin-exercice" id="wm-phase-fin-exercice" style="display:none">' +
+        '<div class="fin-ex-header">' +
+          '<span class="fin-ex-check">✓</span>' +
+          '<h3 id="finExNom">Pompes</h3>' +
+          '<p class="fin-ex-sub"><span id="finExSeriesOk">3</span>/4 séries réussies</p>' +
         '</div>' +
-        '<div class="wm-rest-actions">' +
-          '<button class="btn btn-secondary" id="wm-skip-rest">Passer \u2192</button>' +
+        '<label class="field-label">Ressenti global</label>' +
+        '<div class="ressenti-row">' +
+          '<button class="ressenti-btn" data-v="difficile" id="resf-difficile">😰 Difficile</button>' +
+          '<button class="ressenti-btn active" data-v="ok" id="resf-ok">😊 OK</button>' +
+          '<button class="ressenti-btn" data-v="facile" id="resf-facile">💪 Facile</button>' +
         '</div>' +
+        '<label class="field-label">Difficulté perçue</label>' +
+        '<div class="difficulte-row" id="difficulteRow">' +
+          '<button class="star-btn active" data-v="1">★</button>' +
+          '<button class="star-btn active" data-v="2">★</button>' +
+          '<button class="star-btn active" data-v="3">★</button>' +
+          '<button class="star-btn" data-v="4">★</button>' +
+          '<button class="star-btn" data-v="5">★</button>' +
+        '</div>' +
+        '<button class="btn-next-exercise" id="btn-next-exercise">Exercice suivant →</button>' +
       '</div>' +
 
-      /* PHASE DONE */
+      /* REST */
+      '<div class="wm-phase phase-repos" id="wm-phase-repos" style="display:none">' +
+        '<p class="repos-label">Repos</p>' +
+        '<div class="repos-time-display">' +
+          '<span id="reposTimeNum">60</span>' +
+          '<span class="repos-time-unit">s</span>' +
+        '</div>' +
+        '<div class="repos-bar-wrap">' +
+          '<div class="repos-bar" id="reposBar"></div>' +
+        '</div>' +
+        '<div class="repos-controls">' +
+          '<button class="btn-repos-minus" id="btnReposMinus">−15s</button>' +
+          '<button class="btn-repos-plus" id="btnReposPlus">+15s</button>' +
+        '</div>' +
+        '<button class="btn-skip-repos" id="btn-skip-repos">Sauter le repos →</button>' +
+        '<p class="repos-next">Prochaine série : <strong id="reposNextSerie">2</strong> / <span id="reposSerieTotal">4</span></p>' +
+      '</div>' +
+
+      /* DONE */
       '<div class="wm-phase" id="wm-phase-done" style="display:none">' +
-        '<div class="wm-done-icon">\ud83c\udfc6</div>' +
-        '<div class="wm-done-title">S\u00e9ance termin\u00e9e\u00a0!</div>' +
+        '<div class="wm-done-icon">🏆</div>' +
+        '<div class="wm-done-title">Séance terminée !</div>' +
         '<div class="wm-done-stats" id="wm-done-stats"></div>' +
-        '<button class="btn btn-primary" id="wm-save-session">\ud83d\udcbe Sauvegarder</button>' +
+        '<button class="btn btn-primary" id="wm-save-session">💾 Sauvegarder</button>' +
       '</div>' +
 
     '</div>';
   };
 
-  /* ── Utilitaires phases ── */
+  /* ── Show/hide phases ── */
   WorkoutMode.prototype._hideAllPhases = function() {
-    var phases = ['preparation', 'execution', 'result', 'rest', 'done'];
+    var phases = ['preparation', 'execution', 'echec', 'fin-exercice', 'repos', 'done'];
     for (var i = 0; i < phases.length; i++) {
       var el = document.getElementById('wm-phase-' + phases[i]);
       if (el) el.style.display = 'none';
     }
   };
 
-  WorkoutMode.prototype._showPhase = function(name) {
+  WorkoutMode.prototype._showPhase = function(id) {
     this._hideAllPhases();
-    var el = document.getElementById('wm-phase-' + name);
+    var el = document.getElementById('wm-phase-' + id);
     if (el) el.style.display = 'flex';
   };
 
+  /* ── Helpers ── */
   WorkoutMode.prototype._updateHeader = function() {
-    var ex = this.exercises[this.currentExIndex];
+    var ex = this._getCurrentExercice();
     if (!ex) return;
     var totalSeries = ex.series || 3;
     var progress = (this.currentExIndex / this.exercises.length) * 100;
@@ -257,12 +352,26 @@ var WorkoutMode = (function() {
 
     var infoEl = document.getElementById('wm-serie-info');
     if (infoEl) {
-      infoEl.textContent = 'S\u00e9rie ' + (this.currentSerieIndex + 1) + ' / ' + totalSeries +
-        ' \u00b7 Objectif\u00a0: ' + (ex.reps || ex.reps_objectif || '?');
+      infoEl.textContent = 'Série ' + (this.currentSerieIndex + 1) + ' / ' + totalSeries + ' · Objectif : ' + (ex.reps || ex.reps_objectif || '?');
     }
   };
 
-  /* ══ PHASE PRÉPARATION ══ */
+  WorkoutMode.prototype._getCurrentExercice = function() {
+    return this.exercises[this.currentExIndex] || null;
+  };
+
+  WorkoutMode.prototype._parseRepsMin = function(repsStr) {
+    if (!repsStr) return 10;
+    if (typeof repsStr === 'number') return repsStr;
+    if (typeof repsStr === 'string') {
+      if (repsStr.indexOf('–') !== -1) return parseInt(repsStr.split('–')[0]) || 10;
+      if (repsStr.indexOf('-') !== -1) return parseInt(repsStr.split('-')[0]) || 10;
+      return parseInt(repsStr) || 10;
+    }
+    return 10;
+  };
+
+  /* PREPARATION */
   WorkoutMode.prototype._showPreparation = function() {
     this.phase = 'preparation';
     this._clearPrepCountdown();
@@ -270,13 +379,13 @@ var WorkoutMode = (function() {
     this._showPhase('preparation');
 
     var self = this;
-    var ex = this.exercises[this.currentExIndex];
+    var ex = this._getCurrentExercice();
     if (!ex) { this._finishSession(); return; }
     var totalSeries = ex.series || 3;
 
     var labelEl = document.getElementById('prep-label');
     var countEl = document.getElementById('prep-countdown');
-    if (labelEl) labelEl.textContent = 'S\u00e9rie ' + (this.currentSerieIndex + 1) + ' / ' + totalSeries + ' \u2014 Pr\u00eats ?';
+    if (labelEl) labelEl.textContent = 'Série ' + (this.currentSerieIndex + 1) + ' / ' + totalSeries + ' — Prêts ?';
 
     var count = 3;
     function setCount(n) {
@@ -299,27 +408,20 @@ var WorkoutMode = (function() {
     if (this._prepCountdownInterval) { clearInterval(this._prepCountdownInterval); this._prepCountdownInterval = null; }
   };
 
-  /* ══ PHASE EXÉCUTION ══ */
+  /* EXECUTION */
   WorkoutMode.prototype._showExecution = function() {
     this.phase = 'execution';
     this._clearPrepCountdown();
     this._showPhase('execution');
 
-    var ex = this.exercises[this.currentExIndex];
+    var ex = this._getCurrentExercice();
     if (!ex) return;
 
-    /* Calculer durée estimée — gérer "12-15" et "8–12" */
     var repsStr = ex.reps || ex.reps_objectif || '10';
-    var repsNum = parseInt(repsStr) || 10;
-    if (typeof repsStr === 'string' && /[-\u2013]/.test(repsStr)) {
-      var parts = repsStr.split(/[-\u2013]/);
-      repsNum = parseInt(parts[parts.length - 1]) || repsNum;
-    }
+    var repsNum = this._parseRepsMin(repsStr);
 
     this._estimatedDuration = getEstimatedDuration(ex, repsNum, this.userLevel);
     this._serieStartTime = Date.now();
-    this._currentSucces = true;
-    this._currentRessenti = 'ok';
     this._currentReps = repsNum;
 
     var objEl = document.getElementById('repsObjectif');
@@ -334,114 +436,304 @@ var WorkoutMode = (function() {
       ExerciseTimerBar.reset(barEl);
       ExerciseTimerBar.start(this._estimatedDuration, barEl, timeEl, function() {
         self._beep();
-        /* Barre épuisée : simple signal sonore, ne pas forcer la validation */
       });
     }
   };
 
-  /* ══ PHASE RÉSULTAT ══ */
-  WorkoutMode.prototype._showResult = function(succes) {
+  /* VALIDATION (success) */
+  WorkoutMode.prototype._onValider = function() {
     ExerciseTimerBar.stop();
-    this.phase = 'result';
-    this._currentSucces = succes;
-    this._showPhase('result');
+    var temps = Math.round((Date.now() - this._serieStartTime) / 1000);
+    var ex = this._getCurrentExercice();
+    var repsMin = this._parseRepsMin(ex ? (ex.reps || ex.reps_objectif) : '10');
 
-    var ex = this.exercises[this.currentExIndex];
-    var repsStr = ex ? (ex.reps || ex.reps_objectif || '0') : '0';
-    var repsNum = parseInt(repsStr) || 0;
-    if (!succes) repsNum = Math.max(0, Math.round(repsNum * 0.7));
+    this._seriesData.push({
+      serie: this.currentSerieIndex + 1,
+      reps: repsMin,
+      succes: true,
+      ressenti: null,
+      temps_execution: temps
+    });
 
-    this._currentReps = repsNum;
-    this._currentRessenti = succes ? 'ok' : 'difficile';
+    this._afterSerie();
+  };
 
-    var repsEl = document.getElementById('resultReps');
-    if (repsEl) repsEl.textContent = repsNum;
+  /* FAILURE */
+  WorkoutMode.prototype._onRatee = function() {
+    ExerciseTimerBar.stop();
+    var ex = this._getCurrentExercice();
+    var repsMin = this._parseRepsMin(ex ? (ex.reps || ex.reps_objectif) : '10');
+    this._currentReps = Math.max(0, repsMin - 2);
+    this._currentRessenti = 'moyen';
 
-    var values = ['difficile', 'ok', 'facile'];
-    for (var i = 0; i < values.length; i++) {
-      var btn = document.getElementById('ressenti-' + values[i]);
-      if (btn) btn.classList.toggle('active', values[i] === this._currentRessenti);
+    document.getElementById('echecRepsVal').textContent = this._currentReps;
+    document.getElementById('echecSerieNum').textContent = this.currentSerieIndex + 1;
+    var totalSeries = ex ? (ex.series || 3) : 3;
+    document.getElementById('echecSerieTotal').textContent = totalSeries;
+
+    this._updateRessentiBtns('res-moyen');
+    this._showPhase('echec');
+  };
+
+  WorkoutMode.prototype._adjustEchecReps = function(delta) {
+    this._currentReps = Math.max(0, this._currentReps + delta);
+    document.getElementById('echecRepsVal').textContent = this._currentReps;
+  };
+
+  WorkoutMode.prototype._confirmEchec = function() {
+    var temps = Math.round((Date.now() - this._serieStartTime) / 1000);
+    this._seriesData.push({
+      serie: this.currentSerieIndex + 1,
+      reps: this._currentReps,
+      succes: false,
+      ressenti: this._currentRessenti,
+      temps_execution: temps
+    });
+    this._afterSerie();
+  };
+
+  /* COMMON POST-SERIES LOGIC */
+  WorkoutMode.prototype._afterSerie = function() {
+    var ex = this._getCurrentExercice();
+    if (!ex) return;
+    this.currentSerieIndex++;
+
+    if (this.currentSerieIndex >= (ex.series || 3)) {
+      /* End of exercise */
+      this._showFinExercice();
+    } else {
+      /* More series → rest */
+      var restSec = ex.repos || ex.repos_sec || this._defaultRestSeconds;
+      this._showRest(restSec);
     }
   };
 
-  WorkoutMode.prototype._onSerieValidated = function(succes) { this._showResult(succes); };
+  /* REST PHASE */
+  WorkoutMode.prototype._showRest = function(seconds) {
+    this.phase = 'repos';
+    var ex = this._getCurrentExercice();
+    var nextSerie = this.currentSerieIndex + 1;
+    var totalSeries = ex ? (ex.series || 3) : 3;
 
-  WorkoutMode.prototype._adjustReps = function(delta) {
-    this._currentReps = Math.max(0, this._currentReps + delta);
-    var el = document.getElementById('resultReps');
-    if (el) el.textContent = this._currentReps;
+    document.getElementById('reposNextSerie').textContent = nextSerie;
+    document.getElementById('reposSerieTotal').textContent = totalSeries;
+    this._showPhase('repos');
+
+    var self = this;
+    RestTimer.start(
+      seconds,
+      document.getElementById('reposBar'),
+      document.getElementById('reposTimeNum'),
+      function() { self._startNextSerie(); }
+    );
   };
 
-  WorkoutMode.prototype._setRessenti = function(el) {
-    this._currentRessenti = el.getAttribute('data-value') || '';
-    var btns = document.querySelectorAll('.ressenti-btn');
-    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-    el.classList.add('active');
+  WorkoutMode.prototype._adjustRest = function(delta) {
+    RestTimer.adjust(delta);
   };
 
-  WorkoutMode.prototype._confirmResult = function() {
-    var ex = this.exercises[this.currentExIndex];
-    if (!ex) return;
+  WorkoutMode.prototype._skipRest = function() {
+    RestTimer.skip();
+  };
 
-    var tempsReel = this._serieStartTime ? Math.round((Date.now() - this._serieStartTime) / 1000) : 0;
+  WorkoutMode.prototype._startNextSerie = function() {
+    RestTimer.stop();
+    this._showPreparation();
+  };
 
-    this.seriesLog.push({
-      exercice: ex.id || (typeof resolveExerciseId === 'function' ? resolveExerciseId(ex.nom) : ''),
-      nom: ex.nom,
-      serie: this.currentSerieIndex + 1,
-      reps: this._currentReps,
-      poids: 0,
-      reps_objectif: parseInt(ex.reps || ex.reps_objectif) || 0,
-      temps_execution: tempsReel,
-      temps_estime: this._estimatedDuration,
-      succes: this._currentSucces,
-      ressenti: this._currentRessenti
-    });
+  /* END OF EXERCISE */
+  WorkoutMode.prototype._showFinExercice = function() {
+    var ex = this._getCurrentExercice();
+    if (!ex) { this._finishSession(); return; }
 
-    var totalSeries = ex.series || 3;
-    var exId = ex.id || (typeof resolveExerciseId === 'function' ? resolveExerciseId(ex.nom) : '');
-    var repos = ex.repos || ex.repos_sec || (typeof getRestPreset === 'function' ? getRestPreset(exId) : 90);
+    var seriesOk = this._seriesData.filter(function(s) { return s.succes; }).length;
+    document.getElementById('finExNom').textContent = ex.nom;
+    document.getElementById('finExSeriesOk').textContent = seriesOk;
 
-    if (this.currentSerieIndex < totalSeries - 1) {
-      this.currentSerieIndex++;
-      this._startRest(repos, false);
-    } else {
-      this.currentExIndex++;
-      this.currentSerieIndex = 0;
-      if (this.currentExIndex >= this.exercises.length) {
-        this._finishSession();
-      } else {
-        this._startRest(repos, true);
+    this._ressentiFin = 'ok';
+    this._difficulte = 3;
+    this._updateRessentiFin('resf-ok');
+    this._updateStars(3);
+
+    this._showPhase('fin-exercice');
+  };
+
+  WorkoutMode.prototype._updateRessentiBtns = function(activeDataV) {
+    var btns = document.querySelectorAll('.phase-echec .ressenti-btn');
+    var selected = 'moyen';
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.remove('active');
+      if (btns[i].id === activeDataV) {
+        btns[i].classList.add('active');
+        selected = btns[i].getAttribute('data-v');
+      }
+    }
+    this._currentRessenti = selected;
+  };
+
+  WorkoutMode.prototype._updateRessentiFin = function(activeId) {
+    var btns = document.querySelectorAll('.phase-fin-exercice .ressenti-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.remove('active');
+      if (btns[i].id === activeId) {
+        btns[i].classList.add('active');
+        this._ressentiFin = btns[i].getAttribute('data-v');
       }
     }
   };
 
-  /* ══ EVENTS ══ */
+  WorkoutMode.prototype._updateStars = function(val) {
+    this._difficulte = val;
+    var stars = document.querySelectorAll('.star-btn');
+    for (var i = 0; i < stars.length; i++) {
+      stars[i].classList.toggle('active', i < val);
+    }
+  };
+
+  WorkoutMode.prototype._nextExercise = function() {
+    /* Save exercise data */
+    var ex = this._getCurrentExercice();
+    if (ex) {
+      ex._series = this._seriesData;
+      ex._ressenti_global = this._ressentiFin;
+      ex._difficulte = this._difficulte;
+    }
+
+    /* Reset for next */
+    this._seriesData = [];
+    this.currentSerieIndex = 0;
+    this.currentExIndex++;
+
+    if (this.currentExIndex >= this.exercises.length) {
+      this._finishSession();
+    } else {
+      this._showPreparation();
+    }
+  };
+
+  /* SESSION END */
+  WorkoutMode.prototype._finishSession = function() {
+    ExerciseTimerBar.stop();
+    RestTimer.stop();
+    this._clearPrepCountdown();
+    this._hideAllPhases();
+    this._showDone();
+  };
+
+  WorkoutMode.prototype._showDone = function() {
+    var donePhase = document.getElementById('wm-phase-done');
+    if (donePhase) donePhase.style.display = 'flex';
+    var progEl = document.getElementById('wm-progress');
+    if (progEl) progEl.style.width = '100%';
+
+    /* Calculate stats */
+    var duration = Math.round((Date.now() - this.startTime) / 60000);
+    var totalReps = 0, totalVolume = 0;
+    for (var i = 0; i < this.exercises.length; i++) {
+      var ex = this.exercises[i];
+      if (ex._series) {
+        for (var j = 0; j < ex._series.length; j++) {
+          totalReps += ex._series[j].reps;
+        }
+      }
+    }
+
+    var statsEl = document.getElementById('wm-done-stats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        '<div class="done-stat"><span>' + duration + '</span>min de séance</div>' +
+        '<div class="done-stat"><span>' + totalReps + '</span>reps au total</div>' +
+        '<div class="done-stat"><span>' + Math.round(totalVolume) + '</span>kg de volume</div>';
+    }
+  };
+
+  WorkoutMode.prototype._saveSession = function() {
+    var duration = Math.round((Date.now() - this.startTime) / 60000);
+
+    /* Build exercise data with series info */
+    var exercisesData = [];
+    for (var i = 0; i < this.exercises.length; i++) {
+      var ex = this.exercises[i];
+      exercisesData.push({
+        id: ex.id,
+        nom: ex.nom,
+        series_objectif: ex.series || 3,
+        reps_objectif: ex.reps || ex.reps_objectif,
+        repos_objectif: ex.repos || ex.repos_sec || 60,
+        ressenti_global: ex._ressenti_global || '',
+        difficulte: ex._difficulte || 0,
+        series: ex._series || []
+      });
+    }
+
+    if (typeof SW !== 'undefined') {
+      SW.append('sw_sessions', {
+        date: new Date().toISOString().slice(0, 10),
+        nom: this.sessionName,
+        duree_min: duration,
+        exercices: exercisesData,
+        volume_total: 0
+      });
+    }
+
+    if (typeof showToast !== 'undefined') showToast('Séance sauvegardée ! 💪');
+    window.dispatchEvent(new CustomEvent('session:saved', { detail: { exercices: exercisesData } }));
+  };
+
+  /* EVENTS */
   WorkoutMode.prototype._bindEvents = function() {
     var self = this;
 
+    /* Preparation */
     document.getElementById('btn-skip-prep').addEventListener('click', function() {
       self._clearPrepCountdown();
       self._showExecution();
     });
 
-    document.getElementById('btnValidate').addEventListener('click', function() { self._onSerieValidated(true); });
-    document.getElementById('btnFail').addEventListener('click', function() { self._onSerieValidated(false); });
+    /* Execution */
+    document.getElementById('btnValider').addEventListener('click', function() { self._onValider(); });
+    document.getElementById('btnRatee').addEventListener('click', function() { self._onRatee(); });
 
-    document.getElementById('btn-reps-minus').addEventListener('click', function() { self._adjustReps(-1); });
-    document.getElementById('btn-reps-plus').addEventListener('click', function() { self._adjustReps(+1); });
+    /* Failure state */
+    document.getElementById('echecMinus').addEventListener('click', function() { self._adjustEchecReps(-1); });
+    document.getElementById('echecPlus').addEventListener('click', function() { self._adjustEchecReps(+1); });
 
-    var ressentiBtns = document.querySelectorAll('.ressenti-btn');
+    var ressentiBtns = document.querySelectorAll('.phase-echec .ressenti-btn');
     for (var i = 0; i < ressentiBtns.length; i++) {
-      ressentiBtns[i].addEventListener('click', function() { self._setRessenti(this); });
+      ressentiBtns[i].addEventListener('click', function() {
+        self._updateRessentiBtns(this.id);
+      });
     }
 
-    document.getElementById('btn-confirm-result').addEventListener('click', function() { self._confirmResult(); });
-    document.getElementById('wm-skip-rest').addEventListener('click', function() { self._nextSerie(); });
+    document.getElementById('btn-confirm-echec').addEventListener('click', function() { self._confirmEchec(); });
 
+    /* End of exercise */
+    var ressentiFin = document.querySelectorAll('.phase-fin-exercice .ressenti-btn');
+    for (var j = 0; j < ressentiFin.length; j++) {
+      ressentiFin[j].addEventListener('click', function() {
+        self._updateRessentiFin(this.id);
+      });
+    }
+
+    var starBtns = document.querySelectorAll('.star-btn');
+    for (var k = 0; k < starBtns.length; k++) {
+      starBtns[k].addEventListener('click', function() {
+        self._updateStars(parseInt(this.getAttribute('data-v')));
+      });
+    }
+
+    document.getElementById('btn-next-exercise').addEventListener('click', function() { self._nextExercise(); });
+
+    /* Rest */
+    document.getElementById('btnReposMinus').addEventListener('click', function() { self._adjustRest(-15); });
+    document.getElementById('btnReposPlus').addEventListener('click', function() { self._adjustRest(+15); });
+    document.getElementById('btn-skip-repos').addEventListener('click', function() { self._skipRest(); });
+
+    /* Session */
     document.getElementById('wm-quit').addEventListener('click', function() {
-      if (confirm('Terminer la s\u00e9ance maintenant\u00a0?')) {
+      if (confirm('Terminer la séance maintenant ?')) {
         ExerciseTimerBar.stop();
+        RestTimer.stop();
         self._clearPrepCountdown();
         self._finishSession();
       }
@@ -453,92 +745,7 @@ var WorkoutMode = (function() {
     });
   };
 
-  /* ══ REPOS (inchangé) ══ */
-  WorkoutMode.prototype._startRest = function(seconds, nextExercise) {
-    var self = this;
-    this.phase = 'rest';
-    this._updateHeader();
-    this._showPhase('rest');
-    var circumference = 276.5;
-
-    if (!nextExercise && 'speechSynthesis' in window) {
-      try {
-        var utt = new SpeechSynthesisUtterance('Bien ! Repose-toi.');
-        utt.lang = 'fr-FR'; utt.volume = 0.5;
-        speechSynthesis.speak(utt);
-      } catch(e) {}
-    }
-
-    if (typeof TIMER !== 'undefined') {
-      TIMER.reset();
-      TIMER.start(seconds,
-        function(remaining) {
-          var el = document.getElementById('wm-timer-text');
-          if (el) el.textContent = remaining;
-          var arcEl = document.getElementById('wm-timer-arc');
-          if (arcEl) {
-            arcEl.style.strokeDashoffset = circumference * (remaining / seconds);
-            arcEl.style.stroke = remaining <= 10 ? '#FF3D5A' : '#00FF87';
-          }
-        },
-        function() { self._beep(); self._nextSerie(); }
-      );
-    }
-  };
-
-  WorkoutMode.prototype._nextSerie = function() {
-    if (typeof TIMER !== 'undefined') TIMER.reset();
-    if (this.currentExIndex < this.exercises.length) {
-      this._showPreparation();
-    } else {
-      this._finishSession();
-    }
-  };
-
-  WorkoutMode.prototype._finishSession = function() {
-    this.phase = 'done';
-    ExerciseTimerBar.stop();
-    this._clearPrepCountdown();
-    if (typeof TIMER !== 'undefined') TIMER.reset();
-    this._hideAllPhases();
-    this._showDone();
-  };
-
-  WorkoutMode.prototype._showDone = function() {
-    var donePhase = document.getElementById('wm-phase-done');
-    if (donePhase) donePhase.style.display = 'flex';
-    var progEl = document.getElementById('wm-progress');
-    if (progEl) progEl.style.width = '100%';
-
-    var duration = Math.round((Date.now() - this.startTime) / 60000);
-    var totalReps = this.seriesLog.reduce(function(s, l) { return s + l.reps; }, 0);
-    var totalVolume = this.seriesLog.reduce(function(s, l) { return s + l.reps * (l.poids || 0); }, 0);
-
-    var statsEl = document.getElementById('wm-done-stats');
-    if (statsEl) {
-      statsEl.innerHTML =
-        '<div class="done-stat"><span>' + duration + '</span>min de s\u00e9ance</div>' +
-        '<div class="done-stat"><span>' + totalReps + '</span>reps au total</div>' +
-        '<div class="done-stat"><span>' + Math.round(totalVolume) + '</span>kg de volume</div>';
-    }
-  };
-
-  WorkoutMode.prototype._saveSession = function() {
-    var duration = Math.round((Date.now() - this.startTime) / 60000);
-    var volume = this.seriesLog.reduce(function(s, l) { return s + l.reps * (l.poids || 1); }, 0);
-    if (typeof SW !== 'undefined') {
-      SW.append('sw_sessions', {
-        date: new Date().toISOString().slice(0, 10),
-        nom: this.sessionName,
-        duree_min: duration,
-        exercices: this.seriesLog,
-        volume_total: Math.round(volume)
-      });
-    }
-    if (typeof showToast !== 'undefined') showToast('S\u00e9ance sauvegard\u00e9e ! \ud83d\udcaa');
-    window.dispatchEvent(new CustomEvent('session:saved', { detail: { log: this.seriesLog } }));
-  };
-
+  /* UTILS */
   WorkoutMode.prototype._beep = function() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();

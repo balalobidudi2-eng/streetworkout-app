@@ -442,3 +442,358 @@
   0%   { transform: scale(1.3); opacity: 0.5; }
   100% { transform: scale(1);   opacity: 1; }
 }
+
+/* ══════════════════════════════════════════════
+   REFINED SERIES MANAGEMENT — v3 CSS
+   Échec, Fin d'exercice, RestTimer
+   ══════════════════════════════════════════════ */
+
+/* ── EXECUTION BUTTONS (updated) ── */
+.btn-valider {
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  min-height: 56px;
+  transition: opacity 0.15s;
+}
+.btn-valider:active { opacity: 0.85; }
+
+.btn-ratee {
+  background: transparent;
+  color: #EF4444;
+  border: 2px solid #FECACA;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  min-height: 48px;
+  transition: all 0.15s;
+}
+.btn-ratee:active { background: #FEF2F2; }
+
+/* ── ECHEC DE SÉRIE ── */
+.phase-echec {
+  text-align: center;
+  padding: 24px 16px;
+  flex-direction: column;
+  align-items: center;
+}
+.echec-header {
+  margin-bottom: 24px;
+}
+.echec-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #FEE2E2;
+  color: #EF4444;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.echec-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text-primary, #F0F0FF);
+}
+.echec-sub {
+  font-size: 14px;
+  color: var(--text-secondary, #94A3B8);
+  margin: 0;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary, #94A3B8);
+  margin-bottom: 10px;
+  margin-top: 12px;
+}
+
+.reps-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.reps-stepper button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--border, rgba(255,255,255,0.1));
+  background: var(--bg-elevated, rgba(255,255,255,0.05));
+  color: var(--text-primary, #F0F0FF);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+}
+.reps-stepper button:hover { border-color: #2563EB; }
+.reps-stepper button:active { opacity: 0.8; }
+
+.reps-stepper span {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #F0F0FF);
+  min-width: 60px;
+  text-align: center;
+}
+
+.ressenti-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.ressenti-btn {
+  flex: 1;
+  min-width: 90px;
+  min-height: 48px;
+  border-radius: 10px;
+  border: 2px solid var(--border, rgba(255,255,255,0.1));
+  background: var(--bg-elevated, rgba(255,255,255,0.05));
+  color: var(--text-primary, #F0F0FF);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ressenti-btn.active {
+  border-color: #2563EB;
+  background: rgba(37, 99, 235, 0.15);
+}
+.ressenti-btn:active { opacity: 0.8; }
+
+.btn-confirm-echec {
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 56px;
+  width: 100%;
+  max-width: 320px;
+  transition: opacity 0.15s;
+}
+.btn-confirm-echec:active { opacity: 0.85; }
+
+/* ── FIN D'EXERCICE ── */
+.phase-fin-exercice {
+  text-align: center;
+  padding: 24px 16px;
+  flex-direction: column;
+  align-items: center;
+}
+.fin-ex-header {
+  margin-bottom: 20px;
+}
+.fin-ex-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #D1FAE5;
+  color: #10B981;
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+.fin-ex-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text-primary, #F0F0FF);
+}
+.fin-ex-sub {
+  font-size: 14px;
+  color: var(--text-secondary, #94A3B8);
+  margin: 0;
+}
+
+.difficulte-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.star-btn {
+  font-size: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--border, rgba(255,255,255,0.2));
+  transition: color 0.15s, transform 0.1s;
+  padding: 4px;
+}
+.star-btn.active {
+  color: #F59E0B;
+}
+.star-btn:active { transform: scale(1.1); }
+
+.btn-next-exercise {
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 56px;
+  width: 100%;
+  max-width: 320px;
+  transition: opacity 0.15s;
+}
+.btn-next-exercise:active { opacity: 0.85; }
+
+/* ── REST TIMER ── */
+.phase-repos {
+  text-align: center;
+  padding: 32px 16px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.repos-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, #94A3B8);
+  margin: 0 0 8px;
+}
+
+.repos-time-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.repos-time-display span:first-child {
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--text-primary, #F0F0FF);
+  line-height: 1;
+}
+.repos-time-unit {
+  font-size: 24px;
+  color: var(--text-secondary, #94A3B8);
+}
+
+.repos-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-elevated, rgba(255,255,255,0.07));
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.repos-bar {
+  height: 100%;
+  width: 100%;
+  border-radius: 99px;
+  background: #2563EB;
+  transition: background 0.3s;
+}
+.repos-bar.warning { background: #F59E0B; }
+.repos-bar.danger { background: #EF4444; }
+
+.repos-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.btn-repos-minus, .btn-repos-plus {
+  flex: 1;
+  min-width: 120px;
+  max-width: 140px;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid var(--border, rgba(255,255,255,0.1));
+  background: var(--bg-elevated, rgba(255,255,255,0.05));
+  color: var(--text-primary, #F0F0FF);
+  transition: all 0.15s;
+  min-height: 48px;
+}
+.btn-repos-minus:active, .btn-repos-plus:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+.btn-skip-repos {
+  background: transparent;
+  color: var(--text-secondary, #94A3B8);
+  border: 2px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-height: 48px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 16px;
+  transition: border-color 0.15s;
+}
+.btn-skip-repos:hover { border-color: #2563EB; }
+
+.repos-next {
+  font-size: 14px;
+  color: var(--text-secondary, #94A3B8);
+  margin: 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .phase-echec,
+  .phase-fin-exercice,
+  .phase-repos {
+    padding: 20px 16px;
+  }
+
+  .repos-time-display span:first-child {
+    font-size: 60px;
+  }
+
+  .difficulte-row {
+    gap: 6px;
+  }
+
+  .star-btn {
+    font-size: 24px;
+  }
+
+  .reps-stepper {
+    gap: 12px;
+  }
+
+  .ressenti-btn {
+    min-width: 85px;
+    font-size: 0.8rem;
+  }
+}
