@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+const fs = require('fs');
+const h = `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -9,13 +10,13 @@
   <link rel="stylesheet" href="css/forge.css">
 </head>
 <body>
-<script src="js/profil-loader.js"></script>
+<script src="js/profil-loader.js"><\/script>
 <script>
   (function(){
     var p=JSON.parse(localStorage.getItem('sw_profil')||'null');
     if(!p||!p.setup_done) window.location.href='onboarding.html';
   })();
-</script>
+<\/script>
 
 <div class="forge-wrapper">
 
@@ -264,6 +265,8 @@ document.addEventListener('DOMContentLoaded', function(){
     setTimeout(function(){btn.textContent=orig;btn.style.background='';},2000);
   });
 });
-</script>
+<\/script>
 </body>
-</html>
+</html>`;
+fs.writeFileSync('profil.html', h, 'utf8');
+console.log('profil.html written, len:'+h.length);

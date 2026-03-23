@@ -3,16 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analytics — Street Workout</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/animations.css">
-  <link rel="stylesheet" href="css/pages/dashboard.css">
-  <link rel="stylesheet" href="css/app.css">
+  <title>FORGE — Rapport</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/forge.css">
   <style>
     /* Heatmap */
     .heatmap-grid { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
@@ -38,55 +32,36 @@
   </style>
 </head>
 <body>
+<script src="js/profil-loader.js"></script>
+<script>
+  (function(){
+    var p=JSON.parse(localStorage.getItem('sw_profil')||'null');
+    if(!p||!p.setup_done) window.location.href='onboarding.html';
+  })();
+</script>
 
-  <!-- Top Navigation -->
-  <nav class="top-nav">
-    <a href="index.html" class="nav-logo">SW</a>
-    <div class="nav-links">
-      <a href="profil.html">Profil</a>
-      <a href="progression.html">Progression</a>
-      <a href="entrainement.html">Entraînement</a>
-      <a href="analytics.html" class="active">Analytics</a>
-      <a href="abonnement.html">Plans</a>
-      <a href="#" data-action="logout">Déconnexion</a>
-    </div>
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
+<div class="forge-wrapper">
 
-  <!-- Mobile Menu -->
-  <div class="mobile-menu" id="mobile-menu">
-    <div class="mobile-menu-header">
-      <span class="nav-logo">SW</span>
-      <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">✕</button>
-    </div>
-    <div class="mobile-menu-links">
-      <a href="profil.html">Profil</a>
-      <a href="progression.html">Progression</a>
-      <a href="entrainement.html">Entraînement</a>
-      <a href="analytics.html" class="active">Analytics</a>
-      <a href="abonnement.html">Plans</a>
-      <a href="#" data-action="logout">Déconnexion</a>
-    </div>
-  </div>
-  <div class="menu-backdrop" id="menu-backdrop"></div>
-
-  <!-- App Layout -->
-  <div class="app-layout">
-    <aside class="sidebar">
-      <div class="sidebar-links">
-        <a href="profil.html">Profil</a>
-        <a href="progression.html">Progression</a>
+  <header class="forge-header">
+    <div class="forge-header-inner">
+      <span class="forge-logo">FORGE</span>
+      <nav class="forge-nav">
+        <a href="index.html">Accueil</a>
         <a href="entrainement.html">Entraînement</a>
-        <a href="analytics.html" class="active">Analytics</a>
-        <a href="abonnement.html">Plans</a>
-        <a href="#" data-action="logout">Déconnexion</a>
+        <a href="progression.html">Découvrir</a>
+        <a href="analytics.html" class="active">Rapport</a>
+        <a href="profil.html">Profil</a>
+      </nav>
+      <div class="forge-header-user">
+        <span class="forge-user-name" data-profil="prenom"></span>
+        <div class="forge-avatar" id="header-avatar">U</div>
       </div>
-    </aside>
+    </div>
+  </header>
 
-    <main class="main-content">
-      <h2 style="margin-bottom: 8px;">Analytics</h2>
+    <main>
+      <div class="forge-container">
+      <h2 style="margin-bottom:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:2rem;text-transform:uppercase;">Rapport</h2>
       <p style="color: var(--text-secondary); margin-bottom: 24px;">Vue détaillée de ta progression et de tes performances.</p>
 
       <!-- Score Overview -->
@@ -206,28 +181,28 @@
         </div>
       </div>
 
+      </div>
     </main>
-  </div>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a href="entrainement.html" class="nav-item">
+  <nav class="forge-bottom-nav">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Accueil</span>
+    </a>
+    <a href="entrainement.html">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>Entraînement</span>
     </a>
-    <a href="progression.html" class="nav-item">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-      <span>Découvrir</span>
-    </a>
-    <a href="analytics.html" class="nav-item active">
+    <a href="analytics.html" class="active">
       <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       <span>Rapport</span>
     </a>
-    <a href="profil.html" class="nav-item">
+    <a href="profil.html">
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>Paramètres</span>
+      <span>Profil</span>
     </a>
   </nav>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/supabase-config.js"></script>

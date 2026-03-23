@@ -1,19 +1,386 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Street Workout — Ton programme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenue — FORGE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base-v2.css">
-  <link rel="stylesheet" href="css/pages/onboarding.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/forge.css">
+  <style>
+    body { background: #0A0A0A; color: #fff; }
+    .ob-screen { display: none; }
+    .ob-screen.active { display: flex; flex-direction: column; }
+  </style>
 </head>
-<body>
-<div class="onboarding-container" id="app">
-  <!-- Généré dynamiquement par onboarding.js -->
+<body class="forge-ob-body">
+
+<!-- ═══════════════════════════════════════════════════════
+     STEPS 1–8
+     ═══════════════════════════════════════════════════════ -->
+<div id="ob-steps-wrapper" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <!-- Barre de progression -->
+  <div class="forge-ob-progress" id="ob-progress-bar">
+    <div class="forge-ob-progress-seg active" data-seg="0"></div>
+    <div class="forge-ob-progress-seg" data-seg="1"></div>
+    <div class="forge-ob-progress-seg" data-seg="2"></div>
+    <div class="forge-ob-progress-seg" data-seg="3"></div>
+    <div class="forge-ob-progress-seg" data-seg="4"></div>
+    <div class="forge-ob-progress-seg" data-seg="5"></div>
+    <div class="forge-ob-progress-seg" data-seg="6"></div>
+    <div class="forge-ob-progress-seg" data-seg="7"></div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="forge-ob-topbar">
+    <button class="forge-ob-back" id="ob-back" aria-label="Retour" style="visibility:hidden;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="forge-ob-step-num" id="ob-step-num">1 / 8</span>
+  </div>
+
+  <!-- ÉTAPE 1 — Objectif -->
+  <div class="forge-ob-content ob-screen active" id="step-1">
+    <p class="forge-ob-question">Quel est ton objectif principal ?</p>
+    <div class="forge-ob-options" data-single="objectif">
+      <button class="forge-ob-option" data-value="Perdre du poids">Perdre du poids</button>
+      <button class="forge-ob-option" data-value="Prendre du muscle">Prendre du muscle</button>
+      <button class="forge-ob-option" data-value="Améliorer mon endurance">Améliorer mon endurance</button>
+      <button class="forge-ob-option" data-value="Maîtriser des figures">Maîtriser des figures (front lever, muscle-up)</button>
+      <button class="forge-ob-option" data-value="Rester en forme">Rester en forme et en bonne santé</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 2 — Zones -->
+  <div class="forge-ob-content ob-screen" id="step-2">
+    <p class="forge-ob-question">Sur quelle zone veux-tu te concentrer ?</p>
+    <div class="forge-ob-options multi-col" data-multi="zones">
+      <button class="forge-ob-option" data-value="Corps complet">Corps complet</button>
+      <button class="forge-ob-option" data-value="Bras">Bras</button>
+      <button class="forge-ob-option" data-value="Poitrine">Poitrine</button>
+      <button class="forge-ob-option" data-value="Abdos">Abdos</button>
+      <button class="forge-ob-option" data-value="Dos">Dos</button>
+      <button class="forge-ob-option" data-value="Jambes">Jambes</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 3 — Année naissance (drum picker) -->
+  <div class="forge-ob-content ob-screen" id="step-3">
+    <p class="forge-ob-question">Quelle est ton année de naissance ?</p>
+    <div class="forge-ob-value-display" id="ob-year-display">1995</div>
+    <div class="forge-ob-drum">
+      <div class="forge-ob-drum-line"></div>
+      <div class="forge-ob-drum-list" id="ob-drum-year"></div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 4 — Taille (règle) -->
+  <div class="forge-ob-content ob-screen" id="step-4">
+    <p class="forge-ob-question">Quelle est ta taille ?</p>
+    <div class="forge-ob-unit-toggle">
+      <button class="forge-ob-unit-btn active" id="taille-unit-cm">cm</button>
+      <button class="forge-ob-unit-btn" id="taille-unit-ft">ft</button>
+    </div>
+    <div class="forge-ob-value-display" id="ob-taille-display">175 cm</div>
+    <div class="forge-ob-ruler-wrap">
+      <div class="forge-ob-ruler-pointer"></div>
+      <div class="forge-ob-ruler" id="ob-ruler-taille"></div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 5 — Poids (règle) + IMC -->
+  <div class="forge-ob-content ob-screen" id="step-5">
+    <p class="forge-ob-question">Quel est ton poids actuel ?</p>
+    <div class="forge-ob-unit-toggle">
+      <button class="forge-ob-unit-btn active" id="poids-unit-kg">kg</button>
+      <button class="forge-ob-unit-btn" id="poids-unit-lbs">lbs</button>
+    </div>
+    <div class="forge-ob-value-display" id="ob-poids-display">75 kg</div>
+    <div class="forge-ob-ruler-wrap">
+      <div class="forge-ob-ruler-pointer"></div>
+      <div class="forge-ob-ruler" id="ob-ruler-poids"></div>
+    </div>
+    <div class="forge-ob-imc-display" id="ob-imc-display">IMC : <strong>—</strong></div>
+  </div>
+
+  <!-- ÉTAPE 6 — Niveau -->
+  <div class="forge-ob-content ob-screen" id="step-6">
+    <p class="forge-ob-question">Quel est ton niveau actuel ?</p>
+    <div class="forge-ob-options" data-single="niveau">
+      <button class="forge-ob-option" data-value="Débutant">Débutant — je commence tout juste</button>
+      <button class="forge-ob-option" data-value="Intermédiaire">Intermédiaire — pompes et tractions de base</button>
+      <button class="forge-ob-option" data-value="Avancé">Avancé — tractions lestées, dips maîtrisés</button>
+      <button class="forge-ob-option" data-value="Expert">Expert — je travaille des figures</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 7 — Fréquence -->
+  <div class="forge-ob-content ob-screen" id="step-7">
+    <p class="forge-ob-question">Combien de fois par semaine peux-tu t'entraîner ?</p>
+    <div class="forge-ob-options multi-col" data-single="frequence">
+      <button class="forge-ob-option" data-value="1x">1x par semaine</button>
+      <button class="forge-ob-option" data-value="2x">2x par semaine</button>
+      <button class="forge-ob-option" data-value="3x">3x par semaine</button>
+      <button class="forge-ob-option" data-value="4x">4x par semaine</button>
+      <button class="forge-ob-option" data-value="5x+">5x ou plus</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 8 — Équipement -->
+  <div class="forge-ob-content ob-screen" id="step-8">
+    <p class="forge-ob-question">Quel équipement as-tu ?</p>
+    <div class="forge-ob-options" data-multi="equipement">
+      <button class="forge-ob-option" data-value="Aucun">Aucun — poids du corps uniquement</button>
+      <button class="forge-ob-option" data-value="Barre de traction">Barre de traction</button>
+      <button class="forge-ob-option" data-value="Anneaux">Anneaux</button>
+      <button class="forge-ob-option" data-value="Haltères">Haltères</button>
+      <button class="forge-ob-option" data-value="Élastiques">Élastiques</button>
+      <button class="forge-ob-option" data-value="Salle de sport">Salle de sport</button>
+    </div>
+  </div>
+
+  <!-- Footer SUIVANT -->
+  <div class="forge-ob-footer">
+    <div class="forge-ob-footer-inner">
+      <button class="forge-ob-next" id="ob-next-btn" disabled>SUIVANT</button>
+    </div>
+  </div>
+
+</div><!-- /ob-steps-wrapper -->
+
+<!-- ÉCRAN FINAL -->
+<div id="ob-final-screen" class="forge-ob-final" style="display:none;">
+  <div style="max-width:480px;width:100%;">
+    <div style="width:64px;height:64px;background:#C8FF00;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1 class="forge-ob-final-title" style="margin-bottom:16px;">Ton profil est prêt</h1>
+    <p class="forge-ob-final-sub" id="ob-final-summary" style="margin-bottom:32px;"></p>
+    <button id="ob-start-btn" style="width:100%;padding:16px;background:#C8FF00;color:#0A0A0A;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px;border:none;border-radius:8px;cursor:pointer;">
+      COMMENCER
+    </button>
+  </div>
 </div>
-<script src="js/storage.js"></script>
-<script src="js/onboarding.js"></script>
+
+<script>
+(function(){
+  var STEPS=8, cur=1;
+  var profil={};
+  var tailleCm=175, tailleUnit='cm', poidsKg=75, poidsUnit='kg', annee=1995;
+
+  /* ── helpers ── */
+  function qs(sel,ctx){return (ctx||document).querySelector(sel);}
+  function qsa(sel,ctx){return (ctx||document).querySelectorAll(sel);}
+
+  function showStep(n){
+    for(var i=1;i<=STEPS;i++){
+      var el=document.getElementById('step-'+i);
+      if(el) el.classList.toggle('active',i===n);
+    }
+    qsa('.forge-ob-progress-seg').forEach(function(seg,idx){
+      seg.classList.remove('done','active');
+      if(idx<n-1) seg.classList.add('done');
+      else if(idx===n-1) seg.classList.add('active');
+    });
+    document.getElementById('ob-step-num').textContent=n+' / '+STEPS;
+    document.getElementById('ob-back').style.visibility=(n>1)?'visible':'hidden';
+    cur=n;
+    refreshNextBtn();
+  }
+
+  function isValid(step){
+    // Étapes avec règles/drum : toujours valides
+    if(step===3||step===4||step===5) return true;
+    var el=document.getElementById('step-'+step);
+    if(!el) return true;
+    var grp=el.querySelector('[data-single],[data-multi]');
+    if(!grp) return true;
+    if(grp.hasAttribute('data-single')) return !!grp.querySelector('.forge-ob-option.selected');
+    if(grp.hasAttribute('data-multi')) return grp.querySelectorAll('.forge-ob-option.selected').length>0;
+    return true;
+  }
+
+  function refreshNextBtn(){
+    document.getElementById('ob-next-btn').disabled=!isValid(cur);
+  }
+
+  function saveStep(step){
+    var el=document.getElementById('step-'+step);
+    if(!el) return;
+    var grp=el.querySelector('[data-single],[data-multi]');
+    if(grp){
+      if(grp.hasAttribute('data-single')){
+        var key=grp.dataset.single;
+        var sel=grp.querySelector('.forge-ob-option.selected');
+        if(sel&&key) profil[key]=sel.dataset.value;
+      } else if(grp.hasAttribute('data-multi')){
+        var key2=grp.dataset.multi;
+        var sels=grp.querySelectorAll('.forge-ob-option.selected');
+        if(key2) profil[key2]=Array.from(sels).map(function(s){return s.dataset.value;});
+      }
+    }
+    if(step===3){profil.annee_naissance=annee;profil.age=new Date().getFullYear()-annee;}
+    if(step===4){profil.taille=tailleCm;}
+    if(step===5){
+      profil.poids=poidsKg;
+      if(tailleCm>0) profil.imc=parseFloat((poidsKg/Math.pow(tailleCm/100,2)).toFixed(1));
+    }
+  }
+
+  /* ── Options click ── */
+  qsa('[data-single]').forEach(function(grp){
+    qsa('.forge-ob-option',grp).forEach(function(opt){
+      opt.addEventListener('click',function(){
+        qsa('.forge-ob-option',grp).forEach(function(o){o.classList.remove('selected');});
+        opt.classList.add('selected');
+        refreshNextBtn();
+      });
+    });
+  });
+  qsa('[data-multi]').forEach(function(grp){
+    qsa('.forge-ob-option',grp).forEach(function(opt){
+      opt.addEventListener('click',function(){
+        opt.classList.toggle('selected');
+        refreshNextBtn();
+      });
+    });
+  });
+
+  /* ── Nav ── */
+  document.getElementById('ob-next-btn').addEventListener('click',function(){
+    saveStep(cur);
+    if(cur<STEPS) showStep(cur+1);
+    else finish();
+  });
+  document.getElementById('ob-back').addEventListener('click',function(){
+    if(cur>1) showStep(cur-1);
+  });
+
+  /* ── Drum picker ── */
+  (function(){
+    var drumList=document.getElementById('ob-drum-year');
+    var yDisp=document.getElementById('ob-year-display');
+    for(var y=2010;y>=1970;y--){
+      var item=document.createElement('div');
+      item.className='forge-ob-drum-item';
+      item.dataset.year=y;
+      item.textContent=y;
+      drumList.appendChild(item);
+    }
+    function updateActive(){
+      var items=qsa('.forge-ob-drum-item',drumList);
+      var wrap=drumList.parentElement;
+      var cy=wrap.getBoundingClientRect().top+wrap.clientHeight/2;
+      var best=null,bestD=Infinity;
+      items.forEach(function(item){
+        var r=item.getBoundingClientRect();
+        var d=Math.abs(r.top+r.height/2-cy);
+        if(d<bestD){bestD=d;best=item;}
+      });
+      items.forEach(function(i){i.classList.remove('active');});
+      if(best){best.classList.add('active');annee=parseInt(best.dataset.year);yDisp.textContent=annee;}
+    }
+    drumList.addEventListener('scroll',updateActive);
+    setTimeout(function(){
+      var tgt=drumList.querySelector('[data-year="1995"]');
+      if(tgt) drumList.scrollTop=tgt.offsetTop-drumList.parentElement.clientHeight/2+25;
+      updateActive();
+    },80);
+  })();
+
+  /* ── Ruler ── */
+  function buildRuler(id,min,max,init,onUpdate){
+    var ruler=document.getElementById(id);
+    if(!ruler) return;
+    var vals=[];
+    for(var v=min;v<=max;v++) vals.push(v);
+    vals.forEach(function(v){
+      var tick=document.createElement('div');
+      tick.className='forge-ob-tick'+(v%10===0?' major':'');
+      var line=document.createElement('div');
+      line.className='forge-ob-tick-line';
+      tick.appendChild(line);
+      if(v%10===0){
+        var lbl=document.createElement('span');
+        lbl.className='forge-ob-tick-label';
+        lbl.textContent=v;
+        tick.appendChild(lbl);
+      }
+      ruler.appendChild(tick);
+    });
+    var TW=12;
+    function upd(){
+      var idx=Math.round(ruler.scrollLeft/TW);
+      idx=Math.max(0,Math.min(idx,vals.length-1));
+      onUpdate(vals[idx]);
+    }
+    ruler.addEventListener('scroll',upd);
+    setTimeout(function(){ruler.scrollLeft=(init-min)*TW;upd();},80);
+    /* drag */
+    var down=false,sx,sl;
+    ruler.addEventListener('mousedown',function(e){down=true;sx=e.pageX-ruler.offsetLeft;sl=ruler.scrollLeft;});
+    ruler.addEventListener('mouseleave',function(){down=false;});
+    ruler.addEventListener('mouseup',function(){down=false;});
+    ruler.addEventListener('mousemove',function(e){if(!down)return;e.preventDefault();ruler.scrollLeft=sl-(e.pageX-ruler.offsetLeft-sx)*1.5;});
+    /* touch */
+    var tx,tsl;
+    ruler.addEventListener('touchstart',function(e){tx=e.touches[0].pageX;tsl=ruler.scrollLeft;},{passive:true});
+    ruler.addEventListener('touchmove',function(e){ruler.scrollLeft=tsl+(tx-e.touches[0].pageX);},{passive:true});
+  }
+
+  buildRuler('ob-ruler-taille',100,250,175,function(v){
+    tailleCm=v;
+    var d=document.getElementById('ob-taille-display');
+    if(tailleUnit==='cm') d.textContent=v+' cm';
+    else{var i=Math.round(v/2.54);d.textContent=Math.floor(i/12)+"'"+(i%12)+'"';}
+    updateImc();
+  });
+
+  buildRuler('ob-ruler-poids',30,200,75,function(v){
+    poidsKg=v;
+    var d=document.getElementById('ob-poids-display');
+    if(poidsUnit==='kg') d.textContent=v+' kg';
+    else d.textContent=Math.round(v*2.20462)+' lbs';
+    updateImc();
+  });
+
+  function updateImc(){
+    var el=document.getElementById('ob-imc-display');
+    if(!el) return;
+    if(tailleCm>0&&poidsKg>0){
+      var imc=(poidsKg/Math.pow(tailleCm/100,2)).toFixed(1);
+      var cat=imc<18.5?'Insuffisance pondérale':imc<25?'Poids normal':imc<30?'Surpoids':'Obésité';
+      el.innerHTML='IMC\u00a0: <strong>'+imc+'</strong> — '+cat;
+    }
+  }
+
+  document.getElementById('taille-unit-cm').addEventListener('click',function(){tailleUnit='cm';this.classList.add('active');document.getElementById('taille-unit-ft').classList.remove('active');document.getElementById('ob-taille-display').textContent=tailleCm+' cm';});
+  document.getElementById('taille-unit-ft').addEventListener('click',function(){tailleUnit='ft';this.classList.add('active');document.getElementById('taille-unit-cm').classList.remove('active');var i=Math.round(tailleCm/2.54);document.getElementById('ob-taille-display').textContent=Math.floor(i/12)+"'"+(i%12)+'"';});
+  document.getElementById('poids-unit-kg').addEventListener('click',function(){poidsUnit='kg';this.classList.add('active');document.getElementById('poids-unit-lbs').classList.remove('active');document.getElementById('ob-poids-display').textContent=poidsKg+' kg';});
+  document.getElementById('poids-unit-lbs').addEventListener('click',function(){poidsUnit='lbs';this.classList.add('active');document.getElementById('poids-unit-kg').classList.remove('active');document.getElementById('ob-poids-display').textContent=Math.round(poidsKg*2.20462)+' lbs';});
+
+  /* ── Finish ── */
+  function finish(){
+    saveStep(STEPS);
+    profil.setup_done=true;
+    localStorage.setItem('sw_profil',JSON.stringify(profil));
+    document.getElementById('ob-steps-wrapper').style.display='none';
+    document.getElementById('ob-final-screen').style.display='flex';
+    var parts=[];
+    if(profil.niveau) parts.push('Niveau\u00a0: '+profil.niveau);
+    if(profil.objectif) parts.push('Objectif\u00a0: '+profil.objectif);
+    if(profil.frequence) parts.push(profil.frequence+'\u00a0/ semaine');
+    document.getElementById('ob-final-summary').innerHTML=parts.join(' &middot; ');
+  }
+
+  document.getElementById('ob-start-btn').addEventListener('click',function(){
+    window.location.href='index.html';
+  });
+
+  showStep(1);
+})();
+</script>
 </body>
 </html>
+

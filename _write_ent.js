@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+const fs = require('fs');
+const h = `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -35,13 +36,13 @@
   </style>
 </head>
 <body>
-<script src="js/profil-loader.js"></script>
+<script src="js/profil-loader.js"><\/script>
 <script>
   (function(){
     var p=JSON.parse(localStorage.getItem('sw_profil')||'null');
     if(!p||!p.setup_done) window.location.href='onboarding.html';
   })();
-</script>
+<\/script>
 
 <div class="forge-wrapper">
 
@@ -141,8 +142,8 @@
   </nav>
 </div>
 
-<script src="js/storage.js"></script>
-<script src="js/exercisedb-api.js"></script>
+<script src="js/storage.js"><\/script>
+<script src="js/exercisedb-api.js"><\/script>
 <script>
 (function buildWeek(){
   var row=document.getElementById('weekRow');
@@ -199,6 +200,8 @@ document.addEventListener('DOMContentLoaded',function(){
   render(_cur);
   if(typeof EXERCISEDB_API!=='undefined') EXERCISEDB_API.init().then(function(ok){if(ok){_ready=true;render(_cur);}}).catch(function(){});
 });
-</script>
+<\/script>
 </body>
-</html>
+</html>`;
+fs.writeFileSync('entrainement.html', h, 'utf8');
+console.log('entrainement.html written, len:'+h.length);

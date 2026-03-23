@@ -2,283 +2,258 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Entraînement — Street Workout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FORGE — Accueil</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base-v2.css">
-  <link rel="stylesheet" href="css/app.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/forge.css">
 </head>
 <body>
-<div class="app-wrapper" id="app-wrapper">
 
-  <!-- PAGE HEADER -->
-  <header class="page-header">
-    <h1>Exercices<br>à la maison</h1>
-    <div class="header-icons">
-      <button class="header-icon-btn" aria-label="Notifications">🔥</button>
-      <div class="pro-badge">⭐ PRO</div>
+<script src="js/profil-loader.js"></script>
+<script>
+  // Redirection onboarding si profil non configuré
+  (function(){
+    var p=JSON.parse(localStorage.getItem('sw_profil')||'null');
+    if(!p||!p.setup_done) window.location.href='onboarding.html';
+  })();
+</script>
+
+<div class="forge-wrapper">
+
+  <!-- HEADER -->
+  <header class="forge-header">
+    <div class="forge-header-inner">
+      <span class="forge-logo">FORGE</span>
+      <nav class="forge-nav">
+        <a href="index.html" class="active">Entraînement</a>
+        <a href="progression.html">Découvrir</a>
+        <a href="analytics.html">Rapport</a>
+        <a href="profil.html">Profil</a>
+      </nav>
+      <div class="forge-header-user">
+        <span class="forge-user-name" data-profil="prenom"></span>
+        <div class="forge-avatar" id="header-avatar">U</div>
+      </div>
     </div>
   </header>
 
-  <!-- BARRE DE RECHERCHE -->
-  <div class="search-bar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="search-input" placeholder="Rechercher un exercice..." autocomplete="off">
-  </div>
-
-  <!-- OBJECTIF HEBDOMADAIRE -->
-  <section class="weekly-goal-section">
-    <div class="weekly-goal-header">
-      <h2>Objectif hebdomadaire</h2>
-      <span class="weekly-goal-counter" id="weekly-counter">0/7</span>
+  <!-- HERO -->
+  <section class="forge-hero">
+    <div class="img-placeholder" style="border-radius:0;border:none;">
+      <div class="img-placeholder-inner">
+        <span class="img-placeholder-icon">+</span>
+        <span class="img-placeholder-label">Importer une image</span>
+      </div>
     </div>
-    <div class="week-days" id="week-days"></div>
-    <div class="motivation-banner" id="motivation-banner">
-      <div class="motivation-banner-avatar">💪</div>
-      <div class="motivation-banner-text">
-        <div id="banner-msg">Continue comme ça !</div>
-        <div class="motivation-banner-sub" id="banner-sub">Tu es sur la bonne voie</div>
+    <div class="forge-hero-overlay"></div>
+    <div class="forge-hero-content">
+      <div class="forge-hero-title" id="hero-greeting">BIENVENUE</div>
+      <div class="forge-hero-sub" id="hero-sub">Prêt à forger ta performance ?</div>
+      <a href="entrainement.html" class="forge-btn forge-btn-accent" style="display:inline-flex;">DÉMARRER LA SÉANCE</a>
+    </div>
+  </section>
+
+  <!-- STATS RAPIDES -->
+  <section class="forge-section">
+    <div class="forge-container">
+      <div class="forge-stats-grid">
+        <div class="forge-stat-card">
+          <span class="forge-stat-value" id="stat-seances">0/3</span>
+          <span class="forge-stat-label">Séances cette semaine</span>
+        </div>
+        <div class="forge-stat-card">
+          <span class="forge-stat-value" id="stat-streak">0</span>
+          <span class="forge-stat-label">Jours de streak</span>
+        </div>
+        <div class="forge-stat-card">
+          <span class="forge-stat-value" data-profil="niveau" style="font-size:22px;">—</span>
+          <span class="forge-stat-label">Niveau</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- DÉFIS -->
-  <section class="defi-section">
-    <div class="defi-section-title">Défi</div>
-    <div class="defi-scroll">
-      <div class="defi-card blue">
-        <img class="defi-card-bg" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=520&q=80&auto=format&fit=crop" alt="Corps entier" loading="lazy">
-        <div class="defi-card-content">
-          <div class="defi-card-days">28 JOURS</div>
-          <div class="defi-card-title">Défi de corps<br>entier</div>
-          <div class="defi-card-desc">Programme complet poids de corps pour sculper ton physique en 28 jours.</div>
-          <button class="defi-card-btn">COMMENCER LE DÉFI</button>
+  <!-- PROGRAMME DU JOUR -->
+  <section class="forge-section" style="padding-top:0;">
+    <div class="forge-container">
+      <h2 class="forge-section-title">Programme du jour</h2>
+      <div class="forge-programme-card">
+        <div class="forge-programme-info">
+          <div class="forge-programme-type">SÉANCE DU JOUR</div>
+          <div class="forge-programme-title" id="prog-title">Force — Haut du corps</div>
+          <div class="forge-programme-meta">
+            <div class="forge-programme-meta-item">
+              <span id="prog-exos">8</span>
+              <span>Exercices</span>
+            </div>
+            <div class="forge-programme-meta-item">
+              <span id="prog-duree">35</span>
+              <span>Minutes</span>
+            </div>
+            <div class="forge-programme-meta-item">
+              <span id="prog-niveau" data-profil="niveau">—</span>
+              <span>Niveau</span>
+            </div>
+          </div>
+          <a href="entrainement.html" class="forge-btn forge-btn-accent">COMMENCER</a>
+        </div>
+        <div class="forge-programme-img">
+          <div class="img-placeholder">
+            <div class="img-placeholder-inner">
+              <span class="img-placeholder-icon">+</span>
+              <span class="img-placeholder-label">Photo athlète</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="defi-card teal">
-        <img class="defi-card-bg" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=520&q=80&auto=format&fit=crop" alt="Haltères" loading="lazy">
-        <div class="defi-card-content">
-          <div class="defi-card-days">30 JOURS</div>
-          <div class="defi-card-title">Devenez musclé<br>avec haltères</div>
-          <div class="defi-card-desc">Renforcement musculaire progressif avec haltères légers à lourds.</div>
-          <button class="defi-card-btn">COMMENCER LE DÉFI</button>
+    </div>
+  </section>
+
+  <!-- DÉFIS EN COURS -->
+  <section class="forge-section forge-section-alt">
+    <div class="forge-container">
+      <h2 class="forge-section-title">Défis en cours</h2>
+      <div class="forge-defi-grid">
+
+        <div class="forge-defi-card">
+          <div class="img-placeholder" style="position:absolute;inset:0;border-radius:0;border:none;opacity:0.35;min-height:0;"></div>
+          <div class="forge-defi-content">
+            <div class="forge-defi-duration">28 JOURS</div>
+            <div class="forge-defi-title">Défi de corps entier</div>
+            <button class="forge-btn forge-btn-outline">DÉBUT</button>
+          </div>
         </div>
-      </div>
-      <div class="defi-card dark">
-        <img class="defi-card-bg" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=520&q=80&auto=format&fit=crop" alt="Brûle graisse" loading="lazy">
-        <div class="defi-card-content">
-          <div class="defi-card-days">14 JOURS</div>
-          <div class="defi-card-title">Brûle la graisse<br>du ventre</div>
-          <div class="defi-card-desc">Entraînement intensif ciblé abdominaux pour brûler la graisse viscérale.</div>
-          <button class="defi-card-btn">COMMENCER LE DÉFI</button>
+
+        <div class="forge-defi-card">
+          <div class="img-placeholder" style="position:absolute;inset:0;border-radius:0;border:none;opacity:0.35;min-height:0;"></div>
+          <div class="forge-defi-content">
+            <div class="forge-defi-duration">30 JOURS</div>
+            <div class="forge-defi-title">Musculation avec haltères</div>
+            <button class="forge-btn forge-btn-outline">DÉBUT</button>
+          </div>
         </div>
-      </div>
-      <div class="defi-card orange">
-        <img class="defi-card-bg" src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=520&q=80&auto=format&fit=crop" alt="Perte de poids" loading="lazy">
-        <div class="defi-card-content">
-          <div class="defi-card-days">30 JOURS</div>
-          <div class="defi-card-title">Perte de poids<br>pour hommes</div>
-          <div class="defi-card-desc">Plan cardio + musculation pour perdre du poids efficacement en un mois.</div>
-          <button class="defi-card-btn">COMMENCER LE DÉFI</button>
+
+        <div class="forge-defi-card">
+          <div class="img-placeholder" style="position:absolute;inset:0;border-radius:0;border:none;opacity:0.35;min-height:0;"></div>
+          <div class="forge-defi-content">
+            <div class="forge-defi-duration">14 JOURS</div>
+            <div class="forge-defi-title">Brûle la graisse du ventre</div>
+            <button class="forge-btn forge-btn-outline">DÉBUT</button>
+          </div>
         </div>
+
+        <div class="forge-defi-card">
+          <div class="img-placeholder" style="position:absolute;inset:0;border-radius:0;border:none;opacity:0.35;min-height:0;"></div>
+          <div class="forge-defi-content">
+            <div class="forge-defi-duration">30 JOURS</div>
+            <div class="forge-defi-title">Perte de poids intensive</div>
+            <button class="forge-btn forge-btn-outline">DÉBUT</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
   <!-- EXERCICES CIBLÉS -->
-  <section class="targeted-section">
-    <div class="targeted-section-title">Exercices ciblés</div>
-    <div class="filter-pills" id="filter-pills">
-      <button class="pill active" data-part="waist">Abdos</button>
-      <button class="pill" data-part="upper arms">Bras</button>
-      <button class="pill" data-part="chest">Poitrine</button>
-      <button class="pill" data-part="upper legs">Jambes</button>
-      <button class="pill" data-part="back">Épaules et dos</button>
-    </div>
-    <div class="exercise-list" id="exercise-list">
-      <div class="exercise-list-loading">Chargement des exercices...</div>
+  <section class="forge-section">
+    <div class="forge-container">
+      <h2 class="forge-section-title">Exercices ciblés</h2>
+      <div class="forge-pills" id="filter-pills">
+        <button class="forge-pill active" data-part="waist">Abdos</button>
+        <button class="forge-pill" data-part="upper arms">Bras</button>
+        <button class="forge-pill" data-part="chest">Poitrine</button>
+        <button class="forge-pill" data-part="upper legs">Jambes</button>
+        <button class="forge-pill" data-part="back">Épaules et dos</button>
+      </div>
+      <div class="forge-exercises-grid" id="exercises-grid">
+        <!-- Chargé dynamiquement ou placeholders statiques -->
+        <div class="forge-exercise-card">
+          <div class="forge-exercise-img">
+            <div class="img-placeholder" style="min-height:0;height:80px;"></div>
+          </div>
+          <div>
+            <div class="forge-exercise-name">Crunch</div>
+            <div class="forge-exercise-muscles">Abdos</div>
+          </div>
+        </div>
+        <div class="forge-exercise-card">
+          <div class="forge-exercise-img">
+            <div class="img-placeholder" style="min-height:0;height:80px;"></div>
+          </div>
+          <div>
+            <div class="forge-exercise-name">Planche</div>
+            <div class="forge-exercise-muscles">Abdos, gainage</div>
+          </div>
+        </div>
+        <div class="forge-exercise-card">
+          <div class="forge-exercise-img">
+            <div class="img-placeholder" style="min-height:0;height:80px;"></div>
+          </div>
+          <div>
+            <div class="forge-exercise-name">Mountain Climbers</div>
+            <div class="forge-exercise-muscles">Abdos, cardio</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-</div>
+  <!-- BOTTOM NAV MOBILE -->
+  <nav class="forge-bottom-nav">
+    <a href="index.html" class="active">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Entraînement</span>
+    </a>
+    <a href="progression.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Découvrir</span>
+    </a>
+    <a href="analytics.html">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Rapport</span>
+    </a>
+    <a href="profil.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profil</span>
+    </a>
+  </nav>
 
-<!-- NAVIGATION BAS -->
-<nav class="bottom-nav">
-  <a href="entrainement.html" class="nav-item">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    <span>Entraînement</span>
-  </a>
-  <a href="progression.html" class="nav-item">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-    <span>Découvrir</span>
-  </a>
-  <a href="analytics.html" class="nav-item">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <span>Rapport</span>
-  </a>
-  <a href="profil.html" class="nav-item">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>Paramètres</span>
-  </a>
-</nav>
+</div><!-- /forge-wrapper -->
 
-<script src="js/storage.js"></script>
 <script>
-  if (typeof SW !== 'undefined' && !(SW.load('userProfile') || {}).setupDone) {
-    window.location.href = 'onboarding.html';
-  }
-</script>
-<script src="js/exercisedb-api.js"></script>
-<script>
-// Objectif hebdomadaire
-(function () {
-  var DAY_LABELS = ['D','L','M','M','J','V','S'];
-  var today = new Date();
-  var todayDow = today.getDay();
-  var monday = new Date(today);
-  monday.setDate(today.getDate() - ((todayDow + 6) % 7));
-  var sessions = (typeof SW !== 'undefined' && SW.load('sessions')) || [];
-  var doneDates = new Set(sessions.map(function(s){ return s.date ? s.date.substring(0,10) : null; }).filter(Boolean));
-  var doneCount = 0;
-  var html = '';
-  for (var i = 0; i < 7; i++) {
-    var d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    var dateStr = d.toISOString().substring(0,10);
-    var dow = d.getDay();
-    var isToday = d.toDateString() === today.toDateString();
-    var isDone = doneDates.has(dateStr);
-    if (isDone) doneCount++;
-    var cls = 'week-day' + (isToday ? ' today' : '') + (isDone ? ' done' : '');
-    html += '<div class="' + cls + '"><span class="week-day-label">' + DAY_LABELS[dow] + '</span><div class="week-day-dot">' + (isDone ? '' : d.getDate()) + '</div></div>';
-  }
-  var el = document.getElementById('week-days');
-  if (el) el.innerHTML = html;
-  var counter = document.getElementById('weekly-counter');
-  if (counter) counter.textContent = doneCount + '/7';
-  if (typeof SW !== 'undefined') {
-    var profile = SW.load('userProfile');
-    if (profile && profile.prenom) {
-      var bMsg = document.getElementById('banner-msg');
-      if (bMsg) bMsg.textContent = 'Salut ' + profile.prenom + ' \uD83D\uDC4B';
-    }
-  }
-})();
-
-// Exercices
-var STATIC_EXERCISES = [
-  { nom: 'Crunch',            muscles: 'Abdominaux',          bodyPart: 'waist',      emoji: '\uD83D\uDD25' },
-  { nom: 'Mountain Climber',  muscles: 'Core, cardio',        bodyPart: 'waist',      emoji: '\u26F0\uFE0F' },
-  { nom: 'Planche',           muscles: 'Core complet',        bodyPart: 'waist',      emoji: '\uD83E\uDDF1' },
-  { nom: 'Toucher les orteils', muscles: 'Abdos, souplesse',  bodyPart: 'waist',      emoji: '\uD83C\uDFAF' },
-  { nom: 'Curl biceps',       muscles: 'Biceps',              bodyPart: 'upper arms', emoji: '\uD83D\uDCAA' },
-  { nom: 'Extension triceps', muscles: 'Triceps',             bodyPart: 'upper arms', emoji: '\uD83E\uDDBE' },
-  { nom: 'Dips chaise',       muscles: 'Triceps, épaules',    bodyPart: 'upper arms', emoji: '\uD83E\uDD37' },
-  { nom: 'Pompes inclinées',  muscles: 'Pectoraux hauts',     bodyPart: 'chest',      emoji: '\u2B06\uFE0F' },
-  { nom: 'Pompes larges',     muscles: 'Pectoraux ext.',      bodyPart: 'chest',      emoji: '\uD83C\uDFFB' },
-  { nom: 'Pompes diamant',    muscles: 'Pectoraux, triceps',  bodyPart: 'chest',      emoji: '\uD83D\uDC8E' },
-  { nom: 'Squats',            muscles: 'Quadriceps',          bodyPart: 'upper legs', emoji: '\uD83E\uDDB5' },
-  { nom: 'Fentes avant',      muscles: 'Quadriceps, fessiers',bodyPart: 'upper legs', emoji: '\uD83C\uDFC3' },
-  { nom: 'Pistol squat',      muscles: 'Quadriceps, équilibre', bodyPart: 'upper legs', emoji: '\uD83C\uDFAF' },
-  { nom: 'Tractions',         muscles: 'Dos, biceps',         bodyPart: 'back',       emoji: '\uD83E\uDDF2' },
-  { nom: 'Rowing au sol',     muscles: 'Dos moyen',           bodyPart: 'back',       emoji: '\uD83D\uDEA3' },
-  { nom: 'Superman',          muscles: 'Dos inférieur',       bodyPart: 'back',       emoji: '\uD83E\uDDB8' }
-];
-
-var _currentPart = 'waist';
-var _apiReady = false;
-
-function renderExerciseList(bodyPart) {
-  var list = document.getElementById('exercise-list');
-  if (!list) return;
-  var exercises;
-  if (_apiReady && typeof EXERCISEDB_API !== 'undefined' && EXERCISEDB_API.isReady()) {
-    if (bodyPart === 'back') {
-      var back = EXERCISEDB_API.getByBodyPart('back');
-      var shoulders = EXERCISEDB_API.getByBodyPart('shoulders');
-      exercises = back.concat(shoulders).slice(0, 10);
-    } else {
-      exercises = EXERCISEDB_API.getByBodyPart(bodyPart).slice(0, 12);
-    }
-    if (!exercises || exercises.length === 0) {
-      exercises = STATIC_EXERCISES.filter(function(e){ return e.bodyPart === bodyPart; });
-    }
-  } else {
-    exercises = STATIC_EXERCISES.filter(function(e){ return e.bodyPart === bodyPart; });
-  }
-  if (!exercises || exercises.length === 0) {
-    list.innerHTML = '<div class="exercise-list-empty">Aucun exercice trouvé.</div>';
-    return;
-  }
-  var html = '';
-  exercises.forEach(function(ex) {
-    var thumb = ex.gif ? '<img src="' + ex.gif + '" alt="' + ex.nom + '" loading="lazy">' : (ex.emoji || '\uD83C\uDFCB\uFE0F');
-    var muscles = Array.isArray(ex.muscles) ? ex.muscles.join(', ') : (ex.muscles || '');
-    var name = ex.nom ? ex.nom.charAt(0).toUpperCase() + ex.nom.slice(1) : '';
-    html += '<div class="exercise-item"><div class="exercise-item-thumb">' + thumb + '</div><div class="exercise-item-info"><h3>' + name + '</h3><p>' + muscles + '</p></div><span class="exercise-item-arrow">&#8250;</span></div>';
-  });
-  list.innerHTML = html;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Filter pills
-  var pills = document.querySelectorAll('.pill');
-  pills.forEach(function(pill) {
-    pill.addEventListener('click', function() {
-      pills.forEach(function(p){ p.classList.remove('active'); });
+(function(){
+  var p=JSON.parse(localStorage.getItem('sw_profil')||'{}');
+  // Greeting
+  var prenom=p.prenom||'';
+  var jours=['DIMANCHE','LUNDI','MARDI','MERCREDI','JEUDI','VENDREDI','SAMEDI'];
+  var today=jours[new Date().getDay()];
+  var greeting=document.getElementById('hero-greeting');
+  if(greeting) greeting.textContent=(prenom?'BONJOUR '+prenom.toUpperCase():'BIENVENUE');
+  var sub=document.getElementById('hero-sub');
+  if(sub) sub.textContent='Aujourd\'hui : '+today+' — programme Force';
+  // Avatar initiale
+  var av=document.getElementById('header-avatar');
+  if(av&&prenom) av.textContent=prenom.charAt(0).toUpperCase();
+  // Streak & séances from storage
+  var history=JSON.parse(localStorage.getItem('sw_history')||'[]');
+  var now=new Date(); var weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay());
+  var thisWeek=history.filter(function(s){return new Date(s.date)>=weekStart;}).length;
+  var freq=parseInt((p.frequence||'3x').replace(/[^0-9]/g,''))||3;
+  var statSeances=document.getElementById('stat-seances');
+  if(statSeances) statSeances.textContent=thisWeek+'/'+freq;
+  var streak=parseInt(localStorage.getItem('sw_streak')||'0');
+  var statStreak=document.getElementById('stat-streak');
+  if(statStreak) statStreak.textContent=streak;
+  // Pills filtre
+  document.querySelectorAll('.forge-pill').forEach(function(pill){
+    pill.addEventListener('click',function(){
+      document.querySelectorAll('.forge-pill').forEach(function(p2){p2.classList.remove('active');});
       pill.classList.add('active');
-      _currentPart = pill.getAttribute('data-part');
-      renderExerciseList(_currentPart);
     });
   });
-
-  // Search
-  var searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', function() {
-      var q = searchInput.value.trim().toLowerCase();
-      if (!q) { renderExerciseList(_currentPart); return; }
-      var all = (_apiReady && typeof EXERCISEDB_API !== 'undefined' && EXERCISEDB_API.isReady())
-        ? EXERCISEDB_API._exercises : STATIC_EXERCISES;
-      var filtered = all.filter(function(ex) {
-        var m = Array.isArray(ex.muscles) ? ex.muscles.join(' ') : (ex.muscles||'');
-        return ex.nom.toLowerCase().indexOf(q)!==-1 || m.toLowerCase().indexOf(q)!==-1;
-      }).slice(0,15);
-      var list = document.getElementById('exercise-list');
-      if (!list) return;
-      if (!filtered.length) { list.innerHTML = '<div class="exercise-list-empty">Aucun résultat.</div>'; return; }
-      var html = '';
-      filtered.forEach(function(ex) {
-        var thumb = ex.gif ? '<img src="' + ex.gif + '" alt="' + ex.nom + '" loading="lazy">' : (ex.emoji || '\uD83C\uDFCB\uFE0F');
-        var muscles = Array.isArray(ex.muscles) ? ex.muscles.join(', ') : (ex.muscles||'');
-        var name = ex.nom ? ex.nom.charAt(0).toUpperCase() + ex.nom.slice(1) : '';
-        html += '<div class="exercise-item"><div class="exercise-item-thumb">' + thumb + '</div><div class="exercise-item-info"><h3>' + name + '</h3><p>' + muscles + '</p></div><span class="exercise-item-arrow">&#8250;</span></div>';
-      });
-      list.innerHTML = html;
-    });
-  }
-
-  // Init ExerciseDB
-  (async function() {
-    renderExerciseList(_currentPart);
-    if (typeof EXERCISEDB_API !== 'undefined') {
-      var ok = await EXERCISEDB_API.init();
-      if (ok) { _apiReady = true; renderExerciseList(_currentPart); }
-    }
-  })();
-
-  // Défi cards redirect
-  document.querySelectorAll('.defi-card-btn').forEach(function(btn) {
-    btn.addEventListener('click', function(e) { e.stopPropagation(); window.location.href='entrainement.html'; });
-  });
-  document.querySelectorAll('.defi-card').forEach(function(card) {
-    card.addEventListener('click', function() { window.location.href='entrainement.html'; });
-  });
-});
+})();
 </script>
 
 </body>
