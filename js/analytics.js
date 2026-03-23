@@ -8,7 +8,7 @@ async function initAnalytics() {
   var user = await requireAuth();
   if (!user) return;
 
-  /* Load data in parallel */
+  /* Load data in parallel (Supabase) */
   var results = await Promise.all([
     SB.from('profiles').select('*').eq('id', user.id).single(),
     SB.from('mesures').select('*').eq('user_id', user.id).order('created_at', { ascending: true }).limit(30),
@@ -19,14 +19,35 @@ async function initAnalytics() {
 
   var profile = results[0].data || {};
   var mesures = results[1].data || [];
-  var sessions = results[2].data || [];
+  var sbSessions = results[2].data || [];
   var perfs = results[3].data || [];
   var skills = results[4].data || [];
+
+  /* Sessions locales (localStorage) — clé 'sw_sessions' pour compatibilité avec _saveSession() */
+  var localSessions = (typeof SW !== 'undefined' ? SW.load('sw_sessions') : null) || [];
+  if (!Array.isArray(localSessions)) localSessions = [];
+
+  /* Total sessions = max(Supabase, localStorage) */
+  var totalSessionCount = Math.max(sbSessions.length, localSessions.length);
 
   var masteredCount = 0;
   skills.forEach(function(s) { if (s.status === 'mastered') masteredCount++; });
 
-  /* Overview cards */
+  /* Enrichir le profil avec les données du Test de Niveau (localStorage) */
+  var testNiveau = (typeof SW !== 'undefined' ? SW.load('sw_test_niveau') : null) || {};
+  if (testNiveau.pullups !== undefined && !profile.pullups) profile.pullups = testNiveau.pullups;
+  if (testNiveau.dips    !== undefined && !profile.dips)    profile.dips    = testNiveau.dips;
+  if (testNiveau.pushups !== undefined && !profile.pushups) profile.pushups = testNiveau.pushups;
+  if (testNiveau.squats  !== undefined && !profile.squats)  profile.squats  = testNiveau.squats;
+  if (testNiveau.pullups_weighted !== undefined) profile.pullups_weighted = testNiveau.pullups_weighted;
+  /* Stats profil depuis localStorage (profil.html) */
+  var localProfile = (typeof SW !== 'undefined' ? SW.load('sw_userProfile') : null) || {};
+  if (localProfile.pullups !== undefined && !profile.pullups) profile.pullups = localProfile.pullups;
+  if (localProfile.dips    !== undefined && !profile.dips)    profile.dips    = localProfile.dips;
+  if (localProfile.pushups !== undefined && !profile.pushups) profile.pushups = localProfile.pushups;
+  if (localProfile.squats  !== undefined && !profile.squats)  profile.squats  = localProfile.squats;
+
+  /* Calcul du score en combinant Supabase + localStorage */
   var scoreEl = document.getElementById('an-score');
   if (scoreEl) {
     var score = calculateScoreFromProfile(profile);
@@ -34,7 +55,7 @@ async function initAnalytics() {
   }
 
   var sessEl = document.getElementById('an-sessions');
-  if (sessEl) sessEl.textContent = sessions.length;
+  if (sessEl) sessEl.textContent = totalSessionCount;
 
   var recEl = document.getElementById('an-records');
   if (recEl) recEl.textContent = perfs.length;
@@ -45,14 +66,16 @@ async function initAnalytics() {
   /* Performance evolution chart */
   renderEvolutionChart(mesures);
 
-  /* Radar chart */
+  /* Radar chart (6 axes) — données Supabase + localStorage */
   renderRadarChart(profile);
 
   /* Measures table */
   renderMeasuresTable(mesures);
 
-  /* Graphiques avancés depuis localStorage */
-  var localSessions = (typeof SW !== 'undefined' ? SW.load('sessions') : null) || [];
+  /* Historique des séances depuis localStorage */
+  renderSessionHistory(localSessions);
+
+  /* Graphiques avancés */
   renderWeeklyVolumeChart(localSessions);
   renderFrequencyHeatmap(localSessions);
   renderComparisonRadar(profile);
@@ -165,45 +188,61 @@ function renderEvolutionChart(mesures) {
   });
 }
 
-/* Radar chart */
+/* Radar chart — 6 axes dont gainage et mobilité */
 function renderRadarChart(profile) {
   var canvas = document.getElementById('an-radar-chart');
   if (!canvas || typeof Chart === 'undefined') return;
 
   if (_anCharts['radar']) _anCharts['radar'].destroy();
 
-  var pullups = Math.min((profile.pullups || 0) / 25, 1) * 100;
-  var dips = Math.min((profile.dips || 0) / 30, 1) * 100;
-  var pushups = Math.min((profile.pushups || 0) / 60, 1) * 100;
-  var squats = Math.min((profile.squats || 0) / 80, 1) * 100;
-  var fl = Math.min((profile.frontlever || 0) / 5, 1) * 100;
-  var hs = Math.min((profile.handstand || 0) / 7, 1) * 100;
+  /* Récupérer les données du Test de Niveau si disponibles */
+  var testNiveau = (typeof SW !== 'undefined' ? SW.load('sw_test_niveau') : null) || {};
+
+  var pullups = Math.min(((profile.pullups || testNiveau.pullups || 0)) / 25, 1) * 100;
+  var dips    = Math.min(((profile.dips    || testNiveau.dips    || 0)) / 30, 1) * 100;
+  var pushups = Math.min(((profile.pushups || testNiveau.pushups || 0)) / 60, 1) * 100;
+  var squats  = Math.min(((profile.squats  || testNiveau.squats  || 0)) / 80, 1) * 100;
+  /* Gainage et mobilité : estimés à partir du niveau profil ou valeur par défaut */
+  var gainage   = Math.min((profile.core_level   || testNiveau.gainage   || 0) / 5, 1) * 100;
+  var mobilite  = Math.min((profile.mobility_level|| testNiveau.mobilite  || 0) / 5, 1) * 100;
+
+  /* Si pas de data gainage/mobilité, estimer à partir des autres valeurs */
+  if (gainage === 0)  gainage  = Math.round((pullups * 0.4 + pushups * 0.3 + squats * 0.3) * 0.7);
+  if (mobilite === 0) mobilite = Math.round((squats * 0.5 + pushups * 0.3 + pullups * 0.2) * 0.6);
 
   _anCharts['radar'] = new Chart(canvas, {
     type: 'radar',
     data: {
-      labels: ['Tractions', 'Dips', 'Pompes', 'Squats', 'Front Lever', 'Handstand'],
+      labels: ['Tractions', 'Dips', 'Pompes', 'Squats', 'Gainage', 'Mobilité'],
       datasets: [{
         label: 'Niveau actuel (%)',
-        data: [pullups, dips, pushups, squats, fl, hs],
-        borderColor: '#2563EB',
-        backgroundColor: 'rgba(37,99,235,0.15)',
-        borderWidth: 2,
-        pointBackgroundColor: '#2563EB',
-        pointRadius: 4
+        data: [pullups, dips, pushups, squats, gainage, mobilite],
+        borderColor: '#3B82F6',
+        backgroundColor: 'rgba(59,130,246,0.18)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#3B82F6',
+        pointRadius: 5,
+        pointHoverRadius: 7
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ' : ' + Math.round(ctx.parsed.r) + '%'; }
+          }
+        }
+      },
       scales: {
         r: {
           beginAtZero: true,
           max: 100,
           ticks: { color: '#94A3B8', stepSize: 25, backdropColor: 'transparent', font: { size: 9 } },
-          grid: { color: 'rgba(15,23,42,0.08)' },
-          pointLabels: { color: '#475569', font: { size: 11 } }
+          grid: { color: 'rgba(59,130,246,0.12)' },
+          pointLabels: { color: '#CBD5E1', font: { size: 12, weight: '600' } }
         }
       }
     }
@@ -222,7 +261,7 @@ function renderMeasuresTable(mesures) {
 
   var last10 = mesures.slice(-10).reverse();
 
-  var html = '<table><thead><tr>' +
+  var html = '<table class="analytics-table"><thead><tr>' +
     '<th>Date</th><th>Poids</th><th>IMC</th><th>Tractions</th><th>Dips</th><th>Pompes</th><th>Squats</th>' +
     '</tr></thead><tbody>';
 
@@ -241,6 +280,60 @@ function renderMeasuresTable(mesures) {
   });
 
   html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+/**
+ * Historique des séances depuis localStorage (sw_sessions).
+ * Affiche les 10 dernières séances avec détail des exercices.
+ */
+function renderSessionHistory(sessions) {
+  var container = document.getElementById('an-session-history');
+  if (!container) return;
+
+  if (!sessions || sessions.length === 0) {
+    container.innerHTML = '<p style="text-align:center;padding:24px;color:var(--text-muted);">Aucune séance enregistrée. Lance une séance depuis la rubrique Entraînement pour voir l\'historique ici.</p>';
+    return;
+  }
+
+  var recent = sessions.slice(-10).reverse();
+
+  var html = '<div class="session-history-list">';
+  recent.forEach(function(s) {
+    var dateRaw = s.sauvegarde_at || s.created_at || s.date;
+    var d = dateRaw ? new Date(dateRaw) : new Date();
+    var dateStr = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    var typeLabel = s.nom || s.type || 'Séance';
+    var nbExos = Array.isArray(s.exercices) ? s.exercices.length : 0;
+
+    /* Compter les séries complétées */
+    var seriesFaites = 0, seriesTotales = 0;
+    if (Array.isArray(s.exercices)) {
+      s.exercices.forEach(function(ex) {
+        if (Array.isArray(ex.series)) {
+          seriesTotales += ex.series.length;
+          ex.series.forEach(function(sr) { if (sr.fait) seriesFaites++; });
+        }
+      });
+    }
+    var completion = seriesTotales > 0 ? Math.round((seriesFaites / seriesTotales) * 100) : 100;
+
+    html += '<div class="sh-item">' +
+      '<div class="sh-item-header">' +
+        '<span class="sh-item-date">' + dateStr + '</span>' +
+        '<span class="sh-item-type">' + typeLabel + '</span>' +
+        '<span class="sh-item-badge" style="background:rgba(59,130,246,0.15);color:#3B82F6;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600">' + completion + '% complété</span>' +
+      '</div>' +
+      '<div class="sh-item-stats">' +
+        '<span>' + nbExos + ' exercice' + (nbExos > 1 ? 's' : '') + '</span>' +
+        (s.duree_min ? '<span>· ' + s.duree_min + ' min</span>' : '') +
+        (seriesTotales > 0 ? '<span>· ' + seriesFaites + '/' + seriesTotales + ' séries</span>' : '') +
+      '</div>' +
+      '<div class="sh-progress-bar"><div class="sh-progress-fill" style="width:' + completion + '%;background:var(--primary,#3B82F6)"></div></div>' +
+    '</div>';
+  });
+
+  html += '</div>';
   container.innerHTML = html;
 }
 

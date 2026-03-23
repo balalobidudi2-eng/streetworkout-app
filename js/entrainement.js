@@ -801,6 +801,12 @@ function _setDayType(dayIndex, type) {
   SW.save('sw_weekly_plan', plan);
   _closeDayEditor();
   _renderWeeklyPlan();
+  /* BUG FIX: si le jour modifié est aujourd'hui, mettre à jour la séance du jour immédiatement */
+  var todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  if (dayIndex === todayIndex) {
+    renderTodayCard();
+    renderTodaySession();
+  }
 }
 
 function _closeDayEditor() {

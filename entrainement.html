@@ -73,8 +73,8 @@
       <!-- Navigation par onglets -->
       <div class="page-tabs">
         <button class="page-tab active" data-tab="seances">Séances</button>
-        <button class="page-tab" data-tab="programme">Programme</button>
-        <button class="page-tab" data-tab="streetlifting">Streetlifting</button>
+        <button class="page-tab" data-tab="programme">Générer</button>
+        <button class="page-tab" data-tab="streetlifting">Lestage</button>
       </div>
 
       <!-- ═══════════ ONGLET 1 : Séances ═══════════ -->
@@ -146,18 +146,18 @@
               <div class="days-selector" id="days-selector"></div>
             </div>
             <div class="param-group">
-              <label class="form-label" for="duration-select">Durée souhaitée</label>
+              <label class="form-label" for="duration-select">⏱ Durée souhaitée</label>
               <select id="duration-select" class="form-input">
                 <option value="5">5 min (Express)</option>
                 <option value="15">15 min (Court)</option>
                 <option value="30">30 min</option>
-                <option value="45" selected>45 min</option>
-                <option value="60">60 min</option>
+                <option value="45">45 min</option>
+                <option value="60" selected>60 min (recommandé)</option>
                 <option value="90">90 min</option>
               </select>
             </div>
             <div class="param-group">
-              <label class="form-label" for="niveau-select">Niveau</label>
+              <label class="form-label" for="niveau-select">🎯 Niveau</label>
               <select id="niveau-select" class="form-input">
                 <option value="debutant">Débutant</option>
                 <option value="intermediaire" selected>Intermédiaire</option>
@@ -166,16 +166,16 @@
               </select>
             </div>
             <div class="param-group">
-              <label class="form-label" for="objectif-select">Objectif</label>
+              <label class="form-label" for="objectif-select">💪 Objectif</label>
               <select id="objectif-select" class="form-input">
                 <option value="street_workout" selected>Street Workout</option>
-                <option value="force">Force</option>
+                <option value="force">Force maximale</option>
                 <option value="hypertrophie">Hypertrophie</option>
                 <option value="endurance">Endurance</option>
               </select>
             </div>
-            <button class="btn btn-primary" id="btn-generate" style="width:100%;margin-top:4px;">
-              Générer mon programme
+            <button class="btn btn-primary" id="btn-generate" style="width:100%;margin-top:12px;padding:14px;font-size:1rem;border-radius:12px;">
+              ⚡ Générer mon programme
             </button>
           </div>
         </section>
@@ -213,8 +213,8 @@
       <!-- ═══════════ ONGLET 3 : Streetlifting ═══════════ -->
       <div id="tab-streetlifting" class="tab-pane" style="display:none">
 
-        <h1 style="margin-bottom:4px;">Streetlifting</h1>
-        <p style="color:var(--text-muted);margin-bottom:20px;">Tracking des charges et records personnels pour les exercices lestés.</p>
+        <h1 style="margin-bottom:4px;">Entraînement Lesté</h1>
+        <p style="color:var(--text-muted);margin-bottom:20px;">Tracking des charges et records personnels pour les exercices avec lest (tractions, dips, pompes…).</p>
 
         <!-- Equipment Section -->
         <div class="card" style="margin-bottom:20px;">
