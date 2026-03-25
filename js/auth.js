@@ -212,7 +212,7 @@ var SW_AUTH = (function() {
     if (supa) {
       try {
         var r = await supa.from('profiles').select('email');
-        if (!r.error && r.data) return r.data.map(function(u) { return u.email; });
+        if (!r.error && r.data && r.data.length > 0) return r.data.map(function(u) { return u.email; });
       } catch(e) {}
     }
     /* Fallback : liste depuis KV (cross-browser) */

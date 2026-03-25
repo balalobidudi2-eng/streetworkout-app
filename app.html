@@ -810,35 +810,31 @@
 
     /* ── Charger tous les utilisateurs : Supabase → KV → localStorage ── */
     var kvOk = false;
+    var supabaseDone = false;
     try {
       var supa = SW_AUTH.getSupa();
       if (supa) {
         var profilesRes = await supa.from('profiles').select('*').order('since', { ascending: false });
-        if (!profilesRes.error && profilesRes.data) {
+        if (!profilesRes.error && profilesRes.data && profilesRes.data.length > 0) {
           kvOk = true;
+          supabaseDone = true;
           var profiles = profilesRes.data;
-          if (!profiles.length) {
-            list.innerHTML = '<p class="reseau-empty">Aucun utilisateur inscrit.</p>';
-          } else {
-            list.innerHTML = profiles.map(function(u) {
-              var name = ((u.prenom || '') + ' ' + (u.nom || '')).trim();
-              var username = u.username ? '@' + u.username : '';
-              return '<div class="admin-user-row">' +
-                '<div class="admin-user-email">' + u.email +
-                (u.email === SW_AUTH.ADMIN_EMAIL ? ' <span class="admin-badge">admin</span>' : '') + '</div>' +
-                (name ? '<div class="admin-user-name">' + name + (username ? ' \u00b7 ' + username : '') + '</div>' : '') +
-                (u.since ? '<div class="admin-user-stats">Inscrit le : ' + u.since + '</div>' : '') +
-                '</div>';
-            }).join('');
-          }
-        } else {
-          /* Table profiles inexistante : essayer KV directement */
-          await renderKVUsers();
+          list.innerHTML = profiles.map(function(u) {
+            var name = ((u.prenom || '') + ' ' + (u.nom || '')).trim();
+            var username = u.username ? '@' + u.username : '';
+            return '<div class="admin-user-row">' +
+              '<div class="admin-user-email">' + u.email +
+              (u.email === SW_AUTH.ADMIN_EMAIL ? ' <span class="admin-badge">admin</span>' : '') + '</div>' +
+              (name ? '<div class="admin-user-name">' + name + (username ? ' \u00b7 ' + username : '') + '</div>' : '') +
+              (u.since ? '<div class="admin-user-stats">Inscrit le : ' + u.since + '</div>' : '') +
+              '</div>';
+          }).join('');
         }
-      } else {
-        await renderKVUsers();
       }
-    } catch(e) {
+    } catch(e) {}
+
+    /* Si Supabase n'a pas rendu de résultats → essayer KV */
+    if (!supabaseDone) {
       await renderKVUsers();
     }
 

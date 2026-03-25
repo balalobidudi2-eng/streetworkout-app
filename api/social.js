@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
   const KV_URL   = process.env.KV_REST_API_URL;
   const KV_TOKEN = process.env.KV_REST_API_TOKEN;
-  const ADMIN_EMAIL = '1@gmail.com';
+  const ADMIN_EMAIL = 'balalobidudi2@gmail.com';
 
   if (!KV_URL || !KV_TOKEN) {
     return res.status(503).json({ error: 'KV not configured', ok: false });
