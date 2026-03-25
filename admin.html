@@ -606,12 +606,12 @@
   /* ── Load stats ── */
   async function loadStats() {
     try {
-      const r = await fetch('/api/admin', {
+      const r = await fetch('/api/admindash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get_stats', callerEmail })
       });
-      if (!r.ok) throw new Error('API error');
+      if (!r.ok) throw new Error('API error ' + r.status);
       const d = await r.json();
 
       document.getElementById('stat-total').textContent = d.totalUsers ?? '—';
@@ -657,7 +657,7 @@
     tbody.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div><p>Chargement…</p></div>';
 
     try {
-      const r = await fetch('/api/admin', {
+      const r = await fetch('/api/admindash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get_all_users', callerEmail })
