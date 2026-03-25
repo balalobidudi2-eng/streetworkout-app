@@ -168,7 +168,7 @@ export default async function handler(req, res) {
   // ══════════════════ GET USERS LIST (admin) ══════════════════
   if (action === 'get_users') {
     const { adminEmail } = body;
-    if (adminEmail !== '1@gmail.com') {
+    if (adminEmail !== 'balalobidudi2@gmail.com') {
       return res.status(403).json({ ok: false, err: 'Forbidden' });
     }
 
@@ -187,7 +187,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(400).json({ error: 'Unknown action' });
-}
-
-  });
 }

@@ -99,9 +99,9 @@ var SW_PROFIL = (function() {
       imc: parseFloat(imc.toFixed(1))
     });
 
-    updateAvatar();
-    renderStats();
     showToast('Profil sauvegardé');
+    try { updateAvatar(); } catch(e) {}
+    try { renderStats(); } catch(e) {}
     /* Refresh social public profile (best-effort) */
     if (typeof SW_RESEAU !== 'undefined') SW_RESEAU.refreshProfile(prenom, nom, username);
   }
@@ -126,7 +126,8 @@ var SW_PROFIL = (function() {
   /* ── Stats ── */
   function renderStats() {
     var p = SW_STORAGE.load('sw_profil') || {};
-    var seances = SW_STORAGE.load('sw_seances') || [];
+    var seancesRaw = SW_STORAGE.load('sw_seances');
+    var seances = Array.isArray(seancesRaw) ? seancesRaw : [];
 
     var imcEl = document.getElementById('stat-imc');
     if (imcEl) imcEl.textContent = p.imc ? p.imc.toFixed(1) : '—';

@@ -3,13 +3,13 @@
    Authentication via API serveur (Vercel KV / Redis)
    Fallback localStorage si API indisponible
    Migration automatique des anciens comptes localStorage → serveur
-   Admin: 1@gmail.com
+   Admin: balalobidudi2@gmail.com
    ═══════════════════════════════════════════════════════ */
 
 var SW_AUTH = (function() {
   'use strict';
 
-  var ADMIN_EMAIL = '1@gmail.com';
+  var ADMIN_EMAIL = 'balalobidudi2@gmail.com';
   var SESSION_KEY = 'sw_session';
 
   /* Hash password with WebCrypto SHA-256 → hex string */
