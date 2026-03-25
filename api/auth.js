@@ -24,19 +24,12 @@ export default async function handler(req) {
   const KV_URL = process.env.KV_REST_API_URL;
   const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
-  // Fallback to localStorage if KV not configured
-  if (!KV_URL || !KV_TOKEN) {
-    return new Response(JSON.stringify({ 
-      error: 'KV not configured', 
-      kvAvailable: false 
-    }), {
-      status: 503,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
-    });
-  }
+  // Check if KV is available
+  const kvAvailable = !!(KV_URL && KV_TOKEN);
 
   // KV helpers
   async function kvGet(key) {
+    if (!kvAvailable) return null;
     try {
       const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
         headers: { Authorization: `Bearer ${KV_TOKEN}` }
@@ -48,41 +41,49 @@ export default async function handler(req) {
   }
 
   async function kvSet(key, value) {
-    await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
-      method: 'POST',
-      headers: { 
-        Authorization: `Bearer ${KV_TOKEN}`, 
-        'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify(value)
-    });
+    if (!kvAvailable) return false;
+    try {
+      await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${KV_TOKEN}`, 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(value)
+      });
+      return true;
+    } catch (e) { return false; }
   }
 
   function safe(email) {
     return (email || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
   }
 
-  // Simple SHA-256 hash (client already hashes, but double-hash for security)
-  async function hashPwd(pwd) {
-    const enc = new TextEncoder();
-    const buf = await crypto.subtle.digest('SHA-256', enc.encode(pwd || ''));
-    return Array.from(new Uint8Array(buf))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
   const action = body.action || '';
+
+  // ══════════════════ PING ══════════════════
+  if (action === 'ping') {
+    return new Response(JSON.stringify({ 
+      ok: true, 
+      kvAvailable: kvAvailable 
+    }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  }
 
   // ══════════════════ REGISTER ══════════════════
   if (action === 'register') {
     const { email, hash } = body;
+    
     if (!email || !email.includes('@')) {
       return new Response(JSON.stringify({ ok: false, err: 'Email invalide' }), {
         status: 400,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
       });
     }
+    
     if (!hash || hash.length < 10) {
       return new Response(JSON.stringify({ ok: false, err: 'Mot de passe trop court' }), {
         status: 400,
@@ -92,6 +93,18 @@ export default async function handler(req) {
 
     const emailLow = email.trim().toLowerCase();
     const userKey = `forge:auth:${safe(emailLow)}`;
+
+    // If KV not available, return fallback response
+    if (!kvAvailable) {
+      return new Response(JSON.stringify({ 
+        ok: false, 
+        err: 'KV not available',
+        kvAvailable: false 
+      }), {
+        status: 503,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
 
     // Check if user exists
     const existing = await kvGet(userKey);
@@ -129,9 +142,22 @@ export default async function handler(req) {
   // ══════════════════ LOGIN ══════════════════
   if (action === 'login') {
     const { email, hash } = body;
+    
     if (!email || !email.includes('@')) {
       return new Response(JSON.stringify({ ok: false, err: 'Email invalide' }), {
         status: 400,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // If KV not available, return fallback response
+    if (!kvAvailable) {
+      return new Response(JSON.stringify({ 
+        ok: false, 
+        err: 'KV not available',
+        kvAvailable: false 
+      }), {
+        status: 503,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
       });
     }
@@ -166,6 +192,13 @@ export default async function handler(req) {
     if (adminEmail !== '1@gmail.com') {
       return new Response(JSON.stringify({ ok: false, err: 'Forbidden' }), {
         status: 403,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!kvAvailable) {
+      return new Response(JSON.stringify({ ok: false, err: 'KV not available' }), {
+        status: 503,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
       });
     }

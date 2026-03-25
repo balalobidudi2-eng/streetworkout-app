@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    FORGE Auth — js/auth.js
-   Authentication avec KV Redis pour persistance multi-navigateurs
+   Authentication avec KV Redis + fallback localStorage
    Admin: 1@gmail.com
    ═══════════════════════════════════════════════════════ */
 
@@ -10,6 +10,7 @@ var SW_AUTH = (function() {
   var ADMIN_EMAIL = '1@gmail.com';
   var SESSION_KEY = 'sw_session';
   var kvAvailable = null; // null = unknown, true/false after first check
+  var kvCheckPending = false;
 
   /* Hash password with WebCrypto SHA-256 → hex string */
   async function hashPwd(pwd) {
@@ -28,7 +29,7 @@ var SW_AUTH = (function() {
     localStorage.setItem(SESSION_KEY, JSON.stringify({ email: email }));
   }
 
-  /* LocalStorage fallback for offline/no-KV */
+  /* LocalStorage fallback */
   function getUsersLocal() {
     try { return JSON.parse(localStorage.getItem('sw_users')) || {}; } catch(e) { return {}; }
   }
@@ -45,11 +46,12 @@ var SW_AUTH = (function() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      kvAvailable = r.status !== 503;
-      return r.ok ? await r.json() : { ok: false, err: 'Erreur serveur' };
+      var data = await r.json();
+      kvAvailable = (r.status !== 503);
+      return data;
     } catch (e) {
       kvAvailable = false;
-      return { ok: false, err: e.message };
+      return { ok: false, err: e.message, kvAvailable: false };
     }
   }
 
@@ -61,17 +63,23 @@ var SW_AUTH = (function() {
 
     var hash = await hashPwd(pwd);
 
-    /* Try KV first */
+    /* Try KV first if available or unknown */
     if (kvAvailable !== false) {
       var kvResult = await apiCall({ action: 'login', email: email, hash: hash });
+      
+      /* KV is available and returned success */
       if (kvResult && kvResult.ok) {
         saveSession(email);
         return { ok: true };
       }
-      /* If KV returned an error (not 503), show it */
-      if (kvAvailable === true && kvResult && kvResult.err) {
+      
+      /* KV is available but returned error (not 503) */
+      if (kvAvailable === true && kvResult && kvResult.err && kvResult.kvAvailable !== false) {
         return kvResult;
       }
+      
+      /* KV returned 503 or failed → fallback to localStorage */
+      console.log('[AUTH] KV unavailable, fallback to localStorage');
     }
 
     /* Fallback to localStorage */
@@ -91,17 +99,23 @@ var SW_AUTH = (function() {
 
     var hash = await hashPwd(pwd);
 
-    /* Try KV first */
+    /* Try KV first if available or unknown */
     if (kvAvailable !== false) {
       var kvResult = await apiCall({ action: 'register', email: email, hash: hash });
+      
+      /* KV is available and returned success */
       if (kvResult && kvResult.ok) {
         saveSession(email);
         return { ok: true };
       }
-      /* If KV is available but returned error, show it */
-      if (kvAvailable === true && kvResult && kvResult.err) {
+      
+      /* KV is available but returned error (not 503) */
+      if (kvAvailable === true && kvResult && kvResult.err && kvResult.kvAvailable !== false) {
         return kvResult;
       }
+      
+      /* KV returned 503 or failed → fallback to localStorage */
+      console.log('[AUTH] KV unavailable, fallback to localStorage');
     }
 
     /* Fallback to localStorage */
@@ -144,14 +158,9 @@ var SW_AUTH = (function() {
   async function getUsers() {
     if (kvAvailable === true) {
       try {
-        var r = await fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get_users', adminEmail: ADMIN_EMAIL })
-        });
-        if (r.ok) {
-          var data = await r.json();
-          return data.users || [];
+        var r = await apiCall({ action: 'get_users', adminEmail: ADMIN_EMAIL });
+        if (r && r.ok) {
+          return r.users || [];
         }
       } catch (e) {}
     }
@@ -161,17 +170,13 @@ var SW_AUTH = (function() {
 
   /* Check KV availability */
   async function checkKV() {
+    if (kvCheckPending) return kvAvailable;
     if (kvAvailable !== null) return kvAvailable;
-    try {
-      var r = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'ping' })
-      });
-      kvAvailable = r.status !== 503;
-    } catch (e) {
-      kvAvailable = false;
-    }
+    
+    kvCheckPending = true;
+    var result = await apiCall({ action: 'ping' });
+    kvCheckPending = false;
+    
     return kvAvailable;
   }
 
