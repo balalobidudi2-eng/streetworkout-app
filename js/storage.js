@@ -47,16 +47,24 @@ var SW_STORAGE = (function() {
       var supa   = _supa();
 
       if (userId && supa) {
-        /* Supabase � source de verite principale */
-        try {
-          supa.from('user_data').upsert({
-            user_id:    userId,
-            key:        baseKey,
-            value:      value,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id,key' })
-          .then(function() {}).catch(function() {});
-        } catch(e) {}
+        /* Essaie la table user_data, si elle n'existe pas → user_metadata */
+        supa.from('user_data').upsert({
+          user_id:    userId,
+          key:        baseKey,
+          value:      value,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,key' })
+        .then(function(r) {
+          if (r && r.error) {
+            /* Table inexistante ou erreur → stocker dans user_metadata */
+            var patch = {}; patch[baseKey] = value;
+            supa.auth.updateUser({ data: patch }).catch(function() {});
+          }
+        })
+        .catch(function() {
+          var patch = {}; patch[baseKey] = value;
+          supa.auth.updateUser({ data: patch }).catch(function() {});
+        });
         return;
       }
 
@@ -80,17 +88,35 @@ var SW_STORAGE = (function() {
       var supa   = _supa();
       var email  = _email();
 
-      /* Supabase en priorite */
+      var safe = (email || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+      /* 1ere priorite : table user_data Supabase */
       if (userId && supa) {
         try {
           var r = await supa.from('user_data').select('key, value').eq('user_id', userId);
           if (!r.error && r.data && r.data.length > 0) {
-            var safe = (email || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
             r.data.forEach(function(row) {
               var nsKey = row.key + (safe ? '__' + safe : '');
               localStorage.setItem(nsKey, JSON.stringify(row.value));
             });
             return;
+          }
+        } catch(e) {}
+
+        /* 2e priorite : user_metadata (fonctionne sans table) */
+        try {
+          var ur = await supa.auth.getUser();
+          if (!ur.error && ur.data && ur.data.user) {
+            var meta = ur.data.user.user_metadata || {};
+            var restored = 0;
+            Object.keys(meta).forEach(function(k) {
+              if (k.match(/^sw_/) && meta[k] !== null && typeof meta[k] === 'object') {
+                var nsKey2 = safe ? k + '__' + safe : k;
+                localStorage.setItem(nsKey2, JSON.stringify(meta[k]));
+                restored++;
+              }
+            });
+            if (restored > 0) return;
           }
         } catch(e) {}
       }

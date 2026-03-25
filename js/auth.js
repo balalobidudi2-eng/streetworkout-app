@@ -68,6 +68,19 @@ var SW_AUTH = (function() {
       supa.auth.onAuthStateChange(function(event, session) {
         if (session && session.user) {
           saveSession(session.user.email, session.user.id);
+          /* Enregistrement silencieux dans KV (pour Google OAuth et autres providers) */
+          if (event === 'SIGNED_IN') {
+            var uEmail = session.user.email;
+            var uId    = session.user.id;
+            hashPwd('supabase:' + uId).then(function(h) {
+              fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'register', email: uEmail, hash: h }),
+                keepalive: true
+              }).catch(function() {});
+            }).catch(function() {});
+          }
         } else if (event === 'SIGNED_OUT') {
           clearSession();
         }
@@ -127,6 +140,7 @@ var SW_AUTH = (function() {
         if (!r.error && r.data && r.data.user) {
           var u = r.data.user;
           saveSession(u.email, u.id);
+          /* Tentative d'insertion dans profiles (si la table existe) */
           try {
             await supa.from('profiles').upsert({
               user_id: u.id, email: u.email, prenom: '', nom: '', username: '',
@@ -137,6 +151,15 @@ var SW_AUTH = (function() {
           var local = getUsersLocal();
           local[email] = { hash: hash, since: new Date().toISOString().slice(0, 10) };
           saveUsersLocal(local);
+          /* Enregistrement dans KV pour que l'admin puisse voir l'utilisateur */
+          try {
+            fetch('/api/auth', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'register', email: email, hash: hash }),
+              keepalive: true
+            }).catch(function() {});
+          } catch(e) {}
           if (!r.data.session) {
             clearSession();
             return { ok: false, needsConfirm: true, err: 'Compte cree ! Verifie ta boite mail pour confirmer, puis connecte-toi.' };
@@ -192,6 +215,20 @@ var SW_AUTH = (function() {
         if (!r.error && r.data) return r.data.map(function(u) { return u.email; });
       } catch(e) {}
     }
+    /* Fallback : liste depuis KV (cross-browser) */
+    try {
+      var resp = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_users', adminEmail: getCurrentEmail() })
+      });
+      if (resp.ok) {
+        var data = await resp.json();
+        if (data && !data.error && Array.isArray(data.users)) {
+          return data.users.map(function(u) { return u.email || u; });
+        }
+      }
+    } catch(e) {}
     return Object.keys(getUsersLocal());
   }
 

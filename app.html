@@ -788,16 +788,14 @@
     var msgList = document.getElementById('admin-messages-list');
     if (!list) return;
 
-    /* ── Fallback : afficher les utilisateurs depuis localStorage (auth locale) ── */
+    /* ── Fallback final : localStorage uniquement ── */
     async function renderLocalUsers() {
-      var emails = await SW_AUTH.getUsers(); /* async — retourne un tableau d'emails */
+      var emails = await SW_AUTH.getUsers(); /* essaie Supabase → KV → localStorage */
       if (!emails || !emails.length) {
-        list.innerHTML = '<div class="admin-kv-warn-box">⚠️ Tables Supabase non créées — exécute le SQL de configuration.</div>';
+        list.innerHTML = '<div class="admin-kv-warn-box">Aucun utilisateur inscrit.</div>';
         return;
       }
-      list.innerHTML =
-        '<div class="admin-kv-warn-box">⚠️ Tables Supabase non créées — données locales uniquement</div>' +
-        emails.map(function(email) {
+      list.innerHTML = emails.map(function(email) {
           var safe   = email.replace(/[^a-z0-9]/gi, '_').toLowerCase();
           var profil = null;
           try { profil = JSON.parse(localStorage.getItem('sw_profil__' + safe)); } catch(e) {}
@@ -810,7 +808,7 @@
         }).join('');
     }
 
-    /* ── Charger tous les utilisateurs depuis Supabase profiles ── */
+    /* ── Charger tous les utilisateurs : Supabase → KV → localStorage ── */
     var kvOk = false;
     try {
       var supa = SW_AUTH.getSupa();
@@ -834,12 +832,40 @@
             }).join('');
           }
         } else {
-          await renderLocalUsers();
+          /* Table profiles inexistante : essayer KV directement */
+          await renderKVUsers();
         }
       } else {
-        await renderLocalUsers();
+        await renderKVUsers();
       }
     } catch(e) {
+      await renderKVUsers();
+    }
+
+    /* ── KV fallback avec info complète (since, email) ── */
+    async function renderKVUsers() {
+      try {
+        var resp = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_users', adminEmail: SW_AUTH.getCurrentEmail() })
+        });
+        if (resp.ok) {
+          var data = await resp.json();
+          if (data && !data.error && Array.isArray(data.users) && data.users.length) {
+            kvOk = true;
+            list.innerHTML = data.users.map(function(u) {
+              var email = u.email || u;
+              return '<div class="admin-user-row">' +
+                '<div class="admin-user-email">' + email +
+                (email === SW_AUTH.ADMIN_EMAIL ? ' <span class="admin-badge">admin</span>' : '') + '</div>' +
+                (u.since ? '<div class="admin-user-stats">Inscrit le : ' + u.since + '</div>' : '') +
+                '</div>';
+            }).join('');
+            return;
+          }
+        }
+      } catch(e) {}
       await renderLocalUsers();
     }
 
