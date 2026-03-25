@@ -373,7 +373,7 @@
 
     <h2 class="section-title">Réseau</h2>
 
-    <div id="reseau-kv-banner" class="reseau-kv-warn" style="display:none;margin-bottom:12px;">⚠️ <strong>Vercel KV non configuré</strong> — La recherche et la messagerie nécessitent Vercel KV. Activez-le sur votre dashboard Vercel → Storage → Create KV → Link to project.</div>
+    <div id="reseau-kv-banner" class="reseau-kv-warn" style="display:none;margin-bottom:12px;">⚠️ <strong>Base de données non connectée</strong> — La recherche et la messagerie nécessitent Supabase. Exécute le SQL de configuration dans ton dashboard Supabase.</div>
 
     <!-- Recherche d'utilisateurs -->
     <div class="card" style="margin-bottom:16px;">
@@ -792,11 +792,11 @@
     async function renderLocalUsers() {
       var emails = await SW_AUTH.getUsers(); /* async — retourne un tableau d'emails */
       if (!emails || !emails.length) {
-        list.innerHTML = '<div class="admin-kv-warn-box">⚠️ Vercel KV non configuré — aucun utilisateur visible hors-ligne.</div>';
+        list.innerHTML = '<div class="admin-kv-warn-box">⚠️ Tables Supabase non créées — exécute le SQL de configuration.</div>';
         return;
       }
       list.innerHTML =
-        '<div class="admin-kv-warn-box">⚠️ Vercel KV non configuré — données locales uniquement</div>' +
+        '<div class="admin-kv-warn-box">⚠️ Tables Supabase non créées — données locales uniquement</div>' +
         emails.map(function(email) {
           var safe   = email.replace(/[^a-z0-9]/gi, '_').toLowerCase();
           var profil = null;
@@ -846,7 +846,7 @@
     /* ── Conversations ── */
     if (!msgList) return;
     if (!kvOk) {
-      msgList.innerHTML = '<p class="reseau-empty">Les conversations nécessitent Vercel KV.</p>';
+      msgList.innerHTML = '<p class="reseau-empty">Les conversations seront disponibles une fois les tables Supabase créées.</p>';
     } else {
       try {
         var mRes = await fetch('/api/social?action=admin_messages&caller=' + encodeURIComponent(SW_AUTH.ADMIN_EMAIL));
