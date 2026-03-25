@@ -15,6 +15,7 @@ var SW_PROFIL = (function() {
   function loadForm() {
     var p = SW_STORAGE.load('sw_profil');
     if (!p) return;
+    setVal('input-username', p.username);
     setVal('input-prenom', p.prenom);
     setVal('input-nom', p.nom);
     setVal('input-annee', p.annee);
@@ -78,6 +79,7 @@ var SW_PROFIL = (function() {
 
   /* ── Save profil ── */
   function saveProfil() {
+    var username = (document.getElementById('input-username').value || '').trim().replace(/\s+/g, '');
     var prenom = (document.getElementById('input-prenom').value || '').trim();
     var nom    = (document.getElementById('input-nom').value || '').trim();
     var annee  = parseInt(document.getElementById('input-annee').value) || 0;
@@ -87,6 +89,7 @@ var SW_PROFIL = (function() {
     var imc    = taille > 0 && poids > 0 ? poids / Math.pow(taille / 100, 2) : 0;
 
     SW_STORAGE.update('sw_profil', {
+      username: username,
       prenom: prenom,
       nom: nom,
       annee: annee,
@@ -99,6 +102,8 @@ var SW_PROFIL = (function() {
     updateAvatar();
     renderStats();
     showToast('Profil sauvegardé');
+    /* Refresh social public profile (best-effort) */
+    if (typeof SW_RESEAU !== 'undefined') SW_RESEAU.refreshProfile(prenom, nom, username);
   }
 
   /* ── Avatar ── */

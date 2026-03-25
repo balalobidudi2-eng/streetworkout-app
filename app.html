@@ -11,7 +11,11 @@
 <!-- ═══════ HEADER ═══════ -->
 <header class="app-header">
   <span class="app-logo">FORGE</span>
-  <div class="avatar-circle" id="header-avatar">?</div>
+  <div class="header-right">
+    <span class="header-email" id="header-email"></span>
+    <div class="avatar-circle" id="header-avatar">?</div>
+    <button class="btn-logout" id="btn-logout" style="display:none;">Déconnexion</button>
+  </div>
 </header>
 
 <!-- ═══════ TAB NAVIGATION ═══════ -->
@@ -33,6 +37,28 @@
     </svg>
     <span>Entraînement</span>
   </button>
+  <button class="tab-btn" data-tab="suivi">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+    <span>Suivi</span>
+  </button>
+  <button class="tab-btn" data-tab="reseau" id="tab-btn-reseau">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span>Réseau</span>
+  </button>
+  <button class="tab-btn" data-tab="admin" id="tab-btn-admin" style="display:none;">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <circle cx="12" cy="8" r="4"/>
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      <path d="M18 14l1.5 1.5L22 13"/>
+    </svg>
+    <span>Admin</span>
+  </button>
 </nav>
 
 <!-- ═══════ CONTENU ═══════ -->
@@ -52,6 +78,10 @@
   <h2 class="section-title">Mon profil</h2>
 
   <div class="form-block">
+    <div class="form-group">
+      <label class="form-label" for="input-username">Nom d'utilisateur <span style="font-size:11px;color:var(--gris-texte);font-weight:400;">— visible dans la recherche Réseau</span></label>
+      <input class="form-input" type="text" id="input-username" placeholder="ex: YannisForge" autocomplete="off">
+    </div>
     <div class="form-group">
       <label class="form-label" for="input-prenom">Prénom</label>
       <input class="form-input" type="text" id="input-prenom" placeholder="Prénom" autocomplete="given-name">
@@ -95,6 +125,11 @@
     </div>
   </div>
 
+  <!-- Déconnexion depuis l'onglet profil -->
+  <div style="text-align:center;margin:28px 0 12px;">
+    <button class="btn-logout-profil" id="btn-logout-profil">Se déconnecter</button>
+  </div>
+
 </div><!-- /tab-profil -->
 
 <!-- ──────────────────────────────────────────
@@ -121,12 +156,11 @@
       <div class="obj-card-label">Endurance</div>
     </div>
 
-    <div class="obj-card" data-obj="STREET WORKOUT">
+    <div class="obj-card" data-obj="FIGURE">
       <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 4v16"/><path d="M20 4v16"/><path d="M4 4h16"/>
-        <circle cx="12" cy="10" r="2"/><path d="M12 12v5"/><path d="M9 17l3-2 3 2"/>
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
       </svg>
-      <div class="obj-card-label">Street Workout</div>
+      <div class="obj-card-label">Figure</div>
     </div>
 
     <div class="obj-card" data-obj="MAINTIEN">
@@ -158,7 +192,32 @@
 
   </div>
 
-  <!-- B. Planning -->
+  <!-- B. Skills -->
+  <h2 class="section-title">Mes skills</h2>
+  <div class="card" style="margin-bottom:16px;">
+    <p style="font-size:12px;color:var(--gris-texte);margin-bottom:12px;">Sélectionne les mouvements avancés que tu travailles. Ils seront intégrés dans ton programme.</p>
+    <div class="skills-grid" id="skills-grid">
+      <button class="skill-pill" data-skill="muscle-up">Muscle-up</button>
+      <button class="skill-pill" data-skill="front-lever">Front Lever</button>
+      <button class="skill-pill" data-skill="handstand">Handstand</button>
+      <button class="skill-pill" data-skill="planche">Planche</button>
+      <button class="skill-pill" data-skill="dragon-flag">Dragon Flag</button>
+      <button class="skill-pill" data-skill="l-sit">L-Sit</button>
+      <button class="skill-pill" data-skill="back-lever">Back Lever</button>
+      <button class="skill-pill" data-skill="human-flag">Human Flag</button>
+    </div>
+    <div class="warning-banner" id="skills-warning" style="display:none;">
+      ⚠️ Attention, il n’est pas judicieux de travailler plusieurs skills en même temps. Concentre-toi sur 1 ou 2 maximum pour progresser efficacement.
+    </div>
+  </div>
+  <!-- Skill progression panel — shown when a skill is selected -->
+  <div id="skill-progression-panel" style="display:none;margin-bottom:16px;">
+    <h2 class="section-title">Progression : <span id="skill-prog-name"></span></h2>
+    <div class="card skill-prog-card">
+      <div class="skill-prog-steps" id="skill-prog-levels"></div>
+    </div>
+  </div>
+  <!-- C. Planning -->
   <h2 class="section-title">Mon planning</h2>
   <div class="card" style="margin-bottom:16px;">
     <p style="font-size:13px;font-weight:600;color:var(--gris-texte);margin-bottom:10px;text-transform:uppercase;">Fréquence par semaine</p>
@@ -182,7 +241,46 @@
       <button class="day-check" data-day="Samedi">Sam</button>
       <button class="day-check" data-day="Dimanche">Dim</button>
     </div>
-  </div>
+    <div class="warning-banner" id="days-warning" style="display:none;">
+      ⚠️ Attention, il n’est pas judicieux de s’entraîner deux jours d’affilée. Prévois au moins un jour de repos entre chaque séance.
+    </div>
+    <!-- Temps de séance -->
+    <p style="font-size:13px;font-weight:600;color:var(--gris-texte);margin:18px 0 8px;text-transform:uppercase;">Temps de séance</p>
+    <div class="pills" id="duree-pills">
+      <button class="pill duree-pill" data-duree="30">30 min</button>
+      <button class="pill duree-pill" data-duree="60">1 h</button>
+      <button class="pill duree-pill" data-duree="90">1 h 30</button>
+      <button class="pill duree-pill" data-duree="120">2 h</button>
+    </div>
+
+    <!-- Lieu d'entraînement -->
+    <p style="font-size:13px;font-weight:600;color:var(--gris-texte);margin:18px 0 8px;text-transform:uppercase;">Lieu d'entraînement</p>
+    <div class="pills" id="lieu-pills">
+      <button class="pill lieu-pill" data-lieu="salle">🏋️ Salle</button>
+      <button class="pill lieu-pill" data-lieu="street">🌳 Street</button>
+      <button class="pill lieu-pill" data-lieu="maison">🏠 Maison</button>
+    </div>
+
+    <!-- Équipement lesté -->
+    <p style="font-size:13px;font-weight:600;color:var(--gris-texte);margin:18px 0 8px;text-transform:uppercase;">Équipement lesté</p>
+    <div class="leste-grid">
+      <div class="leste-row">
+        <span class="leste-label">🔩 Ceinture lestée</span>
+        <div class="leste-stepper">
+          <button class="leste-btn" id="ceinture-minus">−</button>
+          <span class="leste-val" id="ceinture-val">0 kg</span>
+          <button class="leste-btn" id="ceinture-plus">+</button>
+        </div>
+      </div>
+      <div class="leste-row">
+        <span class="leste-label">🦺 Gilet lesté</span>
+        <div class="leste-stepper">
+          <button class="leste-btn" id="gilet-minus">−</button>
+          <span class="leste-val" id="gilet-val">0 kg</span>
+          <button class="leste-btn" id="gilet-plus">+</button>
+        </div>
+      </div>
+    </div>  </div>
 
   <button class="btn-primary" id="btn-generate" disabled>GÉNÉRER MON PROGRAMME</button>
 
@@ -218,6 +316,10 @@
   <!-- D. Programme généré -->
   <div id="programme-section" style="display:none;">
     <h2 class="section-title">Mon programme</h2>
+    <div id="stale-banner" class="banner-stale" style="display:none;">
+      ⚠️ Vos préférences ont changé &mdash; <strong>regénérez votre programme</strong> pour les prendre en compte.
+      <button class="stale-regen-btn" onclick="document.getElementById('btn-generate').click()">Régénérer &rarr;</button>
+    </div>
     <div class="loader-wrap" id="programme-loader" style="display:none;">
       <div class="spinner"></div>
       <p>Génération en cours...</p>
@@ -226,6 +328,145 @@
   </div>
 
 </div><!-- /tab-entrainement -->
+
+<!-- ────────────────────────────────────────────
+     ONGLET 3 — SUIVI
+     ──────────────────────────────────────────── -->
+<div class="tab-content" id="tab-suivi">
+
+  <!-- Rappel test mensuel -->
+  <div id="suivi-test-reminder" style="display:none;margin-top:20px;">
+    <div class="test-reminder-card">
+      <div class="reminder-icon">🧪</div>
+      <div class="reminder-body">
+        <p class="reminder-title">Il est temps de refaire ton test de niveau !</p>
+        <p class="reminder-days" id="reminder-days-text"></p>
+      </div>
+      <button class="btn-reminder" id="suivi-btn-test">Faire le test</button>
+    </div>
+  </div>
+
+  <!-- Évolution niveau -->
+  <div id="suivi-niveau-evolution"></div>
+
+  <h2 class="section-title">Mon suivi</h2>
+
+  <!-- Sélecteur de période -->
+  <div class="suivi-period-tabs">
+    <button class="suivi-period-btn active" data-period="jour">Aujourd’hui</button>
+    <button class="suivi-period-btn" data-period="semaine">Semaine</button>
+    <button class="suivi-period-btn" data-period="mois">Mois</button>
+  </div>
+
+  <!-- Contenu dynamique -->
+  <div id="suivi-content"></div>
+
+</div><!-- /tab-suivi -->
+
+<!-- ──────────────────────────────────────────
+     ONGLET 4 — RÉSEAU
+     ────────────────────────────────────────── -->
+<div class="tab-content" id="tab-reseau">
+
+  <!-- ── Panel principal ── -->
+  <div class="reseau-panel" id="reseau-panel-main">
+
+    <h2 class="section-title">Réseau</h2>
+
+    <div id="reseau-kv-banner" class="reseau-kv-warn" style="display:none;margin-bottom:12px;">⚠️ <strong>Vercel KV non configuré</strong> — La recherche et la messagerie nécessitent Vercel KV. Activez-le sur votre dashboard Vercel → Storage → Create KV → Link to project.</div>
+
+    <!-- Recherche d'utilisateurs -->
+    <div class="card" style="margin-bottom:16px;">
+      <p class="reseau-section-label">Trouver des utilisateurs</p>
+      <div class="reseau-search-row">
+        <input class="form-input" type="text" id="reseau-search-input" placeholder="Rechercher par prénom, nom ou @pseudo…">
+        <button class="btn-accent reseau-search-btn" id="reseau-search-btn">🔍</button>
+      </div>
+      <div id="reseau-search-results"></div>
+    </div>
+
+    <!-- Demandes reçues (masqué si vide) -->
+    <div id="reseau-requests-section" style="display:none;">
+      <h3 class="section-title" style="font-size:14px;margin-bottom:8px;">Demandes reçues</h3>
+      <div id="reseau-requests-list"></div>
+    </div>
+
+    <!-- Amis -->
+    <h3 class="section-title" style="font-size:14px;margin-bottom:8px;">Mes amis</h3>
+    <div id="reseau-friends-list"><p class="reseau-empty">Aucun ami pour l'instant.</p></div>
+
+    <!-- Groupes -->
+    <h3 class="section-title" style="font-size:14px;margin-top:20px;margin-bottom:8px;">Groupes</h3>
+    <div id="reseau-convos-list"><p class="reseau-empty">Aucune conversation de groupe.</p></div>
+
+    <button class="btn-secondary" id="reseau-create-group" style="width:100%;margin-top:16px;">+ Créer un groupe</button>
+  </div>
+
+  <!-- ── Panel chat (DM ou groupe) ── -->
+  <div class="reseau-panel" id="reseau-panel-chat" style="display:none;">
+    <div class="chat-header">
+      <button class="chat-back" id="chat-back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="chat-title" id="chat-title"></span>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input class="form-input chat-text-input" type="text" id="chat-input" placeholder="Message…" autocomplete="off">
+      <button class="btn-accent" id="chat-send">Envoyer</button>
+    </div>
+  </div>
+
+  <!-- ── Panel création de groupe ── -->
+  <div class="reseau-panel" id="reseau-panel-group" style="display:none;">
+    <div class="chat-header">
+      <button class="chat-back" id="group-back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="chat-title">Nouveau groupe</span>
+    </div>
+    <div style="padding:16px;">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">Nom du groupe</label>
+        <input class="form-input" type="text" id="group-name-input" placeholder="Ex : Squad FORGE…">
+      </div>
+      <p class="reseau-section-label" style="margin-bottom:8px;">Membres</p>
+      <div id="group-member-list"></div>
+      <button class="btn-primary" id="group-create-btn" style="width:100%;margin-top:16px;">CRÉER LE GROUPE</button>
+    </div>
+  </div>
+
+</div><!-- /tab-reseau -->
+
+<!-- ──────────────────────────────────────────
+     ONGLET 5 — ADMIN
+     ────────────────────────────────────────── -->
+<div class="tab-content" id="tab-admin">
+  <h2 class="section-title">Administration</h2>
+
+  <!-- Utilisateurs -->
+  <div class="card" style="margin-bottom:16px;">
+    <p class="reseau-section-label" style="margin-bottom:12px;">Utilisateurs inscrits</p>
+    <div id="admin-users-list"><p class="reseau-empty">Chargement…</p></div>
+  </div>
+
+  <!-- Conversations -->
+  <div class="card">
+    <p class="reseau-section-label" style="margin-bottom:12px;">Toutes les conversations</p>
+    <div id="admin-messages-list"><p class="reseau-empty">Chargement…</p></div>
+  </div>
+
+  <!-- Thread lu par l'admin -->
+  <div id="admin-thread-panel" style="display:none;margin-top:16px;">
+    <div class="chat-header" style="margin-bottom:8px;">
+      <button class="chat-back" id="admin-thread-back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="chat-title" id="admin-thread-title"></span>
+    </div>
+    <div class="chat-messages" id="admin-thread-messages" style="height:300px;"></div>
+  </div>
+</div><!-- /tab-admin -->
 
 </main><!-- /app-wrap -->
 
@@ -285,11 +526,175 @@
   </div>
 </div>
 
+<!-- ═══════ MODAL SÉANCE GUIDÉE ═══════ -->
+<div class="test-overlay" id="seance-overlay">
+  <button class="test-close" id="seance-close">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+
+  <!-- Barre de progression blocs (en haut) -->
+  <div class="seance-top-bar">
+    <div class="seance-progress-track">
+      <div class="seance-progress-fill" id="seance-progress-fill"></div>
+    </div>
+    <div class="seance-bloc-counter" id="seance-bloc-counter">0 / 0</div>
+  </div>
+
+  <!-- Écran 1 : Intro -->
+  <div class="test-screen" id="seance-screen-intro">
+    <div class="test-intro-title" id="seance-intro-title">Séance</div>
+    <div class="test-intro-sub">Lance la séance et exécute chaque exercice série par série.</div>
+    <div class="test-exercises-list" id="seance-exercises-list"></div>
+    <button class="btn-accent btn-full" id="seance-btn-start">DÉMARRER</button>
+  </div>
+
+  <!-- Écran 2 : Exercice en cours -->
+  <div class="test-screen" id="seance-screen-exercise">
+    <div class="seance-ex-bloc" id="seance-ex-bloc">Bloc 1 / 6</div>
+    <div class="test-exercise-name" id="seance-ex-name"></div>
+    <div class="test-exercise-info" id="seance-ex-info"></div>
+    <div class="seance-sets-display" id="seance-sets-display"></div>
+    <div class="seance-serie-info" id="seance-serie-info">Série 1 / 4</div>
+    <div class="seance-reps-info" id="seance-reps-info"></div>
+    <button class="btn-accent btn-full" id="seance-btn-valider-serie">VALIDER LA SÉRIE</button>
+    <button class="btn-echec" id="seance-btn-echec">Je n'ai pas réussi</button>
+    <div class="seance-echec-input" id="seance-echec-input" style="display:none;">
+      <p class="echec-label">Combien de répétitions avez-vous réellement faites ?</p>
+      <div class="echec-row">
+        <input class="score-input" type="number" id="seance-reps-echec" min="0" placeholder="0">
+        <button class="btn-accent" id="seance-btn-confirmer-echec">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Écran 3 : Repos entre séries -->
+  <div class="test-screen" id="seance-screen-rest">
+    <div class="rest-title">REPOS</div>
+    <div class="rest-sub" id="seance-rest-sub">Série suivante dans…</div>
+    <div class="rest-time-big" id="seance-rest-time">60</div>
+    <div class="rest-controls">
+      <button class="btn-ghost-small" id="seance-rest-minus">−15s</button>
+      <button class="btn-ghost-small" id="seance-rest-plus">+15s</button>
+    </div>
+    <button class="btn-accent" id="seance-rest-skip">PASSER LE REPOS</button>
+  </div>
+
+  <!-- Écran 4 : Fin d'exercice + repos inter-exercice -->
+  <div class="test-screen" id="seance-screen-ex-done">
+    <div class="seance-done-check">✓</div>
+    <div class="test-intro-title" id="seance-ex-done-title">Exercice terminé !</div>
+    <div class="seance-bloc-done" id="seance-done-bloc">1 / 6 blocs</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;">Repos avant prochain exercice</div>
+    <div class="rest-time-big" id="seance-interex-rest">1:30</div>
+    <button class="btn-accent" id="seance-interex-skip">EXERCICE SUIVANT</button>
+  </div>
+
+  <!-- Écran 5 : Séance terminée -->
+  <div class="test-screen" id="seance-screen-done">
+    <div class="seance-trophy">🏆</div>
+    <div class="test-intro-title">Séance terminée !</div>
+    <div class="seance-summary" id="seance-summary"></div>
+    <button class="btn-accent btn-full" id="seance-btn-done" style="margin-top:20px;">VALIDER ET TERMINER</button>
+  </div>
+
+</div><!-- /seance-overlay -->
+
+<!-- ═══════ MODAL STATISTIQUES ═══════ -->
+<div class="test-overlay" id="stats-overlay">
+  <button class="test-close" id="stats-close">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="test-screen active" id="stats-screen" style="overflow-y:auto;max-height:90vh;padding-top:48px;width:100%;max-width:420px;">
+    <div class="test-intro-title">📊 Statistiques</div>
+    <div id="stats-content" class="stats-content"></div>
+    <button class="btn-accent btn-full" id="stats-btn-close" style="margin-top:20px;">FERMER</button>
+  </div>
+</div>
+
+<!-- ═══════ MODAL NIVEAU ═══════ -->
+<div class="modal-overlay" id="niveau-overlay">
+  <div class="modal-box" style="background:var(--card-dark);color:var(--blanc);">
+    <button class="test-close" id="niveau-close" style="position:absolute;top:12px;right:12px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div id="niveau-content"></div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL CONNEXION ═══════ -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">FORGE</div>
+
+    <!-- Onglets Connexion / Inscription -->
+    <div class="login-tabs">
+      <button class="login-tab active" id="login-tab-login">Se connecter</button>
+      <button class="login-tab" id="login-tab-register">Créer un compte</button>
+    </div>
+
+    <!-- Champs communs -->
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label" for="login-email">Email</label>
+      <input class="form-input" type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label" for="login-pwd">Mot de passe</label>
+      <input class="form-input" type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <!-- Confirmation mot de passe (inscription seulement) -->
+    <div class="form-group" id="login-confirm-group" style="display:none;margin-bottom:12px;">
+      <label class="form-label" for="login-pwd-confirm">Confirmer le mot de passe</label>
+      <input class="form-input" type="password" id="login-pwd-confirm" placeholder="••••••••" autocomplete="new-password">
+    </div>
+
+    <div class="login-error" id="login-error" style="display:none;"></div>
+    <button class="btn-primary" id="btn-login" style="width:100%;">SE CONNECTER</button>
+    <p class="login-hint" id="login-hint">Pas encore de compte ? Clique sur "Créer un compte".</p>
+  </div>
+</div>
+
+<!-- ═══════ MODAL ÉDITEUR EXERCICE ═══════ -->
+<div class="modal-overlay" id="ex-editor-overlay">
+  <div class="modal-box ex-editor-box">
+    <button class="test-close" id="ex-editor-close" style="position:absolute;top:12px;right:12px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3 class="ex-editor-title">Modifier l'exercice</h3>
+    <!-- Search -->
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label">Exercice</label>
+      <input class="form-input" type="text" id="ex-editor-search" placeholder="Rechercher un exercice..." autocomplete="off">
+      <div class="ex-picker-list" id="ex-picker-list"></div>
+    </div>
+    <div id="ex-editor-selected" class="ex-editor-selected" style="display:none;"></div>
+    <!-- Sets / Reps / Repos -->
+    <div class="ex-editor-row">
+      <div class="form-group" style="flex:1;">
+        <label class="form-label">Séries</label>
+        <input class="form-input" type="number" id="ex-editor-series" min="1" max="10" value="3">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label class="form-label">Reps</label>
+        <input class="form-input" type="text" id="ex-editor-reps" placeholder="8-12">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label class="form-label">Repos</label>
+        <input class="form-input" type="text" id="ex-editor-repos" placeholder="60 sec">
+      </div>
+    </div>
+    <div class="ex-editor-error" id="ex-editor-error" style="display:none;"></div>
+    <button class="btn-primary" id="ex-editor-save" style="width:100%;margin-top:8px;">ENREGISTRER</button>
+  </div>
+</div>
+
 <!-- ═══════ SCRIPTS ═══════ -->
+<script src="js/auth.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/api.js"></script>
 <script src="js/profil.js"></script>
 <script src="js/entrainement.js"></script>
+<script src="js/reseau.js"></script>
 <script>
 (function() {
   /* Tab switching */
@@ -306,9 +711,252 @@
     });
   });
 
-  /* Init modules */
-  SW_PROFIL.init();
-  SW_ENTRAINEMENT.init();
+  /* ── Auth gate ── */
+
+  /* Migrate old non-namespaced localStorage keys to the new per-user namespace.
+     Needed for users who had data before auth (key namespacing) was introduced. */
+  function migrateOldData() {
+    var email = SW_AUTH.getCurrentEmail();
+    if (!email) return;
+    var suffix = '__' + email.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    var SKIP = { sw_session: 1, sw_users: 1 };
+    var toMigrate = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.startsWith('sw_') && k.indexOf('__') === -1 && !SKIP[k]) {
+        toMigrate.push(k);
+      }
+    }
+    toMigrate.forEach(function(k) {
+      var newKey = k + suffix;
+      if (localStorage.getItem(newKey) === null) {
+        localStorage.setItem(newKey, localStorage.getItem(k));
+      }
+      localStorage.removeItem(k);
+    });
+  }
+
+  async function showApp() {
+    /* Migrate old non-namespaced data FIRST (one-time, harmless on subsequent loads) */
+    migrateOldData();
+    /* Pull server data (best-effort, updates localStorage) */
+    await SW_STORAGE.pullFromServer();
+
+    document.getElementById('login-overlay').style.display = 'none';
+    /* Show logout button + email */
+    var logoutBtn  = document.getElementById('btn-logout');
+    var emailSpan  = document.getElementById('header-email');
+    var adminTab   = document.getElementById('tab-btn-admin');
+    if (logoutBtn)  logoutBtn.style.display = 'inline-flex';
+    if (emailSpan)  emailSpan.textContent    = SW_AUTH.getCurrentEmail() || '';
+    if (adminTab)   adminTab.style.display   = SW_AUTH.isAdmin() ? 'flex' : 'none';
+    /* Init modules once */
+    SW_PROFIL.init();
+    SW_ENTRAINEMENT.init();
+    SW_RESEAU.init();
+    /* Register current user in KV search index on every login (awaited so prenom is always fresh) */
+    await SW_RESEAU.ensureRegistered();
+    /* Admin panel */
+    if (SW_AUTH.isAdmin()) initAdminPanel();
+  }
+
+  async function initAdminPanel() {
+    var list    = document.getElementById('admin-users-list');
+    var msgList = document.getElementById('admin-messages-list');
+    if (!list) return;
+
+    /* ── Helper: render users from localStorage (fallback quand KV absent) ── */
+    function renderLocalUsers() {
+      var allUsers   = SW_AUTH.getUsers();  /* { email: { hash, since } } */
+      var emails     = Object.keys(allUsers);
+      if (!emails.length) {
+        list.innerHTML = '<div class="admin-kv-warn-box">⚠️ Vercel KV non configuré — aucun utilisateur visible hors-ligne.</div>';
+        return;
+      }
+      list.innerHTML =
+        '<div class="admin-kv-warn-box">⚠️ Vercel KV non configuré — données locales uniquement</div>' +
+        emails.map(function(email) {
+          var safe   = email.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+          var profil = null;
+          try { profil = JSON.parse(localStorage.getItem('sw_profil__' + safe)); } catch(e) {}
+          var name   = profil ? ((profil.prenom || '') + ' ' + (profil.nom || '')).trim() : '';
+          var since  = allUsers[email] && allUsers[email].since ? allUsers[email].since : '';
+          return '<div class="admin-user-row">' +
+            '<div class="admin-user-email">' + email +
+            (email === SW_AUTH.ADMIN_EMAIL ? ' <span class="admin-badge">admin</span>' : '') + '</div>' +
+            (name  ? '<div class="admin-user-name">'  + name  + '</div>' : '') +
+            (since ? '<div class="admin-user-stats">Inscrit le : ' + since + '</div>' : '') +
+            '</div>';
+        }).join('');
+    }
+
+    /* ── Users : serveur → fallback localStorage ── */
+    var kvOk = false;
+    try {
+      var uRes = await fetch('/api/social?action=admin_users&caller=' + encodeURIComponent(SW_AUTH.ADMIN_EMAIL));
+      if (uRes.ok) {
+        kvOk = true;
+        var users = await uRes.json();
+        if (!users.length) {
+          list.innerHTML = '<p class="reseau-empty">Aucun utilisateur enregistré côté serveur.</p>';
+        } else {
+          list.innerHTML = users.map(function(u) {
+            var name = ((u.prenom || '') + ' ' + (u.nom || '')).trim();
+            return '<div class="admin-user-row">' +
+              '<div class="admin-user-email">' + u.email +
+              (u.email === SW_AUTH.ADMIN_EMAIL ? ' <span class="admin-badge">admin</span>' : '') + '</div>' +
+              (name   ? '<div class="admin-user-name">'  + name    + '</div>' : '') +
+              (u.since ? '<div class="admin-user-stats">Inscrit le : ' + u.since + '</div>' : '') +
+              '</div>';
+          }).join('');
+        }
+      } else {
+        /* KV non configuré ou erreur serveur → fallback localStorage */
+        renderLocalUsers();
+      }
+    } catch(e) {
+      renderLocalUsers();
+    }
+
+    /* ── Conversations ── */
+    if (!msgList) return;
+    if (!kvOk) {
+      msgList.innerHTML = '<p class="reseau-empty">Les conversations nécessitent Vercel KV.</p>';
+    } else {
+      try {
+        var mRes = await fetch('/api/social?action=admin_messages&caller=' + encodeURIComponent(SW_AUTH.ADMIN_EMAIL));
+        if (mRes.ok) {
+          var index = await mRes.json();
+          if (!index.length) {
+            msgList.innerHTML = '<p class="reseau-empty">Aucune conversation.</p>';
+          } else {
+            msgList.innerHTML = index.map(function(item) {
+              var label = item.type === 'dm'
+                ? '💬 ' + item.from + ' ↔ ' + item.to
+                : '👥 ' + item.name + ' (par ' + item.creator + ')';
+              return '<div class="admin-msg-row" data-type="' + item.type + '" data-target="' + item.key + '">' +
+                label + ' <span class="admin-see-link">Voir ›</span></div>';
+            }).join('');
+            msgList.querySelectorAll('.admin-msg-row').forEach(function(row) {
+              row.addEventListener('click', function() {
+                adminReadThread(row.dataset.type, row.dataset.target, row.textContent.replace('Voir ›','').trim());
+              });
+            });
+          }
+        } else {
+          msgList.innerHTML = '<p class="reseau-empty">Erreur de chargement des conversations.</p>';
+        }
+      } catch(e) {
+        msgList.innerHTML = '<p class="reseau-empty">Erreur de chargement.</p>';
+      }
+    }
+
+    /* Back button for thread panel */
+    var backBtn = document.getElementById('admin-thread-back');
+    if (backBtn && !backBtn._bound) {
+      backBtn._bound = true;
+      backBtn.addEventListener('click', function() {
+        document.getElementById('admin-thread-panel').style.display = 'none';
+      });
+    }
+  }
+
+  async function adminReadThread(type, target, title) {
+    var panel   = document.getElementById('admin-thread-panel');
+    var titleEl = document.getElementById('admin-thread-title');
+    var msgsEl  = document.getElementById('admin-thread-messages');
+    if (!panel || !msgsEl) return;
+    if (titleEl) titleEl.textContent = title;
+    panel.style.display = 'block';
+    msgsEl.innerHTML = '<p class="reseau-empty">Chargement…</p>';
+    try {
+      var r = await fetch('/api/social?action=admin_read_thread&caller=' +
+        encodeURIComponent(SW_AUTH.ADMIN_EMAIL) + '&type=' + type + '&target=' + encodeURIComponent(target));
+      var msgs = r.ok ? await r.json() : [];
+      if (!msgs.length) { msgsEl.innerHTML = '<p class="reseau-empty">Aucun message.</p>'; return; }
+      msgsEl.innerHTML = msgs.map(function(m) {
+        var time = new Date(m.ts).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return '<div class="chat-msg other">' +
+          '<div class="chat-from">' + m.from + '</div>' +
+          '<div class="chat-bubble">' + m.text + '</div>' +
+          '<div class="chat-time">' + time + '</div></div>';
+      }).join('');
+      panel.scrollIntoView({ behavior: 'smooth' });
+    } catch(e) {
+      msgsEl.innerHTML = '<p class="reseau-empty">Erreur de chargement.</p>';
+    }
+  }
+
+  /* Logout (header + profil tab) */
+  function doLogout() { SW_AUTH.logout(); location.reload(); }
+  var logoutBtn       = document.getElementById('btn-logout');
+  var logoutProfilBtn = document.getElementById('btn-logout-profil');
+  if (logoutBtn)       logoutBtn.addEventListener('click', doLogout);
+  if (logoutProfilBtn) logoutProfilBtn.addEventListener('click', doLogout);
+
+  if (SW_AUTH.isLoggedIn()) {
+    showApp();
+  } else {
+    document.getElementById('login-overlay').style.display = 'flex';
+
+    /* ── Mode toggle: Connexion / Inscription ── */
+    var loginMode      = 'login'; /* 'login' | 'register' */
+    var tabLogin       = document.getElementById('login-tab-login');
+    var tabRegister    = document.getElementById('login-tab-register');
+    var confirmGroup   = document.getElementById('login-confirm-group');
+    var loginHint      = document.getElementById('login-hint');
+    var loginBtn       = document.getElementById('btn-login');
+    var loginErr       = document.getElementById('login-error');
+
+    function switchMode(mode) {
+      loginMode = mode;
+      tabLogin.classList.toggle('active', mode === 'login');
+      tabRegister.classList.toggle('active', mode === 'register');
+      confirmGroup.style.display = mode === 'register' ? 'block' : 'none';
+      loginBtn.textContent       = mode === 'register' ? "CRÉER MON COMPTE" : "SE CONNECTER";
+      loginHint.textContent      = mode === 'register'
+        ? 'Déjà un compte ? Clique sur "Se connecter".'
+        : 'Pas encore de compte ? Clique sur "Créer un compte".';
+      if (loginErr) loginErr.style.display = 'none';
+    }
+
+    tabLogin.addEventListener('click',    function() { switchMode('login'); });
+    tabRegister.addEventListener('click', function() { switchMode('register'); });
+
+    loginBtn.addEventListener('click', async function() {
+      var email   = (document.getElementById('login-email').value || '').trim();
+      var pwd     = document.getElementById('login-pwd').value || '';
+      var pwdConf = document.getElementById('login-pwd-confirm').value || '';
+      loginBtn.disabled = true;
+      loginBtn.textContent = '...';
+      if (loginErr) loginErr.style.display = 'none';
+
+      var result;
+      if (loginMode === 'register') {
+        if (pwd !== pwdConf) {
+          result = { ok: false, err: 'Les mots de passe ne correspondent pas' };
+        } else {
+          result = await SW_AUTH.register(email, pwd);
+        }
+      } else {
+        result = await SW_AUTH.login(email, pwd);
+      }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = loginMode === 'register' ? "CRÉER MON COMPTE" : "SE CONNECTER";
+      if (result.ok) {
+        showApp();
+      } else {
+        if (loginErr) { loginErr.textContent = result.err; loginErr.style.display = 'block'; }
+      }
+    });
+
+    /* Enter key on any field */
+    ['login-email', 'login-pwd', 'login-pwd-confirm'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
+    });
+  }
 })();
 </script>
 
